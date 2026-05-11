@@ -1,0 +1,43 @@
+# Secrets / local config
+.env
+.env.*
+!.env.example
+.envrc
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# uv
+.uv/
+
+# Pointer-gated large artifacts (per .env paths)
+references/
+checkpoints/
+data/
+logs/
+profiles/
+
+# JAX / XLA / TPU dumps
+*.profile.json.gz
+xla_dumps/
+tensorboard/
+
+# Weights & Biases local state
+wandb/
+
+# HuggingFace local caches if HF_HOME points inside the repo
+.cache/huggingface/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
