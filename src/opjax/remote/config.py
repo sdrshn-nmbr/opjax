@@ -33,6 +33,7 @@ EXPECTED_SECRET_KEYS = ("HF_TOKEN", "ANTHROPIC_API_KEY", "WANDB_API_KEY")
 REMOTE_IMAGE_PACKAGES = (
     "anthropic==0.97.0",
     "chex==0.1.91",
+    "dialog @ git+https://github.com/google-deepmind/dialog.git",
     "gemma @ git+https://github.com/google-deepmind/gemma.git",
     "google-tunix @ git+https://github.com/google/tunix.git",
     "hf-transfer==0.1.9",

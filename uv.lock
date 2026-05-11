@@ -664,7 +664,7 @@ wheels = [
 [[package]]
 name = "dialog"
 version = "1.0.0"
-source = { registry = "https://pypi.org/simple" }
+source = { git = "https://github.com/google-deepmind/dialog.git#9826c308a45c4435965782741135e1a0716fbf42" }
 dependencies = [
     { name = "anywidget" },
     { name = "etils", extra = ["enp", "epath", "epy"] },
@@ -674,10 +674,6 @@ dependencies = [
     { name = "pillow" },
     { name = "pydub" },
     { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/6c/e6/67e8e7f14f0ca9396c34ad5d762cf159a1e49fc2e1a1b29566d4132b749a/dialog-1.0.0.tar.gz", hash = "sha256:9a0bbc5c48491942433fb2dde5db362f705385d36f975c316c2c9b9d71b999b5", size = 305694, upload-time = "2026-02-10T14:05:52.699Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/90/2c/f7034927f6e6a6d97bec0d621674b8e62162f90d06474dd5fa11637b07cd/dialog-1.0.0-py3-none-any.whl", hash = "sha256:ca3abbb059454993180c018e0acd12355365a4bb975d873b636599c7cd8b2d49", size = 318412, upload-time = "2026-02-10T14:05:50.917Z" },
 ]
 
 [[package]]
@@ -2782,6 +2778,7 @@ source = { editable = "." }
 dependencies = [
     { name = "anthropic" },
     { name = "chex" },
+    { name = "dialog" },
     { name = "gemma" },
     { name = "google-tunix" },
     { name = "jaxtyping" },
@@ -2801,6 +2798,7 @@ dev = [
 requires-dist = [
     { name = "anthropic", specifier = "==0.97.0" },
     { name = "chex", specifier = "==0.1.91" },
+    { name = "dialog", git = "https://github.com/google-deepmind/dialog.git" },
     { name = "gemma", git = "https://github.com/google-deepmind/gemma.git" },
     { name = "google-tunix", git = "https://github.com/google/tunix.git" },
     { name = "jaxtyping", specifier = "==0.3.9" },

@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.14"
 dependencies = [
     "anthropic==0.97.0",
     "chex==0.1.91",
+    "dialog",
     "gemma",
     "google-tunix",
     "jaxtyping==0.3.9",
@@ -35,3 +36,4 @@ pythonpath = ["src"]
 [tool.uv.sources]
 google-tunix = { git = "https://github.com/google/tunix.git" }
 gemma = { git = "https://github.com/google-deepmind/gemma.git" }
+dialog = { git = "https://github.com/google-deepmind/dialog.git" }
