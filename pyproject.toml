@@ -1,0 +1,30 @@
+[project]
+name = "opjax"
+version = "0.1.0"
+description = "Operator-from-Scratch in JAX: GUI-agent training playground."
+requires-python = ">=3.12,<3.14"
+dependencies = [
+    "anthropic==0.97.0",
+    "chex==0.1.91",
+    "jaxtyping==0.3.9",
+    "modal==1.4.2",
+    "orbax-checkpoint==0.11.39",
+    "pillow==12.2.0",
+    "wandb==0.26.1",
+]
+
+[project.scripts]
+opjax = "opjax.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest==9.0.3",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
