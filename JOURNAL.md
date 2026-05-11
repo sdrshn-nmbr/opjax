@@ -26,6 +26,8 @@ During Phase 3:
 - Pivoted to `gemma4_metadata_probe` (CPU, Orbax manifest only, no weight load). **14.8s end-to-end.** No GPU needed for schema discovery.
 - Patched `gemma4_load_probe` v2 with explicit bf16 cast of `metadata.item_metadata.tree` before `ckpt.restore` — cast happens BEFORE materialization, so f32 never lands on device. Should resolve OOM; deferred until needed (the sweep) since metadata probe is enough for now.
 
+**`gemma4_load_probe` v2 succeeded:** bf16-cast restore loaded 51.6 GB resident on H100 cuda:0 in 19.79 min (first-time GCS stream of 96 GB). `vision_encoder.entry.pos_emb` confirmed at `bfloat16` `[10240, 2, 1152]` on device — bf16 cast happens during materialization, f32 never lands in HBM. Plan-anticipated risk ("MaxText 26B doesn't fit on H100") mitigated without descending to fallbacks.
+
 **Probe results (gemma-4-26B-A4B-it):**
 - Total params: 25,806,083,662 (matches "26B"). bf16 size: 51.6 GB. All 619 leaves f32 on disk.
 - Top-level keys: `embedder`, `final_norm`, `layer_0..layer_29`, `vision_encoder`. Vision subtree: `vision_encoder.{entry,standardize,transformer}`.
