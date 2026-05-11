@@ -1,0 +1,26 @@
+---
+interface Props {
+  number: number;
+  title: string;
+  pageStart?: number;
+  pageEnd?: number;
+}
+
+const { number, title, pageStart, pageEnd } = Astro.props;
+const pages =
+  pageStart && pageEnd
+    ? pageStart === pageEnd
+      ? `p. ${pageStart}`
+      : `pp. ${pageStart}–${pageEnd}`
+    : null;
+---
+
+<header class="chapter-opener">
+  <span class="chapter-numeral">{String(number).padStart(2, '0')}</span>
+  <div class="chapter-eyebrow">Chapter · Inference Engineering</div>
+  <h2 class="chapter-title">{title}</h2>
+  <div class="chapter-meta">
+    <span><span class="chapter-meta-key">By</span>Philip Kiely</span>
+    {pages && <span><span class="chapter-meta-key">Pages</span>{pages}</span>}
+  </div>
+</header>

@@ -1,0 +1,30 @@
+---
+import type { ChapterMeta } from '../data/chapter-meta';
+
+interface Props {
+  chapter: ChapterMeta;
+}
+
+const { chapter } = Astro.props;
+const sourceLabel = chapter.sourceUrl
+  .replace(/^https?:\/\//, '')
+  .replace(/\/$/, '');
+---
+
+<header class="chapter-opener">
+  <span class="chapter-numeral">{String(chapter.number).padStart(2, '0')}</span>
+  <div class="chapter-eyebrow">Chapter · {chapter.publication}</div>
+  <h2 class="chapter-title">{chapter.title}</h2>
+  <div class="chapter-meta">
+    <span><span class="chapter-meta-key">By</span>{chapter.byline}</span>
+    <span><span class="chapter-meta-key">Originally</span>{chapter.date}</span>
+    <span>
+      <span class="chapter-meta-key">Source</span>
+      <a href={chapter.sourceUrl} target="_blank" rel="noopener noreferrer">{sourceLabel}</a>
+    </span>
+  </div>
+  <aside class="chapter-learn">
+    <span class="chapter-learn-label">What you'll learn</span>
+    {chapter.learn}
+  </aside>
+</header>

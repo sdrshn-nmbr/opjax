@@ -1,0 +1,80 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import { parts } from '../data/parts';
+import { chapters } from '../data/chapter-meta';
+---
+
+<BookLayout title="Post-Training — A Book in Nine Parts">
+  <section class="cover">
+    <span class="cover-eyebrow">A Book in Nine Parts · Twenty-Three Chapters</span>
+    <h1 class="cover-title">Post-<em>Training</em></h1>
+    <p class="cover-subtitle">
+      A long-scrolling monograph on the methods, evaluations, and inference systems
+      that take a pre-trained open-weight language model and turn it into something
+      that does useful work — assembled from the research blogs of Baseten and
+      Thinking Machines Lab.
+    </p>
+    <div class="cover-meta">
+      <span>2025 — 2026</span>
+      <span>23 Source Posts</span>
+      <span>Verbatim, Cross-Linked, Typeset for Reading</span>
+    </div>
+  </section>
+
+  <section class="guide" id="guide">
+    <p>
+      Read top to bottom. Each Part is a long single-column scroll; the chapters
+      within a Part flow uninterrupted, separated only by a small ornamented rule.
+      Begin with the two strategic essays in Part I — they argue why this body of
+      work exists. Part II establishes the information-bandwidth lens that
+      everything afterwards uses. Parts III through IX build on those foundations:
+      methods, adapters, evaluation, applied search, memory, systems, and finally
+      interpretability.
+    </p>
+    <p>
+      Each chapter opens with a short pedagogical orientation written for this
+      edition. The body that follows is the original blog post, reproduced
+      verbatim with the author byline and a link back to the canonical source. A
+      glossary appendix at the end defines the recurring vocabulary that travels
+      between chapters.
+    </p>
+  </section>
+
+  <section class="toc" id="contents">
+    <header class="toc-header">
+      <div class="toc-eyebrow">Contents</div>
+    </header>
+    <div class="toc-parts">
+      {
+        parts.map((p) => {
+          const chs = chapters.filter((c) => c.partId === p.id);
+          return (
+            <article class="toc-part">
+              <div class="toc-part-numeral">{p.numeral}</div>
+              <div class="toc-part-body">
+                <div class="toc-part-eyebrow">{p.eyebrow}</div>
+                <h2 class="toc-part-title">
+                  <a href={`/part-${p.id}-${p.slug}`}>{p.title}</a>
+                </h2>
+                <p class="toc-part-blurb">{p.blurb}</p>
+                <ul class="toc-chapters">
+                  {chs.map((c) => (
+                    <li class="toc-chapter">
+                      <span class="toc-chapter-num">{String(c.number).padStart(2, '0')}</span>
+                      <a class="toc-chapter-title" href={`/part-${p.id}-${p.slug}#chapter-${c.number}`}>
+                        {c.title}
+                        <span class="toc-source">
+                          {c.publication.includes('Thinking') ? 'TM' : 'BSTN'}
+                        </span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
+  </section>
+</BookLayout>

@@ -1,0 +1,49 @@
+---
+import { getEntry } from 'astro:content';
+import PartLayout from '../layouts/PartLayout.astro';
+import ChapterOpener from '../components/ChapterOpener.astro';
+import SectionRule from '../components/SectionRule.astro';
+import { parts } from '../data/parts';
+import { chaptersForPart } from '../data/chapter-meta';
+
+export async function getStaticPaths() {
+  return parts.map((p) => ({
+    params: { partSlug: `part-${p.id}-${p.slug}` },
+    props: { partId: p.id },
+  }));
+}
+
+interface Props {
+  partId: number;
+}
+
+const { partId } = Astro.props;
+const chs = chaptersForPart(partId);
+
+const rendered = await Promise.all(
+  chs.map(async (c) => {
+    const entry = await getEntry('chapters', c.slug);
+    if (!entry) {
+      throw new Error(
+        `Missing content entry for chapter slug "${c.slug}". Did you run \`pnpm run sync\`?`,
+      );
+    }
+    const { Content } = await entry.render();
+    return { meta: c, Content };
+  }),
+);
+---
+
+<PartLayout partId={partId}>
+  {
+    rendered.map(({ meta, Content }, i) => (
+      <article class="chapter" id={`chapter-${meta.number}`}>
+        <ChapterOpener chapter={meta} />
+        <div class="chapter-body">
+          <Content />
+        </div>
+        {i < rendered.length - 1 && <SectionRule />}
+      </article>
+    ))
+  }
+</PartLayout>
