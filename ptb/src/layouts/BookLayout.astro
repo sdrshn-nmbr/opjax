@@ -1,0 +1,65 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = 'A long-scrolling digital monograph on post-training open-source language models — assembled verbatim from the research blogs of Baseten and Thinking Machines Lab.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <script is:inline>
+      (() => {
+        try {
+          const t = localStorage.getItem('ptb-theme');
+          if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <nav class="topnav" aria-label="Primary">
+      <a href="/" class="topnav-brand">Post-Training</a>
+      <div class="topnav-right">
+        <a href="/#contents">Contents</a>
+        <a href="/glossary">Glossary</a>
+        <button type="button" class="theme-toggle" aria-label="Toggle color theme" data-theme-toggle>
+          <span class="theme-label-dark">Light</span><span class="theme-label-light">Dark</span>
+        </button>
+      </div>
+    </nav>
+    <script is:inline>
+      (() => {
+        const btn = document.querySelector('[data-theme-toggle]');
+        if (!btn) return;
+        const mql = window.matchMedia('(prefers-color-scheme: light)');
+        const current = () => {
+          const explicit = document.documentElement.getAttribute('data-theme');
+          return explicit || (mql.matches ? 'light' : 'dark');
+        };
+        btn.addEventListener('click', () => {
+          const next = current() === 'light' ? 'dark' : 'light';
+          document.documentElement.setAttribute('data-theme', next);
+          try { localStorage.setItem('ptb-theme', next); } catch (e) {}
+        });
+      })();
+    </script>
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

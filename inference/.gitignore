@@ -1,0 +1,17 @@
+# Local-only reader. Verbatim PDF content must never be tracked or pushed.
+node_modules/
+dist/
+.astro/
+
+# Extracted book content (verbatim, personal-use only)
+src/content/chapters/
+src/assets/figures/
+src/data/inference-toc.json
+
+# Source PDF, in case it ever lands inside the project tree
+*.pdf
+
+# OS / editor noise
+.DS_Store
+.vscode/
+.idea/

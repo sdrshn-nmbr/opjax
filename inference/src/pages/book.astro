@@ -1,0 +1,46 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import ChapterOpener from '../components/ChapterOpener.astro';
+import SectionRule from '../components/SectionRule.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('chapters');
+const sorted = entries.sort((a, b) => a.data.chapter - b.data.chapter);
+
+const rendered = await Promise.all(
+  sorted.map(async (e) => {
+    const { Content } = await e.render();
+    return {
+      slug: e.slug,
+      data: e.data,
+      Content,
+    };
+  }),
+);
+---
+
+<BookLayout title="Inference Engineering — Read">
+  {rendered.length === 0 ? (
+    <section class="guide">
+      <p>
+        No chapters available. Run <code>pnpm run extract</code> to populate
+        <code>src/content/chapters/</code> from the source PDF, then reload.
+      </p>
+    </section>
+  ) : (
+    rendered.map(({ data, Content }, i) => (
+      <article class="chapter" id={`chapter-${data.chapter}`}>
+        <ChapterOpener
+          number={data.chapter}
+          title={data.title}
+          pageStart={data.pageStart}
+          pageEnd={data.pageEnd}
+        />
+        <div class="chapter-body">
+          <Content />
+        </div>
+        {i < rendered.length - 1 && <SectionRule />}
+      </article>
+    ))
+  )}
+</BookLayout>

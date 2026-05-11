@@ -1,0 +1,60 @@
+---
+import BookLayout from './BookLayout.astro';
+import { parts, partById } from '../data/parts';
+import { chaptersForPart } from '../data/chapter-meta';
+
+interface Props {
+  partId: number;
+}
+
+const { partId } = Astro.props;
+const part = partById(partId);
+if (!part) throw new Error(`Unknown part: ${partId}`);
+const chs = chaptersForPart(partId);
+const prev = parts.find((p) => p.id === partId - 1);
+const next = parts.find((p) => p.id === partId + 1);
+---
+
+<BookLayout title={`${part.eyebrow} — ${part.title} · Post-Training`}>
+  <header class="part-opener" data-numeral={part.numeral}>
+    <span class="part-eyebrow">{part.eyebrow}</span>
+    <h1 class="part-title">{part.title}</h1>
+    <p class="part-blurb">{part.blurb}</p>
+    <nav class="part-toc" aria-label="Chapters in this part">
+      <div class="part-toc-label">Chapters in this Part</div>
+      <ol>
+        {
+          chs.map((c) => (
+            <li data-num={String(c.number).padStart(2, '0')}>
+              <a href={`#chapter-${c.number}`}>{c.title}</a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+  </header>
+
+  <slot />
+
+  <footer class="footnav" aria-label="Part navigation">
+    <div class="footnav-prev">
+      {
+        prev ? (
+          <a href={`/part-${prev.id}-${prev.slug}`}>{prev.eyebrow} · {prev.title}</a>
+        ) : (
+          <a href="/">Return to cover</a>
+        )
+      }
+    </div>
+    <div class="footnav-home"><a href="/#contents">Contents</a></div>
+    <div class="footnav-next">
+      {
+        next ? (
+          <a href={`/part-${next.id}-${next.slug}`}>{next.eyebrow} · {next.title}</a>
+        ) : (
+          <a href="/glossary">Glossary appendix</a>
+        )
+      }
+    </div>
+  </footer>
+</BookLayout>
