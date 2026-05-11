@@ -1,0 +1,56 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import { glossary } from '../data/glossary';
+import { partById } from '../data/parts';
+import { chapters } from '../data/chapter-meta';
+
+const slugify = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+---
+
+<BookLayout title="Glossary — Post-Training">
+  <header class="part-opener" data-numeral="✦">
+    <span class="part-eyebrow">Appendix</span>
+    <h1 class="part-title">Glossary</h1>
+    <p class="part-blurb">
+      The recurring vocabulary of post-training, defined once. Each entry links
+      back to the chapter where the concept is most deeply discussed.
+    </p>
+  </header>
+
+  <section class="glossary">
+    <ul class="glossary-list">
+      {
+        glossary.map((g) => {
+          const chap = chapters.find((c) => c.number === g.firstChapter);
+          const part = chap ? partById(chap.partId) : undefined;
+          return (
+            <li class="glossary-entry" id={slugify(g.term)}>
+              <h3 class="glossary-term">
+                {g.term}
+                {g.acronym && <span class="glossary-acronym">{g.acronym}</span>}
+              </h3>
+              <p class="glossary-def">{g.definition}</p>
+              {chap && part && (
+                <div class="glossary-ref">
+                  First deeply discussed in{' '}
+                  <a href={`/part-${part.id}-${part.slug}#chapter-${chap.number}`}>
+                    Chapter {chap.number} — {chap.title}
+                  </a>
+                </div>
+              )}
+            </li>
+          );
+        })
+      }
+    </ul>
+  </section>
+
+  <footer class="footnav" aria-label="Glossary navigation">
+    <div class="footnav-prev">
+      <a href="/part-9-interpretability">Part IX · Looking Inside the Model</a>
+    </div>
+    <div class="footnav-home"><a href="/#contents">Contents</a></div>
+    <div class="footnav-next"><a href="/">Cover</a></div>
+  </footer>
+</BookLayout>
