@@ -26,6 +26,8 @@ During Phase 3:
 - Pivoted to `gemma4_metadata_probe` (CPU, Orbax manifest only, no weight load). **14.8s end-to-end.** No GPU needed for schema discovery.
 - Patched `gemma4_load_probe` v2 with explicit bf16 cast of `metadata.item_metadata.tree` before `ckpt.restore` — cast happens BEFORE materialization, so f32 never lands on device. Should resolve OOM; deferred until needed (the sweep) since metadata probe is enough for now.
 
+**Pre-stage abandoned (premature optimization).** Started `gemma4_prestage_to_volume` to mirror 96 GB GCS → `/mnt/hf-cache/orbax/gemma4-26b-a4b-it`, expecting subsequent loads to be ~3-5 min instead of ~20 min. Reality: urllib serial downloads at ~1 GB/min vs load_probe's tensorstore-parallel streaming at ~5 GB/min. After 53 min, 56% done (18/32 chunks). Killed and removed partial checkpoint. Decision: rely on `@modal.enter` keeping the model resident in HBM across method calls — load cost amortized across the entire Tzafon sweep. If we later want true fast reloads for many independent container starts, rewrite the stager to use `concurrent.futures.ThreadPoolExecutor` or `tensorstore.copy()`.
+
 **`gemma4_load_probe` v2 succeeded:** bf16-cast restore loaded 51.6 GB resident on H100 cuda:0 in 19.79 min (first-time GCS stream of 96 GB). `vision_encoder.entry.pos_emb` confirmed at `bfloat16` `[10240, 2, 1152]` on device — bf16 cast happens during materialization, f32 never lands in HBM. Plan-anticipated risk ("MaxText 26B doesn't fit on H100") mitigated without descending to fallbacks.
 
 **Probe results (gemma-4-26B-A4B-it):**
