@@ -33,14 +33,20 @@ EXPECTED_SECRET_KEYS = ("HF_TOKEN", "ANTHROPIC_API_KEY", "WANDB_API_KEY")
 REMOTE_IMAGE_PACKAGES = (
     "anthropic==0.97.0",
     "chex==0.1.91",
+    "gemma @ git+https://github.com/google-deepmind/gemma.git",
+    "google-tunix @ git+https://github.com/google/tunix.git",
     "hf-transfer==0.1.9",
     "huggingface-hub==0.36.2",
     "jax[cuda12]==0.10.0",
     "jaxtyping==0.3.9",
     "orbax-checkpoint==0.11.39",
     "pillow==12.2.0",
+    "qwix>=0.1.6",
     "wandb==0.26.1",
 )
+
+GEMMA4_GCS_BUCKET = "gs://gemma-data/checkpoints"
+GEMMA4_26B_A4B_IT = f"{GEMMA4_GCS_BUCKET}/gemma4-26b-a4b-it"
 
 REMOTE_ENV = {
     "HF_HOME": HF_CACHE_DIR,
