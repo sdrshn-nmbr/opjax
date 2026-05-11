@@ -190,17 +190,97 @@ Phase 3.5 OPSD merge (3 frozen teachers + 1 student forward pass, single H100):
 - Tzafon sweep: 6 scaling factors × 50 click tasks per tier × 3 tiers = 900 forwards
   × 0.8s ≈ 12 minutes pure compute. Plus model load (~30s) + warmup. Under an hour.
 
+**Follow-ups:** see "Phase 1A loader pivot" entry below — the Tunix gemma4 module
+turned out to be text-only, so we switched to `references/gemma` (DeepMind Linen
+canonical impl) for the probe.
+
+---
+
+## 2026-05-11 — Phase 1A loader pivot: Tunix gemma4 is text-only
+
+**Discovery:** Tunix's `tunix/models/gemma4/` ships **without a vision encoder**.
+The `model.py` references `vision_proj` / `vision_soft_emb_norm_weight` only in
+`ShardingConfig` (placeholder for future intent). `params_safetensors.py` has
+zero vision mappings. `sampling_example.ipynb` is text-only. By contrast,
+`tunix/models/gemma3/` is fully multimodal — has `vision.py` with NNX SigLIP
+encoder, `merge_embeddings.py`, and `vision_encoder = vision.SigLiP(...)`
+integration into `Gemma3`.
+
+**Recon agent finding (issue #1380, 2026-04-09):** maintainer `s-noghabi` stated
+2026-04-28 that vision support for Gemma 4 is "on our roadmap for this quarter."
+Internal Google work (copybara) is likely underway and invisible to us until a
+PR drops. External-PR throughput is dire (Qwen3-VL PR #1177 stalled 10+ weeks),
+making upstream contribution lower-EV than originally framed.
+
+**Loader switched: use `gemma` (from `github.com/google-deepmind/gemma`, Flax
+Linen) for Phase 1A.** Tunix kept installed for trainers (SFT PeftTrainer, GRPO,
+distillation) — it doesn't need to host the model architecture, just consume a
+Flax model. Two model frameworks coexist for now; reconcile when/if Tunix ships
+gemma4 vision.
+
+**Action on Tunix vision support:** **Do NOT write the port.** Comment on issue
+#1380 with a +1 / use case, offer help with a graceful out so "no thanks we've
+got it" is the easy answer. Monitor `copybara-service[bot]` PRs touching
+`tunix/models/gemma4/vision.py`. 2-3 week clock before reconsidering.
+
+---
+
+## 2026-05-11 — Probe failure analysis: GCS Orbax stores f32, loader doesn't cast
+
+**Failure:** First `gemma4_load_probe` attempt (GPU H100, called
+`gemma.gm.ckpts.load_params`) OOM'd at ~6 min in: "Allocator (GPU_0_bfc) ran out
+of memory trying to allocate 1.89 GiB."
+
+**Root cause:** I had documented earlier (in this same file) that the GCS Orbax
+loader "bf16-casts on restore." That is **wrong** — the bf16 cast in
+`_checkpoint.py:295-321` only applies to the multimodal embedder f32 retention
+hack at the very end. The bulk of the param tree restores at whatever dtype
+the checkpoint stored, which for GCS Orbax is **float32** (confirmed: all 619
+leaves in `gemma4-26b-a4b-it` are f32 on disk).
+
+Numerical confirmation: GCS bucket 95.7 GB ÷ 25.8B params = 3.71 bytes/param.
+That's f32 (4 bytes) for most leaves with a thin layer of bf16 metadata —
+matches the f32 leaf count exactly.
+
+**Mitigation:** added `gemma4_metadata_probe` (CPU, manifest-only, no weight
+load) that reads the schema in ~15s. For the eventual sweep, `gemma4_load_probe`
+v2 was patched to bf16-cast `meta.item_metadata.tree` before `ckpt.restore` —
+casts happen *before* materialization, so f32 never lands on device.
+
+**Lesson:** separate metadata probes from weight probes. Schema discovery is
+cheap, never needs HBM; weight loading is expensive, needs careful precision
+management. Conflating them produces the f32-OOM failure mode.
+
+---
+
+## 2026-05-11 — Phase 1A schema lock: pos_emb located
+
+**Tzafon scaling target confirmed:**
+- Path: `vision_encoder.entry.pos_emb`
+- Shape: `[10240, 2, 1152]`, dtype float32 on disk
+- Param count: 23,592,960 (~24M) — tiny fraction of the 25.8B total
+
+**Shape interpretation (factorized pos_emb):** The `(G=10240, axis_pair=2,
+d_model=1152)` decomposes spatial positions: `pos_emb[g, 0, :]` is the
+embedding for the x-coordinate at grid position g; `pos_emb[g, 1, :]` is the
+y-coordinate embedding. Lookup is additive (`lookup_x + lookup_y`), and bilinear
+interpolation handles input grids smaller than G. The `assert
+pos_emb_shape_yx[-1] == 2` in `gemma/gm/nn/gemma4/vision/_layers.py:53`
+documents this contract.
+
+**Why factorized:** dramatic param savings. Full 2D pos_emb at G=10240 would be
+`10240^2 × 1152 ≈ 121B params`. Factorized is `10240 × 2 × 1152 ≈ 24M`. 5000x
+smaller. Tzafon's claim is that *multiplicative scaling of this 24M-param tensor*
+shifts the vision tower's spatial-prior weight versus content-content attention,
+yielding the 30-40pt click-accuracy lift on Qwen3-VL — we now have the
+parameter to test that on Gemma 4.
+
 **Follow-ups:**
-- Add `tunix` package to `pyproject.toml` and `REMOTE_IMAGE_PACKAGES`. Investigate
-  whether Tunix can be installed from PyPI or must be installed from
-  `references/tunix` (editable). Probably needs `flax==<latest nnx>`, `optax`,
-  `grain`, `qwix` as transitive deps.
-- Add a `gemma4_load_probe` Modal entrypoint: load `google/gemma-4-26B-A4B-it` via
-  `tunix.models.gemma4.params_safetensors.load_params`, report param tree shape
-  summary + presence of vision_encoder.pos_emb with its concrete shape.
-- Stage HF safetensors to `opjax-hf-cache-v2` via `huggingface_hub.snapshot_download`
-  on first run; subsequent loads hit cache.
-- Update plan: FP4/AQT investigation added to Phase 3.5 pre-work; CPU host
-  offloading kept as primary fallback; TRC TPU as secondary fallback.
-- Investigate whether Tunix `gemma4/model.py` works on GPU (it uses TPU-Pallas
-  `splash_attention_kernel`; need to confirm GPU fallback path exists or wire one).
+- Next probe step: load weights at bf16 via `gemma4_load_probe` v2; confirm
+  bf16 cast resolves the OOM and the resulting param tree exposes
+  `vision_encoder.entry.pos_emb` with the expected shape on device.
+- After that: wire a single forward-pass smoke test (one click task → model
+  emits something) before any sweep.
+- Then: Tzafon sweep — multiplicatively scale `params['vision_encoder']['entry']
+  ['pos_emb']` by k ∈ {1.0, 1.5, 2, 3, 5, 10}, measure click accuracy across
+  the 3 synthetic tiers (target / distractors / button).
