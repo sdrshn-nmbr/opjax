@@ -47,3 +47,38 @@ During Phase 3:
 - Architecture confirmed: 30 layers, embed=2816, heads=16, kv_heads=8 (global=2), head_dim=256, MoE 128 experts top_k=8 expert_dim=704, sliding_window=1024, 5L+1G attention pattern.
 - All Gemma 4 variants ungated; HF safetensors stored bf16; GCS Orbax stored mostly f32.
 - Decision and full rationale in `docs/design-notes.md`.
+
+**`smoke_image` v7 passed on H200 — first multimodal click inference.** After a
+seven-fix chain over six attempts, `smoke_image` returned `ok=true` on Gemma 4
+26B-A4B-it. Load 612.6s cold from GCS, one click inference 168.62s wall-clock.
+Model output: `<|channel>thought\n<channel|><start_function_call>call:click
+{x:251,y:102}<end_function_call><turn|>`. The seven fixes (in order
+discovered): (1) `dialog @ git` instead of PyPI for the `Format` enum;
+(2) un-mask `_safe_probe_error` so the real Gemma 4 image-marker error
+surfaced; (3) `<|image|>` marker (Gemma 3's `<start_of_image>` is deprecated);
+(4) `images=[image]` list-wrap (Gemma 4 iterates the kwarg); (5)
+`Gemma4_26B_A4B(text_only=False)` (the class field defaults True, strips
+vision encoder); (6) `ChatSampler(cache_length=2048, max_out_length=256)`
+buffer reduction; (7) `GPU_TYPE = "H200"` — H100's 80 GB couldn't absorb
+multimodal prefill activation peak under JIT, even after buffer reduction.
+H200's 141 GB HBM3e fits comfortably. Full chain documented in design-notes.
+
+**Parser extension (`actions.parse_function_call`):** base Gemma 4 emits bare
+comma-separated args (`x:251,y:102`) without the canonical FunctionGemma
+`<escape>` tokens. Added `_BARE_ARG_RE` fallback — strict escape-wrapped form
+still primary regex, bare form only used if strict yields nothing AND body is
+non-empty. Two new tests added, all 12 pass. Phase 1 SFT remains the canonical
+escape-wrapped target; this is just a recovery hatch for the un-SFT'd base.
+
+3. **Don't understand yet:** Whether the warm container will actually persist
+across separate `modal run` invocations (no edits between) given Modal's
+scale-down semantics — the design intent is `scaledown_window=1800`, but it
+will be empirical. Also: the model picked (251, 102) for a Submit button at
+(478, 68) — distance ~227 px on a 640×480 image. That's WAY off, but at
+k=1.0 (no scaling), no SFT, this is the un-improved baseline. The Tzafon
+sweep's signal is *whether some k makes this distance shrink*.
+
+4. **What's next:** run `tzafon_sweep` on the warm container — 6 scaling
+factors × ≤3 tasks × 3 tiers = up to 54 inferences. ~2 minutes per inference
+at the v7 rate ⇒ ~2 hour wall-clock. Outputs JSON-per-(scale,tier,task) with
+verification.distance_px, plus a summary plot if time permits.

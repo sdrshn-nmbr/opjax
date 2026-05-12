@@ -284,3 +284,98 @@ parameter to test that on Gemma 4.
 - Then: Tzafon sweep — multiplicatively scale `params['vision_encoder']['entry']
   ['pos_emb']` by k ∈ {1.0, 1.5, 2, 3, 5, 10}, measure click accuracy across
   the 3 synthetic tiers (target / distractors / button).
+
+---
+
+## 2026-05-11 — End-to-end multimodal click inference works (H200, 7-fix chain)
+
+**Result:** `smoke_image` v7 returned `ok=true` on H200. First confirmed
+multimodal click inference through Gemma 4 26B-A4B-it on Modal.
+
+**The seven-fix chain (in order discovered):**
+
+1. **`dialog` pinned from git source.** PyPI `dialog==1.0.0` is missing the
+   `Format` enum that `gemma.gm.text.ChatSampler` imports. Symptom:
+   `AttributeError: module 'dialog' has no attribute 'Format'`. Fix: `uv add
+   "dialog @ git+https://github.com/google-deepmind/dialog.git"` and add a
+   matching pin to `REMOTE_IMAGE_PACKAGES`. Also added `gemma_import_smoke`
+   (22.75s CPU dep check) so future Python-dep mismatches surface before any
+   GPU spin-up.
+
+2. **`_safe_probe_error` un-masked.** My HF-discovery helper had been
+   rewriting ANY exception containing the substring "token" as a fake HF auth
+   failure. That swallowed the real Gemma 4 image-marker error on smoke_image
+   v1 and routed me on a 20-minute false-trail. Narrowed the rewrite to
+   `hf_gemma4_discovery` context with explicit "401" check; preserve raw
+   message + traceback otherwise.
+
+3. **`<|image|>` marker (not `<start_of_image>`).** Gemma 3's
+   `<start_of_image>` token is deprecated in Gemma 4's chat template. Symptom:
+   `ValueError: token <start_of_image> is deprecated; use <|image|> for Gemma
+   4`. Fix: change one string in `smoke_image`.
+
+4. **`images=[image]` list-wrap.** Gemma 4's `_preprocess_images` iterates
+   over the kwarg, so a bare PIL `Image` raises `TypeError: 'Image' object is
+   not iterable`. Fix: pass `images=[image]`.
+
+5. **`Gemma4_26B_A4B(text_only=False)`.** The class field
+   `_Gemma4Base.text_only: bool = True` defaults the model to text-only
+   construction (no vision encoder built at all). Symptom: `AssertionError:
+   vision_encoder is None` deep inside the forward. Fix: explicit
+   `text_only=False` at construction.
+
+6. **`ChatSampler(cache_length=2048, max_out_length=256)`.** Default
+   `cache_length=4096, max_out_length=2048` produced a ~12 GiB allocation at
+   decode on H100. Reducing both helped — but not enough; v6 still OOM'd on
+   H100 with the same 12.29 GiB allocator failure. The buffer reduction is
+   load-bearing for headroom but not the sole win.
+
+7. **`GPU_TYPE = "H200"`.** Multimodal prefill on Gemma 4 26B-A4B with vision
+   tower + global-attn KV creates an activation peak the H100's 80 GB cannot
+   absorb under JIT. H200 has 141 GB HBM3e — same architecture (Hopper), no
+   code changes required beyond the type string. The container loaded weights
+   (612.6s cold from GCS) and ran one inference end-to-end (168.62s including
+   prefill JIT).
+
+**Model output observation (drives parser change below):**
+```
+<|channel>thought
+<channel|><start_function_call>call:click{x:251,y:102}<end_function_call><turn|>
+```
+
+Two notable things:
+- Model natively emits a `<start_function_call>...<end_function_call>` wrapper
+  without any SFT exposure. Pretraining attractor. Encouraging.
+- It uses **bare comma-separated args** (`x:251,y:102`), not the canonical
+  FunctionGemma escape-wrapped form (`x:<escape>251<escape>,y:<escape>102
+  <escape>`). The `<escape>` token is FunctionGemma-specific; base Gemma 4
+  doesn't know to emit it.
+- Reasoning channel (`<|channel>thought ... <channel|>`) and turn boundary
+  (`<turn|>`) are surfaced verbatim by ChatSampler. Production would post-process
+  these; for the probe they don't matter.
+
+**Parser extension:** added `_BARE_ARG_RE` fallback to `actions.parse_function_call`.
+Strict escape-wrapped form remains the primary regex (canonical, the Phase 1
+SFT target); if it yields no arguments AND the body isn't empty, try bare-form
+parsing. Two new tests pin the v7 output literal and a whitespace-tolerant
+bare-form case. All 12 tests green.
+
+**Why fallback rather than permissive:** bare-form parsing on values with
+embedded commas (e.g., `type{text:"hello, world"}`) is ambiguous; escape
+tokens disambiguate. Keeping escape-form privileged means Phase 1 SFT
+targets the unambiguous grammar even though the un-SFT'd base emits a
+simpler one. This matches the plan's framing of Phase 2 reverse-distillation
+as "cleanup of format discipline" rather than first-time exposure.
+
+**Click accuracy at k=1.0 (no scaling):** target_xy=(478, 68), model predicted
+(251, 102). Distance ~227 pixels, target radius 29 — miss. Single task, no
+scaling, no SFT — the prior is poor as expected. The tzafon_sweep is the
+next call.
+
+**Follow-ups:**
+- Run `tzafon_sweep` on the warm H200 container (1.0, 1.5, 2, 3, 5, 10 ×
+  6 sample tasks × 3 tiers = 108 inferences). The container should stay warm
+  per `scaledown_window=1800` *if no code edits happen between runs*.
+- Don't bake any clean-up of `<|channel>thought` / `<turn|>` into the probe —
+  let those land in JOURNAL as raw, deal with them at Phase 1D when we're
+  shaping SFT data.
