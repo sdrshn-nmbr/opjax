@@ -35,7 +35,7 @@ REMOTE_IMAGE_PACKAGES = (
     "chex==0.1.91",
     "dialog @ git+https://github.com/google-deepmind/dialog.git",
     "gemma @ git+https://github.com/google-deepmind/gemma.git",
-    "google-tunix @ git+https://github.com/google/tunix.git",
+    "google-tunix @ git+https://github.com/sdrshn-nmbr/tunix.git@opjax/gemma4-vision-port",
     "hf-transfer==0.1.9",
     "huggingface-hub==0.36.2",
     "jax[cuda12]==0.10.0",

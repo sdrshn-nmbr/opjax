@@ -19,7 +19,10 @@ __pycache__/
 .uv/
 
 # Pointer-gated large artifacts (per .env paths)
-references/
+# references/* (contents ignored) but tunix is the one tracked
+# exception — see docs/design-notes for the Phase 1B port rationale
+references/*
+!references/tunix
 checkpoints/
 data/
 logs/

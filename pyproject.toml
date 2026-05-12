@@ -34,6 +34,6 @@ testpaths = ["tests"]
 pythonpath = ["src"]
 
 [tool.uv.sources]
-google-tunix = { git = "https://github.com/google/tunix.git" }
+google-tunix = { path = "references/tunix", editable = true }
 gemma = { git = "https://github.com/google-deepmind/gemma.git" }
 dialog = { git = "https://github.com/google-deepmind/dialog.git" }

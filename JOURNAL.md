@@ -153,3 +153,82 @@ the canonical SFT entrypoint for Phase 1D. Working hypothesis (carries
 forward from Phase 1A debug knowledge): `references/gemma` (Flax Linen,
 full multimodal) + Tunix PeftTrainer + qwix LoRA. MaxText probe pending
 decision below.
+
+---
+
+## 2026-05-12 — Phase 1B pivot: port Gemma 4 vision to Tunix NNX (in fork)
+
+**Decision:** Skip the MaxText half of Phase 1B. Instead, port Gemma 4
+vision encoder to Tunix NNX in a personal fork (`sdrshn-nmbr/tunix`,
+branch `opjax/gemma4-vision-port`) tracked as a submodule at
+`references/tunix`. This collapses the "which SFT loader?" decision into
+"can we make Tunix PeftTrainer accept multimodal Gemma 4?" — answered by
+doing the work.
+
+Why this beats both the formal Phase 1B (probe MaxText) and the
+short-circuit (declare references/gemma canonical and stay Linen-only):
+- **Highest JAX-learning density chunk available right now.** Touches
+  Flax NNX vs Linen state, factorized pos_emb lookup invariants, RoPE
+  coordination across modalities, qwix LoRA composition, soft-embedding
+  merge, Orbax checkpoint key mapping — five conceptually rich axes in
+  one feature. The "Sudarshan writes function bodies on conceptually
+  rich code" pair-contract pegs this as a max-density target.
+- **No SFT-loader fork-in-the-road later.** If we port, Phase 1D becomes
+  configuration; otherwise it's another design-decision sub-phase.
+- **PR pathway preserved.** The fork lives at github.com/sdrshn-nmbr/tunix
+  on branch opjax/gemma4-vision-port. If our port matures, offering it
+  back to Google via Tunix issue #1380 is just `gh pr create`.
+
+**Mechanical setup landed in this commit:**
+1. Forked `google/tunix` → `sdrshn-nmbr/tunix` via `gh repo fork`.
+2. Branch `opjax/gemma4-vision-port` pushed to fork.
+3. `references/tunix` converted from a read-only mirror clone to a git
+   submodule pointing at the fork branch. `.gitmodules` registered at
+   opjax root.
+4. `.gitignore` adjusted: `references/*` excludes contents broadly, with
+   `!references/tunix` as the one tracked exception. The "references is
+   read-only" convention is intentionally inverted for this submodule;
+   other reference mirrors (gemma, maxtext, cua, composer2, bstn, tm)
+   remain ignored.
+5. `pyproject.toml`: `google-tunix` source switched to editable path
+   `references/tunix` — local changes resolve immediately in `uv sync`.
+6. `REMOTE_IMAGE_PACKAGES`: Modal image now installs google-tunix from
+   `git+https://github.com/sdrshn-nmbr/tunix.git@opjax/gemma4-vision-port`
+   so cloud runs hit our fork's branch, not upstream.
+
+**Sub-task 1 scaffolded in this commit** (port `_layers.py`):
+- `references/tunix/tunix/models/gemma4/vision.py`: VisionEntry,
+  VisionExit, Standardize NNX skeletons. Helpers (`factorized_posemb`,
+  `patchify`) and `Standardize` fully implemented (mechanical
+  translations). VisionEntry and VisionExit have TODO bodies with
+  ★ Insight blocks at each slot explaining the design tradeoff to
+  internalize before writing the body.
+- `references/tunix/tests/models/gemma4/vision_test.py`: TDD baseline.
+  6 tests pass immediately (helpers + Standardize + VisionEntry init
+  shape). 6 tests RED (VisionEntry.__call__, VisionExit pooling) —
+  these GREEN when the user writes the bodies.
+
+**Sub-task sequence** (each lands its own commit on the fork branch,
+each pushable as its own PR if we go upstream):
+1. ✓ Scaffold + TDD baseline (this commit, fork SHA 2b039f44)
+2. VisionEntry.__call__ + VisionExit pooling bodies (user implements)
+3. Port `_transformer.py` + `_modules.py` + `_norms.py` (vision
+   transformer body)
+4. Port `_encoder.py` (top-level VisionEncoder wiring)
+5. Extend `tunix/models/gemma4/model.py` Gemma4 with vision_encoder
+   field + encode_images() + multimodal __call__ path
+6. Extend `params_safetensors.py` with vision-encoder torch → NNX key
+   mapping for HF safetensors load
+7. End-to-end: PeftTrainer.train_step on one synthetic click task with
+   qwix LoRA applied. Loss finite, no XLA recompile spam.
+
+**Phase 1C status:** unchanged. Glue-code work (Gemma4Inference →
+synthetic.click → Claude repairer → JSONL → HF Hub). Independent of the
+port; produces a dataset that feeds whichever Phase 1D path we end up
+on. Will be wired in parallel with the port. Sudarshan writes vision
+port bodies; Claude wires Phase 1C.
+
+**Out-of-scope:** MaxText probe (the plan-literal other half of Phase
+1B). Deferred to the Phase 2 → 3 boundary where MaxText's TPU sharding
+patterns actually start paying off. The MaxText decision is no longer
+load-bearing for getting a working multimodal SFT pipeline.
