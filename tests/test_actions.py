@@ -29,3 +29,15 @@ def test_parse_action_rejects_non_integer_pixel() -> None:
     text = format_function_call("click", {"x": 10.5, "y": 20})
     with pytest.raises(ActionParseError, match="integer pixel"):
         parse_action(text)
+
+
+def test_parse_action_accepts_bare_base_model_output() -> None:
+    text = "<|channel>thought\n<channel|><start_function_call>call:click{x:251,y:102}<end_function_call><turn|>"
+
+    assert parse_action(text) == ClickAction(x=251, y=102)
+
+
+def test_parse_action_accepts_bare_with_whitespace() -> None:
+    text = "<start_function_call>call:click{ x : 42 , y : 8 }<end_function_call>"
+
+    assert parse_action(text) == ClickAction(x=42, y=8)

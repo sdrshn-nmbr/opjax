@@ -67,6 +67,7 @@ _CALL_RE = re.compile(
     re.DOTALL,
 )
 _ARG_RE = re.compile(rf"(?P<key>[a-zA-Z_][\w]*)\s*:\s*{re.escape(ESCAPE)}(?P<value>.*?){re.escape(ESCAPE)}", re.DOTALL)
+_BARE_ARG_RE = re.compile(r"(?P<key>[a-zA-Z_][\w]*)\s*:\s*(?P<value>[^,{}]+?)(?=\s*,\s*[a-zA-Z_]|\s*$)", re.DOTALL)
 
 
 def format_function_call(name: str, arguments: dict[str, Any]) -> str:
@@ -84,6 +85,8 @@ def parse_function_call(text: str) -> FunctionCall:
 
     body = match.group("body")
     arguments = {arg.group("key"): arg.group("value") for arg in _ARG_RE.finditer(body)}
+    if not arguments and body.strip():
+        arguments = {arg.group("key"): arg.group("value").strip() for arg in _BARE_ARG_RE.finditer(body)}
     if body.strip() and not arguments:
         raise ActionParseError(f"Malformed function call arguments: {body!r}")
 
