@@ -11,7 +11,7 @@ MODAL_ENVIRONMENT = "main"
 MODAL_SECRET_NAME = "opjax-secrets"
 
 PYTHON_VERSION = "3.12"
-GPU_TYPE = "H100"
+GPU_TYPE = "H200"
 
 # Modal Volumes v2 are the default. Set OPJAX_MODAL_VOLUME_VERSION=1 to use the
 # v1 fallback names if v2 blocks us during an experiment.
