@@ -753,7 +753,7 @@ class Gemma4Inference:
 
         def _prompt_for(task) -> str:
             return (
-                f"<start_of_image>\n\n"
+                f"<|image|>\n\n"
                 f"Look at the screenshot. {task.prompt}\n"
                 f"\n"
                 f"Respond with exactly one function call in this format:\n"

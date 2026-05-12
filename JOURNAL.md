@@ -82,3 +82,27 @@ sweep's signal is *whether some k makes this distance shrink*.
 factors × ≤3 tasks × 3 tiers = up to 54 inferences. ~2 minutes per inference
 at the v7 rate ⇒ ~2 hour wall-clock. Outputs JSON-per-(scale,tier,task) with
 verification.distance_px, plus a summary plot if time permits.
+
+---
+
+**`tzafon_sweep` v1 first attempt failed cleanly on all 18 inferences with the
+same Gemma 3 deprecated-token error.** Cold container init 605.7s (Modal had
+scaled the v7 warm container down), then every inference short-circuited in
+0.06-0.36s. Root cause: the seven-fix chain's fix #3 (`<|image|>` marker)
+was only applied to `smoke_image`'s prompt path — line 659 — but
+`tzafon_sweep`'s `_prompt_for` helper at line 756 still emitted Gemma 3's
+`<start_of_image>`. The original commit `b58ead5` claimed the fix touched
+"both methods" but since that commit had an empty diff, only my session's
+roll-up actually wrote the change, and I only inspected the smoke_image
+path. Lesson: when consolidating multi-commit fix chains, grep for the OLD
+pattern in the whole file before testing, not just the path you're
+exercising.
+
+Also seen on first container attempt: `Runner segmentation fault (SIGSEGV),
+exit code 139` before Modal retried successfully on second attempt. First
+SIGSEGV we've seen on H200; not reproducing on the retry. Filed under "watch
+for again" — could be cold-init driver race, GCS stream timing, or
+container-specific transient. No action.
+
+Fix landed in modal_app.py line 756. Re-launching the lean sweep now;
+container is cold again (the failed v1 run scaled down).
