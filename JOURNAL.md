@@ -106,3 +106,50 @@ container-specific transient. No action.
 
 Fix landed in modal_app.py line 756. Re-launching the lean sweep now;
 container is cold again (the failed v1 run scaled down).
+
+---
+
+**Phase 1A close-out — claim gate "no clear scaling effect; lock k=1.0".**
+`tzafon_sweep` v2 ran 18 inferences end-to-end on H200 (cold load 434.8s
+after two SIGSEGV retries; sweep 439.8s). JIT cache worked beautifully:
+first scale's 3 inferences took 365.3s (compile + run), every subsequent
+scale ran 3 inferences in ~15s — 5s/inference, 34× faster than v7. The
+dict-spread params rebuild + fresh ChatSampler per scale did NOT trigger
+recompilation because shape/dtype unchanged.
+
+Result: 0/3 success at every scale on every tier. Per-task distance_px
+across scales (same seed = same image, only pos_emb scaling varies):
+
+  target/seed=1000:   k=1.0:26.9  1.5:53.9  2.0:56.8  3.0:35.4  5.0:56.4  10.0:46.3
+  distractors/2000:   k=1.0:49.8  1.5:39.2  2.0:49.0  3.0:49.0  5.0:60.4  10.0:48.7
+  button/3000:        k=1.0:49.7  1.5:56.1  2.0:48.7  3.0:115.5 5.0:176.1 10.0:48.2
+
+Reading: target/distractors essentially flat across scales (model picks
+attractor positions ~(180,225) and (~145,270) regardless of k). Button
+tier shows real y-drift at k=3/k=5 (194 → 312 → 374) but DRIFTS AWAY
+from target, snaps back at k=10. So multiplicative pos_emb scaling DOES
+modulate Gemma 4 26B-A4B's spatial prior — but not in a Tzafon-helpful
+direction. No scaling factor improves accuracy.
+
+Decision per plan: log finding, lock k=1.0, proceed. The 30-40pt lift
+Tzafon reported on Qwen3-VL does NOT transfer to Gemma 4 26B-A4B. Several
+plausible reasons (any combination): (a) MoE+sliding-window arch responds
+differently to entry pos_emb perturbation than Qwen's dense arch; (b)
+bf16-cast vision tower has less headroom for value amplification than
+fp32; (c) base Gemma 4 has weak native click-grounding (Phase 1 SFT
+target); (d) prompt template too curt — model defaults to attractor click
+positions. None of these are worth investigating now — the answer to "do
+we need to scale pos_emb during inference?" is "no", which is the only
+decision Phase 1A needed to gate.
+
+Also seen: two consecutive SIGSEGV (exit 139) on container startup before
+third attempt succeeded. Pattern now reproducible across v1 (1 segfault)
+and v2 (2 segfaults). Modal's automatic retry masks it but the load
+cost is paid each time. Filed as known-flake. If it ever stops retrying
+or burns three attempts before success, escalate.
+
+5. **What's next:** Phase 1B — dual loader compatibility gate. Identify
+the canonical SFT entrypoint for Phase 1D. Working hypothesis (carries
+forward from Phase 1A debug knowledge): `references/gemma` (Flax Linen,
+full multimodal) + Tunix PeftTrainer + qwix LoRA. MaxText probe pending
+decision below.

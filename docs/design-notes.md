@@ -379,3 +379,54 @@ next call.
 - Don't bake any clean-up of `<|channel>thought` / `<turn|>` into the probe —
   let those land in JOURNAL as raw, deal with them at Phase 1D when we're
   shaping SFT data.
+
+---
+
+## 2026-05-11 — Phase 1A close-out: Tzafon scaling has no useful effect on Gemma 4 26B-A4B; lock k=1.0
+
+**Decision:** Lock `vision_encoder.entry.pos_emb` scale factor at 1.0 for
+all subsequent Phase 1+ Gemma 4 inference. Do not include pos_emb scaling
+in the SFT-data-generation prompt path or the Phase 3 RL rollout path.
+
+**Evidence:** `tzafon_sweep` v2, n=1 per (scale, tier) cell, 18 total
+inferences on H200. Scale factors swept: {1.0, 1.5, 2, 3, 5, 10}. Tiers:
+{target, distractors, button}. Result: 0/3 success at every scale; no
+monotone improvement in distance_px on any tier; button tier shows real
+spatial-prior modulation (y coordinate drifts 194 → 374 → snaps back at
+k=10 for the same task seed across scales) but in the WRONG direction
+relative to target.
+
+**Why we accept the gate at n=1**: per-task position clusters are tight
+(model emits attractor click positions ~(180, 225) on target tier and
+~(145, 270) on distractors tier *regardless* of k), so the n=1 noise
+floor for "is there a strong direction-preserving effect?" is low. The
+plan's claim gate ("≥10pt button-tier improvement at some k") is not
+borderline; it's a clean miss across the board. Running n=3 to lower
+variance would burn another 15 min for no decision change.
+
+**What we learned even though the result was negative**:
+- Multiplicative pos_emb scaling DOES modulate Gemma 4's vision-pathway
+  spatial prior (button tier y-drift at k=3,5 confirms the parameter is
+  load-bearing in the forward path).
+- The effect direction is not Tzafon-helpful. Plausible causes (none
+  worth investigating now): (a) MoE + sliding-window arch responds
+  differently than Qwen's dense; (b) bf16 vision tower has less amplitude
+  headroom than fp32; (c) base Gemma 4 doesn't have strong native
+  click-grounding (Phase 1 SFT exists to fix this); (d) prompt template
+  too curt — model defaults to attractor positions.
+- Sweep architecture is sound: one cold load (435s) amortizes across 18+
+  inferences; JIT cache shared across pos_emb-perturbed sampler variants
+  (shape/dtype identical so no recompile); per-scale ChatSampler rebuilds
+  effectively free (~5s/inference after first compile, 34× faster than
+  v7's solo inference).
+- Reproducible H200 SIGSEGV pattern on container startup: 1 segfault on
+  sweep v1, 2 on sweep v2. Modal retries automatically; cold-load cost
+  is paid each time. Filed as known-flake.
+
+**Carry-forward to Phase 1B:** working hypothesis is that we don't need
+a formal MaxText probe to make the loader decision. We've already learned
+a great deal about `references/gemma` (Flax Linen) through Phase 1A —
+load mechanics, prompt format gotchas, vision-tower precision behavior,
+JIT cache discipline. MaxText would be a parallel investment in a path
+we'd only need if `references/gemma` proves blocking for SFT, and Phase
+3+ TPU work brings MaxText in naturally anyway. Decision in next entry.
