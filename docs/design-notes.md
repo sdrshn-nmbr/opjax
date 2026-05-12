@@ -430,3 +430,74 @@ load mechanics, prompt format gotchas, vision-tower precision behavior,
 JIT cache discipline. MaxText would be a parallel investment in a path
 we'd only need if `references/gemma` proves blocking for SFT, and Phase
 3+ TPU work brings MaxText in naturally anyway. Decision in next entry.
+
+---
+
+## 2026-05-12 — Phase 1B: port Gemma 4 vision to Tunix NNX (in fork-submodule)
+
+**Decision:** Skip the formal MaxText probe. Port Gemma 4 multimodal
+vision to Tunix's NNX type system in a personal fork
+(`sdrshn-nmbr/tunix`, branch `opjax/gemma4-vision-port`) tracked as a
+submodule at `references/tunix`. Inverts the "references is read-only"
+convention for this one mirror only. See JOURNAL 2026-05-12 entry for
+full rationale; key points:
+- Highest JAX-learning density chunk currently available (NNX vs Linen,
+  factorized pos_emb, RoPE-across-modalities, soft-embedding merge,
+  qwix LoRA composition, Orbax key mapping).
+- Collapses the Phase 1D "which SFT loader?" question into "does our
+  port work?" — answered by doing the port.
+- PR pathway preserved via the real fork.
+
+**Sub-task plan** (each lands its own commit on the fork branch, each
+becomes a potential upstream PR if we go that route):
+1. Scaffold + TDD baseline — VisionEntry + VisionExit + Standardize ✓
+2. VisionEntry.__call__ + VisionExit pooling bodies ← user writes
+3. Vision transformer body (mirrors `_transformer.py` + `_modules.py`
+   + `_norms.py`)
+4. Top-level VisionEncoder wiring (mirrors `_encoder.py`)
+5. Gemma4 NNX model integration (vision_encoder field, encode_images,
+   multimodal forward)
+6. `params_safetensors.py` vision keys (torch → NNX key map)
+7. End-to-end PeftTrainer smoke (forward + backward + qwix LoRA on one
+   click task)
+
+After 7, Phase 1D becomes configuration.
+
+---
+
+## 2026-05-12 — GitButler workaround for git submodules
+
+**Problem:** `but commit --changes <id>` does not commit 160000-mode
+gitlink entries. When the user has both regular file changes and a new
+submodule pointer pending, `but commit` lands the file changes (and
+warns "Some selected changes could not be committed") but leaves the
+gitlink permanently unassigned. Setting `--changes` to the gitlink's ID
+or path both fail. There is no workaround within the `but` command
+surface itself.
+
+**Workaround (manual pattern for every submodule operation):**
+1. `cd references/tunix && git commit ... && git push origin <branch>`
+   — make and push the submodule-internal commit. Standard git inside.
+2. `cd <opjax-root> && but teardown` — exit GitButler mode. Resets the
+   workspace branch (work preserved on phase-0/setup and other named
+   branches; only the synthetic `gitbutler/workspace` is reset).
+3. `git checkout phase-0/setup` — go to the actual working branch.
+4. `git add references/tunix && git commit -m "..."` — land the gitlink
+   bump as a regular commit. The pre-commit hook is inactive in
+   teardown mode so no bypass needed.
+5. `but setup` — re-enter GitButler mode. The new commit appears in
+   `but status` on phase-0/setup as a normal entry.
+
+**When this fires in our project:** every time we bump the submodule
+pointer (i.e., after each completed sub-task in the vision port: 1, 2,
+3, 4, 5, 6, 7). Expect ~7 of these pointer bumps before Phase 1D.
+
+**Why not stay in raw-git mode the whole time:** GitButler's virtual
+branch model lets us stack `phase-0/setup` on `phase-1/scaffold` for
+the file-dependency lock from Phase 1A. Losing that costs more than the
+~30 seconds per submodule bump.
+
+**Reference:** the gitlink for the initial scaffold-commit pin
+(`2b039f44` of `sdrshn-nmbr/tunix`) landed via this pattern in commit
+`ed77f1b` on phase-0/setup. The pattern is captured in that commit's
+message body for future-self.
