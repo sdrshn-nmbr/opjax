@@ -228,6 +228,85 @@ port; produces a dataset that feeds whichever Phase 1D path we end up
 on. Will be wired in parallel with the port. Sudarshan writes vision
 port bodies; Claude wires Phase 1C.
 
+---
+
+## 2026-05-12 — Phase 1C wired in parallel; pipeline implemented + tested
+
+**Shipped (all in parallel with the vision port sub-task 2):**
+
+1. `src/opjax/remote/modal_app.py` — added
+   `Gemma4Inference.batch_click_attempts(seeds_and_tiers, max_new_tokens)`.
+   Regenerates each task DETERMINISTICALLY from its (seed, tier) on the
+   Modal volume (no image transfer needed; same seed → same image both
+   sides). Runs one inference per task on the warm ChatSampler. Returns
+   per-task records: task metadata + raw model_response + parsed_action
+   + verification. Plus aggregate counts. Plus a CLI entrypoint
+   `gemma4_batch_click_attempts_cli` that writes the records as JSONL
+   to a local path.
+
+2. `src/opjax/isft/dataset.py` — added `build_real_click_isft_dataset(
+   output_dir, attempts_jsonl, repairer, max_rounds)`. Refactored shared
+   `_prepare_output_paths`, `_write_jsonl`, `_load_attempts_jsonl` so
+   the fake builder and the real builder don't drift. For each attempt:
+   regenerate the image locally with the same seed (deterministic →
+   byte-identical to Modal's), run `run_isft_rgt` with the model's
+   actual response as `initial_output`, refine via repairer on failure.
+   Error-marked attempts (Modal-side OOM, etc.) are skipped to
+   `skipped_attempts.json` sidecar log rather than aborting the run.
+   Added `task_equals_attempt(task, attempt)` as a defensive contract
+   check — if the synthetic.click generator ever changes, this catches
+   the drift immediately.
+
+3. `src/opjax/isft/hub.py` — new module. `push_dataset_to_hub(local_dir,
+   repo_id, token, private, commit_message)` wraps huggingface_hub's
+   create_repo + HfApi.upload_folder. Explicit-only: no auto-push side
+   channel; only invoked via the CLI command. Defaults to dataset repo
+   `sudarshan/opjax-click-isft`.
+
+4. `src/opjax/cli.py` — three subcommands:
+   - `build-click-isft` (existing) — fake-repairer dry-run builder
+   - `build-real-click-isft` — Phase 1C real path: refines a JSONL of
+     Modal-produced attempts via Claude (or FakeClickRepairer for tests)
+   - `push-isft-to-hub` — uploads the local dataset directory to HF Hub
+     using `HF_TOKEN` from env (configurable env var name)
+
+5. `tests/test_real_isft_pipeline.py` — 5 new tests covering: pass-
+   through of already-successful model responses (no repair call),
+   routing of failed responses through the repairer, skipping of
+   error-marked Modal records to sidecar log, deterministic task
+   regeneration matches the attempt metadata, max_rounds=0 rejection.
+   All using `FakeClickRepairer` so the local test loop stays free of
+   Claude/Modal calls.
+
+6. `pyproject.toml` — added `huggingface-hub==0.36.2` to opjax's local
+   dependencies (was already in Modal `REMOTE_IMAGE_PACKAGES` but absent
+   from local). uv.lock updated.
+
+**Test state:** 17/17 local tests green (12 existing + 5 Phase 1C).
+End-to-end CLI smoke (fake repairer over a hand-built 3-record
+attempts.jsonl) produces a clean JSONL of 3 records + 3 images
+in /tmp.
+
+**NOT executed (deferred to explicit user go-ahead):**
+- Modal `batch_click_attempts` run at scale (1500 tasks = 500 per tier
+  × 3 tiers ≈ 2 hours warm-loop H200 wall-clock; ~$).
+- Claude refinement pass on the full attempts JSONL (~ per-token cost
+  across all failed attempts × Sonnet 4.6 pricing).
+- HF Hub push to `sudarshan/opjax-click-isft` (publishes the dataset).
+Each of these is a real $ spend and shared-state mutation; the wiring
+is implemented but not run.
+
+**Recommended next-step sequence (when ready):**
+  uv run modal run -e main -m opjax.remote.modal_app::gemma4_batch_click_attempts_cli --count-per-tier 3 --output-path data/click_isft/raw_attempts_dryrun.jsonl
+  uv run opjax build-real-click-isft --attempts-jsonl data/click_isft/raw_attempts_dryrun.jsonl --output-dir data/click_isft/dryrun --repairer claude
+  # inspect data/click_isft/dryrun/records.jsonl + images/, iterate on Claude
+  # prompt or task params if anything looks off; then scale to count_per_tier=200+.
+
+3. **What's next:** monitor sub-task 2 of the vision port (user-written
+VisionEntry.__call__ + VisionExit bodies). When ready to scale Phase 1C,
+run the 3-task dry-run, inspect, then commit to the 500-per-tier full
+batch.
+
 **Out-of-scope:** MaxText probe (the plan-literal other half of Phase
 1B). Deferred to the Phase 2 → 3 boundary where MaxText's TPU sharding
 patterns actually start paying off. The MaxText decision is no longer

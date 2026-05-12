@@ -855,6 +855,143 @@ class Gemma4Inference:
             "results": sweep_results,
         }
 
+    @modal.method()
+    def batch_click_attempts(
+        self,
+        seeds_and_tiers: list[tuple[int, str]],
+        max_new_tokens: int = 128,
+    ) -> dict[str, object]:
+        """Run Gemma 4 base-model inference on a batch of (seed, tier) tasks.
+
+        Phase 1C: produces the `initial_output` slot for the iSFT loop. The
+        caller passes deterministic (seed, tier) pairs; this method regenerates
+        the synthetic click task on the Modal volume (so the image bytes stay
+        local to the container), runs one inference per task on the warm
+        ChatSampler, and returns per-task records JSON-serializable for the
+        local-side refinement pass.
+
+        Container warmth note: at v2 sweep speed this runs ~5s/inference after
+        the first compile. A 1500-task batch (500 per tier) takes ~2 hours on
+        a single warm H200. The first invocation pays the ~10 min cold load.
+        Subsequent calls within scaledown_window=1800 keep the container alive.
+
+        Returns:
+          {
+            "ok": True,
+            "n_total": int,
+            "n_parseable": int,
+            "n_success": int,
+            "per_tier_counts": {tier: {"total": int, "success": int}, ...},
+            "seconds": float,
+            "records": [
+              {
+                "task_id": str,
+                "seed": int,
+                "tier": str,
+                "prompt": str,
+                "width": int, "height": int,
+                "target_x": int, "target_y": int, "target_radius": int,
+                "model_response": str,        # raw
+                "parsed_action": {...} | None,
+                "parse_error": str | None,
+                "verification": {success, reward, reason, distance_px},
+                "seconds": float,
+              },
+              ...
+            ],
+          }
+        """
+        import time
+
+        from PIL import Image  # type: ignore[import-not-found]
+        from opjax.actions import parse_action, action_to_dict  # type: ignore[import-not-found]
+        from opjax.synthetic.click import generate_click_task, verify_click_output  # type: ignore[import-not-found]
+
+        t_start = time.time()
+        out_dir = os.path.join(DATA_DIR, "batch_click_attempts")
+
+        records: list[dict[str, object]] = []
+        per_tier_counts: dict[str, dict[str, int]] = {}
+        n_success = 0
+        n_parseable = 0
+
+        for seed, tier in seeds_and_tiers:
+            t_task = time.time()
+            task = generate_click_task(out_dir, seed=seed, tier=tier)  # type: ignore[arg-type]
+            image = Image.open(task.image_path).convert("RGB")
+            prompt = (
+                f"<|image|>\n\n"
+                f"Look at the screenshot. {task.prompt}\n"
+                f"\n"
+                f"Respond with exactly one function call in this format:\n"
+                f"<start_function_call>call:click{{x:<escape>X<escape>,y:<escape>Y<escape>}}<end_function_call>\n"
+                f"where X and Y are integer pixel coordinates inside the "
+                f"{task.width}x{task.height} image."
+            )
+
+            try:
+                response = self.sampler.chat(
+                    prompt, images=[image], max_new_tokens=max_new_tokens
+                )
+            except Exception as exc:  # noqa: BLE001
+                records.append({
+                    "task_id": task.task_id,
+                    "seed": seed,
+                    "tier": tier,
+                    "error": str(exc)[:500],
+                    "seconds": round(time.time() - t_task, 2),
+                })
+                continue
+
+            parsed_dict: dict[str, object] | None = None
+            parse_error: str | None = None
+            try:
+                parsed_dict = action_to_dict(parse_action(response))
+                n_parseable += 1
+            except Exception as exc:  # noqa: BLE001
+                parse_error = str(exc)[:200]
+
+            verification = verify_click_output(task, response)
+            if verification.success:
+                n_success += 1
+
+            tier_stats = per_tier_counts.setdefault(tier, {"total": 0, "success": 0})
+            tier_stats["total"] += 1
+            if verification.success:
+                tier_stats["success"] += 1
+
+            records.append({
+                "task_id": task.task_id,
+                "seed": seed,
+                "tier": tier,
+                "prompt": task.prompt,
+                "width": task.width,
+                "height": task.height,
+                "target_x": task.target_x,
+                "target_y": task.target_y,
+                "target_radius": task.target_radius,
+                "model_response": response,
+                "parsed_action": parsed_dict,
+                "parse_error": parse_error,
+                "verification": {
+                    "success": verification.success,
+                    "reward": verification.reward,
+                    "reason": verification.reason,
+                    "distance_px": verification.distance_px,
+                },
+                "seconds": round(time.time() - t_task, 2),
+            })
+
+        return {
+            "ok": True,
+            "n_total": len(records),
+            "n_parseable": n_parseable,
+            "n_success": n_success,
+            "per_tier_counts": per_tier_counts,
+            "seconds": round(time.time() - t_start, 2),
+            "records": records,
+        }
+
 
 @app.local_entrypoint()
 def gemma4_smoke_text_cli(prompt: str = "Hello, who are you?") -> None:
@@ -868,6 +1005,47 @@ def gemma4_smoke_image_cli(seed: int = 0, tier: str = "button") -> None:
     """Run a click-task image inference; reports click accuracy vs ground truth."""
     inst = Gemma4Inference()
     print(json.dumps(inst.smoke_image.remote(seed, tier), indent=2, sort_keys=True))  # type: ignore[attr-defined]
+
+
+@app.local_entrypoint()
+def gemma4_batch_click_attempts_cli(
+    count_per_tier: int = 3,
+    base_seed: int = 5000,
+    max_new_tokens: int = 128,
+    output_path: str = "data/click_isft/raw_attempts.jsonl",
+) -> None:
+    """Run a batch of Gemma 4 base-model click attempts; write raw JSONL.
+
+    Args:
+      count_per_tier: number of synthetic tasks per (target/distractors/button)
+        tier. Total tasks = 3 * count_per_tier.
+      base_seed: starting seed; per-tier seeds are base_seed + tier_index * 1000
+        + i (matches tzafon_sweep convention).
+      max_new_tokens: sampling cap; 128 is plenty for click action emission.
+      output_path: local JSONL destination. Parent dir created if missing.
+    """
+    tiers = ("target", "distractors", "button")
+    seeds_and_tiers: list[tuple[int, str]] = []
+    for tier_idx, tier in enumerate(tiers):
+        for i in range(count_per_tier):
+            seeds_and_tiers.append((base_seed + tier_idx * 1000 + i, tier))
+
+    inst = Gemma4Inference()
+    result = inst.batch_click_attempts.remote(  # type: ignore[attr-defined]
+        seeds_and_tiers=seeds_and_tiers,
+        max_new_tokens=max_new_tokens,
+    )
+
+    from pathlib import Path
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    with out.open("w", encoding="utf-8") as f:
+        for record in result.get("records", []):
+            f.write(json.dumps(record, sort_keys=True) + "\n")
+
+    summary = {k: v for k, v in result.items() if k != "records"}
+    summary["output_path"] = str(out)
+    print(json.dumps(summary, indent=2, sort_keys=True))
 
 
 @app.local_entrypoint()
