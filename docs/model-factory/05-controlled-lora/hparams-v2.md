@@ -7,8 +7,8 @@ Source: [LoRA Without Regret](https://thinkingmachines.ai/blog/lora/) (Schulman 
 | Knob | v2 choice | Why |
 |------|-----------|-----|
 | Layers | Tinker defaults: `train_mlp=True`, `train_attn=True`, `train_unembed=True` | Blog: apply LoRA to **all layers**, especially MLP/MoE; attention-only underperforms |
-| Rank | **128** (up from v1’s 16 / early v2 64) | Full-zip max-yield slice is much larger; low ranks fall off when capacity-bound |
-| Batch size | **4** | LoRA is less tolerant of large batches than FullFT; keep small |
+| Rank | **64** (Tinker max for Inkling; up from v1’s 16) | Prefer max capacity under provider cap; blog: higher rank delays capacity falloff on large SFT sets |
+| Batch size | **16** | Keep moderate (blog: LoRA less tolerant of very large batches); 16 balances wall-clock vs dynamics on ~25k examples |
 | LR | **1e-4**, schedule **constant** | Optimal LoRA LR ≈ independent of rank (with α/r); constant LR matches blog sweeps; ~10× FullFT heuristic for longer runs |
 | Epochs | **1** | Match blog SFT protocol; avoid multi-epoch memorization before sealed read |
 | Max length | **4096** | Same as v1; per-example caps at curation |
