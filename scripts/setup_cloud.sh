@@ -125,7 +125,11 @@ if [[ "$MODE" == "full" ]]; then
 else
   echo "=== Factory venv (Wave A: tinker / HF / light deps) ==="
   # Isolated venv so we do not need tunix/gemma for cloud auth smoke.
-  uv venv .venv
+  if [[ -d .venv && -x .venv/bin/python ]]; then
+    echo "Reusing existing .venv"
+  else
+    uv venv .venv
+  fi
   # shellcheck disable=SC1091
   source .venv/bin/activate
   uv pip install \
