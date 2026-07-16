@@ -1,0 +1,41 @@
+{
+  "stage": 5,
+  "arm": "prompt_rules",
+  "split": "sealed",
+  "seed": 0,
+  "model_name": "thinkingmachines/Inkling",
+  "sampler_path": null,
+  "commit_sha": "61084a0e90846f9014c679a6a8e12599fb3e5eda",
+  "harness": "opjax.model_factory.eval_sudarshanbench",
+  "n": 4,
+  "n_pass": 0,
+  "pass_rate": 0.0,
+  "wall_seconds": 7.908262098997511,
+  "checked_at": "2026-07-16T18:31:10.635920+00:00",
+  "results": [
+    {
+      "id": "sb-0008",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0008 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0009",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0009 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0010",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0010 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0011",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0011 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    }
+  ]
+}

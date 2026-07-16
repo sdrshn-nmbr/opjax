@@ -1,0 +1,44 @@
+{
+  "stage": 5,
+  "arm": "static_policy",
+  "split": "sealed",
+  "seed": 0,
+  "model_name": "thinkingmachines/Inkling",
+  "sampler_path": null,
+  "commit_sha": "61084a0e90846f9014c679a6a8e12599fb3e5eda",
+  "harness": "opjax.model_factory.eval_sudarshanbench",
+  "n": 4,
+  "n_pass": 1,
+  "pass_rate": 0.25,
+  "wall_seconds": 9.633721954000066,
+  "checked_at": "2026-07-16T18:31:34.268023+00:00",
+  "results": [
+    {
+      "id": "sb-0008",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_thinking|>We need read fixtures? Not needed. Need fix merge_sorted to merge two sorted lists into one sorted list. Let's implement standard merge.<|end_message|><|message_model|><|content_text|>```python\ndef merge_sorted(a, b):\n    result = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            result.append(a[i])\n            i += 1\n        else:\n            result.append(b[j])\n            j += 1\n    result.extend(a[i:])\n    result.e"
+    },
+    {
+      "id": "sb-0009",
+      "pass": false,
+      "extracted": false,
+      "static_policy_reject": true,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0009 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0010",
+      "pass": false,
+      "extracted": false,
+      "static_policy_reject": true,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0010 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0011",
+      "pass": false,
+      "extracted": false,
+      "static_policy_reject": true,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures. Let's list directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"find docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0011 -type f\"}}<|end_message|><|content_model_end_sampling|>"
+    }
+  ]
+}

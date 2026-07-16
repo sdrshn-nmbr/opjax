@@ -1,0 +1,30 @@
+{
+  "split": "sealed",
+  "seed": 0,
+  "arms": {
+    "base": {
+      "n_pass": 0,
+      "n": 4,
+      "pass_rate": 0.0,
+      "report": "data/model-factory/evals/sealed-v2-before/base_seed0_report.json"
+    },
+    "prompt_rules": {
+      "n_pass": 0,
+      "n": 4,
+      "pass_rate": 0.0,
+      "report": "data/model-factory/evals/sealed-v2-before/prompt_rules_seed0_report.json"
+    },
+    "fewshot_rag": {
+      "n_pass": 1,
+      "n": 4,
+      "pass_rate": 0.25,
+      "report": "data/model-factory/evals/sealed-v2-before/fewshot_rag_seed0_report.json"
+    },
+    "static_policy": {
+      "n_pass": 1,
+      "n": 4,
+      "pass_rate": 0.25,
+      "report": "data/model-factory/evals/sealed-v2-before/static_policy_seed0_report.json"
+    }
+  }
+}

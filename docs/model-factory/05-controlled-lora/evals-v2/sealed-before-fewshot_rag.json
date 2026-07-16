@@ -1,0 +1,41 @@
+{
+  "stage": 5,
+  "arm": "fewshot_rag",
+  "split": "sealed",
+  "seed": 0,
+  "model_name": "thinkingmachines/Inkling",
+  "sampler_path": null,
+  "commit_sha": "61084a0e90846f9014c679a6a8e12599fb3e5eda",
+  "harness": "opjax.model_factory.eval_sudarshanbench",
+  "n": 4,
+  "n_pass": 1,
+  "pass_rate": 0.25,
+  "wall_seconds": 13.9979285599984,
+  "checked_at": "2026-07-16T18:31:24.634058+00:00",
+  "results": [
+    {
+      "id": "sb-0008",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixture sb-0008. Need read tests? Let's inspect directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"ls -R docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0008\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0009",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures/sb-0009. Need understand task: fix balanced parens. Need read tests maybe. Let's inspect directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"ls -R fixtures/sb-0009\"}}<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0010",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures directory? Not available directly, but need infer correct top_k frequent. Let's think: task \"fix top-k frequent\". Probably need return k most frequent elements, maybe sorted by frequency descending then value? Need examine tests? Let's try to recall or derive from typical benchmark. Let's inspect directory? We don't have filesystem access except via reasoning? Actually we can try to read files? The environment might allow using python"
+    },
+    {
+      "id": "sb-0011",
+      "pass": false,
+      "extracted": false,
+      "completion_preview": "<|message_model|><|content_thinking|>We need inspect fixtures directory? Need understand task \"fix deep get\". Need read tests maybe. Let's inspect directory.<|end_message|><|message_model|>bash<|content_invoke_tool_json|>{\"name\":\"bash\",\"args\":{\"command\":\"ls -R docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0011\"}}<|end_message|><|content_model_end_sampling|>"
+    }
+  ]
+}
