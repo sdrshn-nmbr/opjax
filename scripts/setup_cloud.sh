@@ -71,9 +71,9 @@ check_secrets() {
     pcfg="$(prime --plain config view 2>/dev/null || prime config view 2>/dev/null || true)"
     if [[ -n "${PRIME_API_KEY:-}" ]]; then
       echo "  OK   prime (PRIME_API_KEY env)"
-    elif echo "$pcfg" | grep -qiE 'API Key[[:space:]]*│[[:space:]]*Not set|api_key.*not set|User ID[[:space:]]*│[[:space:]]*Not set'; then
+    elif echo "$pcfg" | grep -qiE 'API Key[[:space:]]+Not set|User ID[[:space:]]+Not set'; then
       echo "  --   prime CLI installed but not logged in (run: prime login)"
-    elif echo "$pcfg" | grep -qiE 'API Key|api_key|User ID'; then
+    elif echo "$pcfg" | grep -qiE 'API Key|User ID'; then
       echo "  OK   prime CLI session"
     else
       echo "  --   prime CLI installed; login status unknown (run: prime login)"
