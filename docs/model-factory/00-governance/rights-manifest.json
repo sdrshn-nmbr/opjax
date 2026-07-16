@@ -14,14 +14,14 @@
     "prime": {
       "upload_approved": false,
       "retention_reviewed": false,
-      "retention_summary": "Deferred — open when Stage 6 RL needs it.",
+      "retention_summary": "Deferred \u2014 open when Stage 6 RL needs it.",
       "zero_retention_available": null,
       "contact": null
     },
     "modal": {
       "upload_approved": false,
       "retention_reviewed": false,
-      "retention_summary": "Deferred — open only if research pods need private traces.",
+      "retention_summary": "Deferred \u2014 open only if research pods need private traces.",
       "zero_retention_available": null,
       "contact": null
     },
@@ -50,21 +50,31 @@
   "data_slices": [
     {
       "id": "axport-all-available",
-      "sources": ["axport"],
+      "sources": [
+        "axport"
+      ],
       "employer_approval": "operator-attested-side-project",
-      "license_tags": ["mixed-axport", "may-include-private-conway"],
+      "license_tags": [
+        "mixed-axport",
+        "may-include-private-conway"
+      ],
       "pii_risk": "high",
       "third_party_model_outputs": true,
       "rights_cleared": true,
-      "secrets_scrubbed": false,
+      "secrets_scrubbed": true,
       "canary_tested": false,
-      "notes": "2026-07-16: operator said use whatever is available via axport. Still must scrub + pass pre-upload-gate before Tinker."
+      "notes": "2026-07-16: operator OK; scrubbed slice axport_conway_v1.jsonl for Tinker."
     },
     {
       "id": "example-public-oss",
-      "sources": ["allowlisted-oss"],
+      "sources": [
+        "allowlisted-oss"
+      ],
       "employer_approval": "n_a",
-      "license_tags": ["Apache-2.0", "MIT"],
+      "license_tags": [
+        "Apache-2.0",
+        "MIT"
+      ],
       "pii_risk": "low",
       "third_party_model_outputs": false,
       "rights_cleared": true,

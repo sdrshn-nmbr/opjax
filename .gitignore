@@ -27,6 +27,7 @@ references/*
 !references/model-factory/**
 checkpoints/
 data/
+# Keep tiny Model Factory eval summaries out of the blanket data/ ignore if re-homed under docs/.
 logs/
 profiles/
 

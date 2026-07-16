@@ -1,0 +1,15 @@
+{
+  "date": "2026-07-16",
+  "model": "thinkingmachines/Inkling",
+  "final_sampler_path": "tinker://ca64cb06-6f72-57e6-b469-444b0a5940df:train:0/sampler_weights/final",
+  "sealed": {
+    "base": {"n": 4, "n_pass": 0, "pass_rate": 0.0},
+    "lora": {"n": 4, "n_pass": 4, "pass_rate": 1.0}
+  },
+  "train": {
+    "nll_start_v1b": 1.9609336853027344,
+    "nll_end_v1b": 1.120733380317688,
+    "lora_rank": 16,
+    "max_steps_v1b": 30
+  }
+}

@@ -15,7 +15,7 @@ Living experiment artifacts for the personalized coding-model factory.
 | 2 Sealed eval | [02-sealed-eval/](02-sealed-eval/) | Disjoint splits; DeepSWE report never trains |
 | 3 Tournament | [03-tournament/](03-tournament/) | Cost-normalized base pick |
 | 4 Data factory | [04-data-factory/](04-data-factory/) | Audit metrics + scrubbed JSONL |
-| 5 Controlled LoRA | [05-controlled-lora/](05-controlled-lora/) | Sealed win vs no-training controls |
+| 5 Controlled LoRA | [05-controlled-lora/](05-controlled-lora/) — [results-v1](05-controlled-lora/results-v1.md) | Sealed win vs no-training controls |
 | 6 Env RL | [06-env-rl/](06-env-rl/) | Verifier FP/FN + lag bounds |
 | 7 Fusion | [07-fusion/](07-fusion/) | Solo sidekick sealed win first |
 | 8 Teacher | [08-teacher/](08-teacher/) | OPD only if logprobs+token-compatible |
