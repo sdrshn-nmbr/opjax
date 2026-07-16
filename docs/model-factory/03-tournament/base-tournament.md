@@ -21,6 +21,10 @@
 5. Optional: tiny public-model Tinker smoke (no private data) to verify trainer path.
 6. Decision memo: chosen Stage-5 base + rejected alternatives with cost table.
 
+## Decision
+
+See [decision.md](decision.md): **Inkling (full) on Tinker** is the Stage-5 base (operator lock 2026-07-16). Qwen/Laguna are comparators only.
+
 ## Explicit non-decision
 
 Do not lock Fusion roles or PorTAL targets from this tournament.

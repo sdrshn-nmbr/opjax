@@ -1,26 +1,26 @@
-# Stage 3 decision (operator deferred 2026-07-16)
+# Stage 3 decision (operator 2026-07-16)
 
 ## Chosen Stage-5 base
 
-**`Qwen/Qwen3-8B` (or nearest Tinker-supported Qwen3 8B-class chat id)** via **Tinker LoRA**.
+**`thinkingmachines/Inkling` (full)** via **Tinker LoRA**.
 
 ### Why
 
 | Criterion | Choice |
 |-----------|--------|
+| Operator lock | Explicit: use Inkling as first base, not Qwen |
 | Trainable **now** | Yes on Tinker (Wave A ready) |
-| Cost | Far below full Inkling serve/train |
-| Fairness | Dense baseline; PorTAL-compatible family later |
-| Product path | Inkling remains the later product hypothesis — **not** evidenced by this first LoRA |
+| Product path | Matches the sidekick / Fusion substrate we care about |
+| Cost | Accepted — stay inside Stage-5 spend cap; prefer LoRA over full FT |
 
-## Rejected for *first* LoRA
+## Not first (comparators / later)
 
-| Base | Why not first |
-|------|----------------|
-| Inkling full | Expensive; prove recipe on cheap base first |
-| Inkling-Small | Not verified available |
-| Laguna XS.2 | Good Stage 6 / Prime stand-in; don’t conflate with Tinker/Inkling claims |
+| Base | Role |
+|------|------|
+| Inkling-Small | Contingent when available — cheaper sweeps, not Stage-5 lock |
+| Qwen3 dense | Optional cost/ablation comparator only; **not** the primary claim base |
+| Laguna XS.2 | Stage 6 / Prime stand-in; Laguna wins ≠ Inkling evidence |
 
 ## What this does *not* decide
 
-Fusion roles, PorTAL targets, or “Inkling is best.” Re-run Stage 5 on Inkling only after Qwen recipe works.
+Fusion roles, PorTAL targets, or that Inkling beats every baseline without measurement. Stage-5 claim is still vs no-training controls on sealed SudarshanBench under budget.
