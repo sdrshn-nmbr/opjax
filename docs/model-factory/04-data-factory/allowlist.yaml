@@ -15,7 +15,11 @@ projects:
     default_upload: tinker_only_after_scrub
 
 filters:
-  min_turns: 4
-  require_tool_use: true
+  # 2026-07-16 operator: "the more data the better, always" — prefer recall.
+  # Still drop failed parses; do not require tool-use for the full-zip train slice.
+  min_turns: 2
+  require_tool_use: false
   drop_failed_parses: true
   keep_recovery_segments: true
+  ensure_synthetic_user: true
+  notes: "Max-yield defaults for Stage-5 v2 full R2 export."

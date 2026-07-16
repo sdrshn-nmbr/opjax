@@ -74,3 +74,9 @@ def test_pre_upload_gate_passes_when_approved(tmp_path: Path):
     )
     assert result.ok is True
     assert result.reasons == []
+    # Scrubbed JSONL must stay linewise-parseable for Tinker SFT loaders.
+    payload = Path(result.scrubbed_path).read_text(encoding="utf-8")
+    rows = [json.loads(ln) for ln in payload.splitlines() if ln.strip()]
+    assert len(rows) >= 2  # original + canary rows
+    canaries = load_canary_set(result.canary_path)
+    assert len(find_canaries(payload, canaries)) == 3

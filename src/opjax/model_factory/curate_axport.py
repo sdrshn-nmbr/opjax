@@ -21,6 +21,11 @@ SYSTEM_PREAMBLE = (
     "run tests, and follow tigerstyle clarity when editing code."
 )
 
+SYNTHETIC_USER = (
+    "Continue the coding task from the prior agent context. "
+    "Prefer minimal diffs and run tests."
+)
+
 
 @dataclass
 class Stats:
@@ -29,6 +34,7 @@ class Stats:
     skipped_short: int = 0
     skipped_no_assistant: int = 0
     skipped_no_tool: int = 0
+    synthetic_user: int = 0
     scrub_hits: int = 0
     singleturn_examples: int = 0
 
@@ -72,11 +78,16 @@ def _has_tool_use(messages: list[dict[str, str]]) -> bool:
     return False
 
 
-def _truncate(messages: list[dict[str, str]], max_chars: int) -> list[dict[str, str]]:
+def _truncate_text(text: str, max_chars: int) -> str:
+    if len(text) <= max_chars:
+        return text
+    return text[-max_chars:]
+
+
+def _truncate_messages(messages: list[dict[str, str]], max_chars: int) -> list[dict[str, str]]:
     total = sum(len(m["content"]) for m in messages)
     if total <= max_chars:
         return messages
-    # Keep system-less tail-biased conversation within budget.
     out: list[dict[str, str]] = []
     budget = max_chars
     for m in reversed(messages):
@@ -95,11 +106,15 @@ def flatten_to_singleturn(
     messages: list[dict[str, str]],
     *,
     system: str = SYSTEM_PREAMBLE,
+    ensure_user: bool = True,
 ) -> list[list[dict[str, str]]]:
     """Emit one (system, user, assistant) example per assistant turn.
 
     Required for Inkling ``tml_v0`` SFT via Tinker cookbook (multi-turn
     conversations raise NotImplementedError unless pre-flattened).
+
+    When ``ensure_user`` is set, orphan assistant turns (no prior user) get a
+    synthetic user so we keep the demonstration instead of dropping it.
     """
     system_msg = {"role": "system", "content": system}
     out: list[list[dict[str, str]]] = []
@@ -112,7 +127,9 @@ def flatten_to_singleturn(
                 user = messages[j]
                 break
         if user is None:
-            continue
+            if not ensure_user:
+                continue
+            user = {"role": "user", "content": SYNTHETIC_USER}
         out.append(
             [
                 system_msg,
@@ -123,20 +140,35 @@ def flatten_to_singleturn(
     return out
 
 
+def _scrub_messages(messages: list[dict[str, str]]) -> tuple[list[dict[str, str]], int]:
+    clean: list[dict[str, str]] = []
+    hits = 0
+    for m in messages:
+        scrubbed = scrub_text(m["content"])
+        hits += len(scrubbed.hits)
+        clean.append({"role": m["role"], "content": scrubbed.text})
+    return clean, hits
+
+
 def curate_from_zip(
     zip_path: Path,
     out_path: Path,
     *,
     max_examples: int = 0,
-    min_messages: int = 4,
-    max_chars: int = 12000,
+    min_messages: int = 2,
+    max_chars: int = 24000,
     path_substr: str | None = None,
-    require_tool_use: bool = True,
+    require_tool_use: bool = False,
     singleturn_out: Path | None = None,
+    singleturn_max_chars: int = 16000,
+    ensure_user: bool = True,
 ) -> Stats:
     """Curate sessions from an axport zip.
 
     ``max_examples=0`` means unlimited (full zip under filters).
+
+    Single-turn examples are flattened from the **full** parse *before*
+    session truncation so early user/assistant turns are not dropped.
     """
     stats = Stats()
     out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -159,26 +191,62 @@ def curate_from_zip(
             except Exception:
                 continue
             messages = _parse_markdown(md)
-            if len(messages) < min_messages:
-                stats.skipped_short += 1
-                continue
             if not any(m["role"] == "assistant" for m in messages):
                 stats.skipped_no_assistant += 1
                 continue
+
+            used_synthetic = False
             if not any(m["role"] == "user" for m in messages):
+                if not ensure_user:
+                    stats.skipped_short += 1
+                    continue
+                messages = [{"role": "user", "content": SYNTHETIC_USER}, *messages]
+                used_synthetic = True
+
+            if len(messages) < min_messages:
                 stats.skipped_short += 1
                 continue
             if require_tool_use and not _has_tool_use(messages):
                 stats.skipped_no_tool += 1
                 continue
-            messages = _truncate(messages, max_chars)
-            # Scrub each message
-            clean_msgs = []
-            for m in messages:
-                scrubbed = scrub_text(m["content"])
-                stats.scrub_hits += len(scrubbed.hits)
-                clean_msgs.append({"role": m["role"], "content": scrubbed.text})
-            # Drop if still huge empty
+            if used_synthetic:
+                stats.synthetic_user += 1
+
+            # Flatten from full transcript first (max data), then per-example caps.
+            flats = flatten_to_singleturn(messages, ensure_user=ensure_user)
+            for turn in flats:
+                # Cap user/assistant bodies independently; keep system intact.
+                capped = [
+                    turn[0],
+                    {
+                        "role": "user",
+                        "content": _truncate_text(turn[1]["content"], singleturn_max_chars // 2),
+                    },
+                    {
+                        "role": "assistant",
+                        "content": _truncate_text(turn[2]["content"], singleturn_max_chars // 2),
+                    },
+                ]
+                clean_turn, hits = _scrub_messages(capped)
+                stats.scrub_hits += hits
+                if sum(len(m["content"]) for m in clean_turn) < 40:
+                    continue
+                singleturn_lines.append(
+                    json.dumps(
+                        {
+                            "messages": clean_turn,
+                            "source_path": name,
+                            "license": "mixed-axport",
+                        },
+                        ensure_ascii=False,
+                    )
+                )
+                stats.singleturn_examples += 1
+
+            # Multi-turn audit artifact (truncated session).
+            session_msgs = _truncate_messages(messages, max_chars)
+            clean_msgs, hits = _scrub_messages(session_msgs)
+            stats.scrub_hits += hits
             if sum(len(m["content"]) for m in clean_msgs) < 40:
                 continue
             record = {
@@ -191,18 +259,6 @@ def curate_from_zip(
             }
             kept_lines.append(json.dumps(record, ensure_ascii=False))
             stats.kept += 1
-            for turn in flatten_to_singleturn(clean_msgs):
-                singleturn_lines.append(
-                    json.dumps(
-                        {
-                            "messages": turn,
-                            "source_path": name,
-                            "license": "mixed-axport",
-                        },
-                        ensure_ascii=False,
-                    )
-                )
-                stats.singleturn_examples += 1
 
     out_path.write_text("\n".join(kept_lines) + ("\n" if kept_lines else ""), encoding="utf-8")
     if singleturn_out is not None:
@@ -224,8 +280,9 @@ def main(argv: list[str] | None = None) -> int:
         default=0,
         help="Cap kept sessions; 0 = unlimited (full zip under filters).",
     )
-    p.add_argument("--min-messages", type=int, default=4)
-    p.add_argument("--max-chars", type=int, default=12000)
+    p.add_argument("--min-messages", type=int, default=2)
+    p.add_argument("--max-chars", type=int, default=24000)
+    p.add_argument("--singleturn-max-chars", type=int, default=16000)
     p.add_argument(
         "--path-substr",
         default="",
@@ -234,8 +291,14 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--require-tool-use",
         action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Filter to tool-use sessions only (default: false — max data).",
+    )
+    p.add_argument(
+        "--ensure-user",
+        action=argparse.BooleanOptionalAction,
         default=True,
-        help="Match allowlist.yaml require_tool_use (default: true).",
+        help="Synthesize a user turn for assistant-leading sessions (default: true).",
     )
     p.add_argument(
         "--singleturn-out",
@@ -253,6 +316,8 @@ def main(argv: list[str] | None = None) -> int:
         path_substr=args.path_substr or None,
         require_tool_use=args.require_tool_use,
         singleturn_out=args.singleturn_out,
+        singleturn_max_chars=args.singleturn_max_chars,
+        ensure_user=args.ensure_user,
     )
     print(json.dumps(stats.__dict__ | {"out": str(args.out)}, indent=2))
     return 0 if stats.kept else 1

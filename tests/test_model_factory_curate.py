@@ -2,6 +2,7 @@ import json
 import zipfile
 from pathlib import Path
 
+from opjax.model_factory.canary import embed_canaries, make_canary_set
 from opjax.model_factory.curate_axport import (
     curate_from_zip,
     flatten_to_singleturn,
@@ -29,7 +30,15 @@ def test_flatten_to_singleturn_one_per_assistant():
     assert flats[1][1]["content"] == "u2"
 
 
-def test_curate_full_zip_unlimited_and_tool_filter(tmp_path: Path):
+def test_flatten_keeps_orphan_assistant_with_synthetic_user():
+    messages = [{"role": "assistant", "content": "solo work"}]
+    flats = flatten_to_singleturn(messages, ensure_user=True)
+    assert len(flats) == 1
+    assert flats[0][1]["role"] == "user"
+    assert flats[0][2]["content"] == "solo work"
+
+
+def test_curate_max_data_keeps_non_tool_and_emits_many_singleturns(tmp_path: Path):
     zpath = tmp_path / "export.zip"
     with zipfile.ZipFile(zpath, "w") as zf:
         zf.writestr(
@@ -50,14 +59,17 @@ def test_curate_full_zip_unlimited_and_tool_filter(tmp_path: Path):
             _md(
                 [
                     ("user", "hello"),
-                    ("assistant", "hi"),
+                    ("assistant", "hi there with enough content"),
                     ("user", "more"),
-                    ("assistant", "ok"),
+                    ("assistant", "ok more content here"),
                 ]
             ),
         )
-        # short — skipped
-        zf.writestr("agent/c.md", _md([("user", "x"), ("assistant", "y")]))
+        # assistant-leading — rescued via synthetic user
+        zf.writestr(
+            "agent/c.md",
+            _md([("assistant", "starting work with enough content for keep")]),
+        )
 
     out = tmp_path / "multi.jsonl"
     single = tmp_path / "single.jsonl"
@@ -65,13 +77,35 @@ def test_curate_full_zip_unlimited_and_tool_filter(tmp_path: Path):
         zpath,
         out,
         max_examples=0,
-        require_tool_use=True,
+        min_messages=2,
+        require_tool_use=False,
+        ensure_user=True,
         singleturn_out=single,
     )
-    assert stats.kept == 1
-    assert stats.skipped_no_tool == 1
-    assert stats.singleturn_examples >= 1
-    records = [json.loads(l) for l in out.read_text().splitlines() if l.strip()]
-    assert len(records) == 1
+    assert stats.kept == 3
+    assert stats.singleturn_examples >= 4
     singles = [json.loads(l) for l in single.read_text().splitlines() if l.strip()]
     assert all(len(r["messages"]) == 3 for r in singles)
+
+
+def test_embed_canaries_jsonl_remains_linewise_parseable():
+    rows = [
+        json.dumps(
+            {
+                "messages": [
+                    {"role": "system", "content": "s"},
+                    {"role": "user", "content": "u"},
+                    {"role": "assistant", "content": "a"},
+                ]
+            }
+        )
+        for _ in range(3)
+    ]
+    text = "\n".join(rows) + "\n"
+    canaries = make_canary_set(3, seed_material="test")
+    out = embed_canaries(text, canaries)
+    parsed = [json.loads(ln) for ln in out.splitlines() if ln.strip()]
+    assert len(parsed) == 6  # 3 originals + 3 canary rows
+    blob = out
+    for c in canaries.canaries:
+        assert c.token in blob

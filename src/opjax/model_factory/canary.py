@@ -55,9 +55,60 @@ def make_canary_set(n: int = 3, *, seed_material: str | None = None) -> CanarySe
 
 
 def embed_canaries(text: str, canary_set: CanarySet) -> str:
-    """Append canaries in a comment-like block so scrub/upload paths carry them."""
+    """Embed canaries without breaking JSONL training files.
+
+    For ``.jsonl`` payloads, append valid conversation records that contain the
+    tokens (so ``json.loads`` per line still works for Tinker). For other text,
+    append a comment block.
+    """
+    stripped = text.rstrip()
+    if _looks_like_jsonl(stripped):
+        return embed_canaries_jsonl(stripped, canary_set)
     block = "\n".join(f"# {c.token}" for c in canary_set.canaries)
-    return text.rstrip() + "\n\n" + block + "\n"
+    return stripped + "\n\n" + block + "\n"
+
+
+def embed_canaries_jsonl(text: str, canary_set: CanarySet) -> str:
+    """Append canaries as valid JSONL conversation rows (train-parseable)."""
+    lines = [ln for ln in text.splitlines() if ln.strip()]
+    # Validate existing lines stay intact.
+    for ln in lines:
+        json.loads(ln)
+    extra: list[str] = []
+    for c in canary_set.canaries:
+        extra.append(
+            json.dumps(
+                {
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": (
+                                "Canary probe row for upload leak detection. "
+                                f"Token id={c.id}."
+                            ),
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Echo this canary token exactly once: {c.token}",
+                        },
+                        {"role": "assistant", "content": c.token},
+                    ],
+                    "opjax_canary_id": c.id,
+                    "license": "canary",
+                },
+                ensure_ascii=False,
+            )
+        )
+    return "\n".join(lines + extra) + "\n"
+
+
+def _looks_like_jsonl(text: str) -> bool:
+    for ln in text.splitlines():
+        s = ln.strip()
+        if not s:
+            continue
+        return s.startswith("{") or s.startswith("[")
+    return False
 
 
 def find_canaries(text: str, canary_set: CanarySet) -> list[Canary]:
