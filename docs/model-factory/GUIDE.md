@@ -106,7 +106,7 @@ Detail: `stage0/`, `stage1/`, `stage2/`.
 | Hugging Face | `sdrshn-nmbr`; use `hf auth` (not `huggingface-cli`) |
 | Tinker | 0.23.0 + cookbook 0.5.2 + `tml-renderers`; Inkling on allowlist |
 | Prime | CLI + API key present |
-| Axport / R2 | **Not configured in this VM** — Stage-4 blocker until ingress |
+| Axport / R2 | **Configured** (2026-07-16) — bucket `axport`; cursor.zip slice built |
 | Fireworks / Baseten / Harbor / portallib | Deferred |
 
 **Rule:** Stage-0 rights before any private trainer upload. Never echo secrets in terminals.

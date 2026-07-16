@@ -1,32 +1,19 @@
-# BLOCKED — Axport corpus ingress (2026-07-16)
+# Axport corpus ingress — status
 
-## Status
+## 2026-07-16 update — **UNBLOCKED**
 
-**Hard stop before private Stage-5 LoRA.**
+R2 access confirmed for bucket `axport` (ListBuckets denied; direct bucket list OK).
 
-This cloud VM has:
+| Object | Used? |
+|--------|-------|
+| `latest/_manifest.json` | Yes — session index |
+| `exports/…/cursor.zip` (~54 MB) | Yes — first train slice |
+| `exports/…/claude.zip` / `codex.zip` | Not yet |
+| `latest/export.zip` (~545 MB) | Not downloaded |
 
-- No `data/axport/raw` (or `data/factory/axport/raw`)
-- No `~/.config/axport/r2.env`
-- No `CLOUDFLARE_ACCOUNT_ID` / `R2_ACCESS_KEY_ID` / `R2_SECRET_ACCESS_KEY` in the environment
-- Generic `AWS_*` credentials present but **not** verified as Cloudflare R2 for `s3://axport/`
+First governed slice: `stage4/audit-20260716-axport-cursor.md`  
+Sign-off: `stage0/signoffs/20260716-axport-cursor-3ffdff36.md`
 
-## What is unblocked
+## Earlier block (historical)
 
-- Stage 0–2 docs
-- `opjax.factory` scrub / rights / render / preflight
-- Public Inkling Tinker smoke (`docs/model-factory/runs/inkling-smoke.md`)
-
-## How to unblock
-
-Pick one:
-
-1. **Add R2 secrets** to Cursor Cloud Environment (`CLOUDFLARE_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, optional `AXPORT_BUCKET=axport`) and re-run agent with axport sync.
-2. **Upload** a local axport export (or scrubbed JSONL) into `data/axport/raw/` on the VM (gitignored).
-3. Provide a **pre-scrubbed** train JSONL + filled `docs/model-factory/stage0/signoffs/<slice-id>.md` with Owner `APPROVE`.
-
-Then: `python -m opjax.factory render-tinker …` → `preflight` (no `--allow-public-fixture`) → Stage-5 LoRA under private spend cap.
-
-## Policy
-
-Do **not** invent private trajectories or upload Conway/employer data without Stage-0 sign-off.
+Previously this VM lacked R2 secrets. Owner provided `R2_*` credentials (store in gitignored `.env` / Cloud Environment — **rotate** if exposed in chat logs).

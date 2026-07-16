@@ -10,3 +10,4 @@
 - Private Stage-5 **blocked** on axport ingress — see `BLOCKED-axport-ingress.md`.
 - Phase 6 citation pack: `references/factory/README.md` (gitignore exception).
 - `opjax factory …` CLI dispatch; Stage-4 README stub.
+- **Axport ingress unblocked** via R2; cursor.zip → 74-traj scrubbed slice + rights sign-off `20260716-axport-cursor-3ffdff36`.
