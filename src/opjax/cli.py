@@ -68,6 +68,16 @@ def main() -> None:
         default="phase 1c: opjax click iSFT/RGT dataset",
     )
 
+    factory = subparsers.add_parser(
+        "factory",
+        help="Model Factory data path (scrub / render-tinker / audit / preflight).",
+    )
+    factory.add_argument(
+        "factory_args",
+        nargs=argparse.REMAINDER,
+        help="Args forwarded to `python -m opjax.factory` (e.g. preflight --dataset ...).",
+    )
+
     args = parser.parse_args()
 
     if args.command == "build-click-isft":
@@ -111,6 +121,15 @@ def main() -> None:
             commit_message=args.commit_message,
         )
         print(json.dumps(result, indent=2, sort_keys=True))
+        return
+
+    if args.command == "factory":
+        from opjax.factory.cli import main as factory_main
+
+        forwarded = list(args.factory_args)
+        if forwarded and forwarded[0] == "--":
+            forwarded = forwarded[1:]
+        factory_main(forwarded)
         return
 
     raise AssertionError(f"Unhandled command: {args.command}")

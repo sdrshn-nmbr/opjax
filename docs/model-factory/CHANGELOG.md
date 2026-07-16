@@ -8,3 +8,5 @@
 - Factory package `opjax.factory` for scrub → Tinker JSONL + preflight.
 - **Public Inkling Tinker smoke SUCCESS** — see `runs/inkling-smoke.md` (3 LoRA steps, checkpoint saved).
 - Private Stage-5 **blocked** on axport ingress — see `BLOCKED-axport-ingress.md`.
+- Phase 6 citation pack: `references/factory/README.md` (gitignore exception).
+- `opjax factory …` CLI dispatch; Stage-4 README stub.

@@ -23,6 +23,8 @@ __pycache__/
 # exception — see docs/design-notes for the Phase 1B port rationale
 references/*
 !references/tunix
+!references/factory/
+!references/factory/**
 checkpoints/
 data/
 logs/

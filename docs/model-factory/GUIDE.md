@@ -39,6 +39,7 @@ Public Tinker plumbing smoke **passed** (`runs/inkling-smoke.md`).
 | D9 | SFT kill restored |
 | D11 | DeepSWE = sealed/report; separate train task pool |
 | D12 | PorTAL: reproduce Qwen3→Gemma on portallib first (late) |
+| D13 | Tinker Inkling SFT path **validated** by public plumbing smoke (2026-07-16); private upload still gated by Stage-0 sign-off |
 
 ---
 

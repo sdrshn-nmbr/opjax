@@ -29,6 +29,9 @@ Within DRAFT smoke caps (`spend-caps.md`): ≤ $50 / 30 min / 50 steps.
 
 ## Notes
 
-- `num_loss_tokens` logged as `1.0` per step under mean weight reduction — investigate before Stage-5 science; does not block plumbing claim.
+- `num_loss_tokens` logged as `1.0` per step is a **metric naming quirk** under mean weight
+  reduction (weights sum to 1.0). Re-check on a tiny example showed ~30 nonzero assistant
+  token weights — training signal is present; does not block plumbing claim.
+- Default thinking effort in renderer samples: **0.9**.
 - No private Conway/axport data left the machine.
 - Next: axport ingress + Stage-0 sign-off before private LoRA.
