@@ -68,6 +68,16 @@ def main() -> None:
         default="phase 1c: opjax click iSFT/RGT dataset",
     )
 
+    mf = subparsers.add_parser(
+        "model-factory",
+        help="Model Factory governance / sealed-eval / audit tools (see docs/model-factory/).",
+    )
+    mf.add_argument(
+        "mf_args",
+        nargs=argparse.REMAINDER,
+        help="Args forwarded to opjax-model-factory (e.g. scrub PATH).",
+    )
+
     args = parser.parse_args()
 
     if args.command == "build-click-isft":
@@ -112,6 +122,14 @@ def main() -> None:
         )
         print(json.dumps(result, indent=2, sort_keys=True))
         return
+
+    if args.command == "model-factory":
+        from opjax.model_factory.cli import main as mf_main
+
+        forwarded = list(args.mf_args)
+        if forwarded and forwarded[0] == "--":
+            forwarded = forwarded[1:]
+        raise SystemExit(mf_main(forwarded))
 
     raise AssertionError(f"Unhandled command: {args.command}")
 

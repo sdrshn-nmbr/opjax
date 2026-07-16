@@ -37,6 +37,20 @@ Every link explicitly shared by Sudarshan during the planning sessions for this 
 
 - Baseten / STILL "Towards infinite context windows: neural KV cache compaction": https://www.baseten.co/research/towards-infinite-context-windows-neural-kv-cache-compaction/#introduction
 
+## Model Factory (coding post-training experiment)
+
+Citation packs live under [`references/model-factory/`](references/model-factory/INDEX.md). Key primaries:
+
+- Inkling model card: https://thinkingmachines.ai/model-card/inkling/
+- Tinker docs: https://tinker-docs.thinkingmachines.ai/
+- DeepSWE: https://deepswe.datacurve.ai/run
+- PorTAL / portallib: https://github.com/ramp-public/portallib
+- TML OPD: https://thinkingmachines.ai/blog/on-policy-distillation/
+- Prime Lab: https://www.primeintellect.ai/blog/lab
+- Devin Fusion: https://cognition.com/blog/devin-fusion
+- Composer 2.5: https://cursor.com/blog/composer-2-5
+- Living artifacts: [`docs/model-factory/`](docs/model-factory/README.md)
+
 ## Interpretability and steering
 
 - Ramp Labs Steer announcement on X: https://x.com/RampLabs/status/2039726632886235648

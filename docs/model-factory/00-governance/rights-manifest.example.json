@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "owner": "sudarshan@conway.ai",
+  "updated": "2026-07-16",
+  "notes": "EXAMPLE ONLY — copy and edit. Do not set upload_approved true for private Conway until employer review.",
+  "providers": {
+    "tinker": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO: read Thinking Machines / Tinker data retention terms",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "prime": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO: Hosted Training logs + pod disk lifetime",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "modal": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO: volume retention + opjax-secrets scope",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "fireworks": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "baseten": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "hf": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "TODO: private vs public repo policy",
+      "zero_retention_available": null,
+      "contact": null
+    }
+  },
+  "data_slices": [
+    {
+      "id": "example-public-oss",
+      "sources": ["allowlisted-oss"],
+      "employer_approval": "n_a",
+      "license_tags": ["Apache-2.0", "MIT"],
+      "pii_risk": "low",
+      "third_party_model_outputs": true,
+      "rights_cleared": false,
+      "secrets_scrubbed": false,
+      "canary_tested": false,
+      "notes": "Public OSS demos only after scrub; still mark cleared explicitly."
+    },
+    {
+      "id": "conway-axport-private",
+      "sources": ["axport", "conway"],
+      "employer_approval": "required",
+      "license_tags": ["private-conway"],
+      "pii_risk": "high",
+      "third_party_model_outputs": true,
+      "rights_cleared": false,
+      "secrets_scrubbed": false,
+      "canary_tested": false,
+      "notes": "Default DENY for all managed trainers."
+    }
+  ]
+}

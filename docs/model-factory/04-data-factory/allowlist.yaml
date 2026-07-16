@@ -1,0 +1,21 @@
+# Stage 4 project allowlist (bounded first)
+# Expand only with an explicit dated note in the rights manifest.
+
+version: 1
+projects:
+  - name: conway
+    cwd_globs:
+      - "**/conway/**"
+    rights_slice: conway-axport-private
+    default_upload: deny
+  - name: allowlisted-oss
+    # Populate with concrete org/repo slugs before curation runs.
+    repos: []
+    rights_slice: example-public-oss
+    default_upload: deny_until_cleared
+
+filters:
+  min_turns: 4
+  require_tool_use: true
+  drop_failed_parses: true
+  keep_recovery_segments: true

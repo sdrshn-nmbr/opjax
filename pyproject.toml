@@ -20,6 +20,7 @@ dependencies = [
 
 [project.scripts]
 opjax = "opjax.cli:main"
+opjax-model-factory = "opjax.model_factory.cli:main"
 
 [dependency-groups]
 dev = [

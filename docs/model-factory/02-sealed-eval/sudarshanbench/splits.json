@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "train": [],
+  "dev": [],
+  "sealed": [],
+  "time_forward": [],
+  "deepswe_report_split": [],
+  "notes": "Empty freeze scaffold. Add task IDs before Stage 5. Sealed must be non-empty and frozen in a dedicated commit before any LoRA training. DeepSWE report IDs go in deepswe_report_split only."
+}

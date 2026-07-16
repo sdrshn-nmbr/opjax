@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "currency": "USD",
+  "usd_budget_total": 1450,
+  "usd_spent": 0,
+  "usd_remaining": 1450,
+  "gpu_hours_budget": 225,
+  "gpu_hours_spent": 0,
+  "entries": [],
+  "notes": "Copy to data/model-factory/ledger/spend-ledger.json for live tracking. Agents must not raise usd_budget_total without a human dated note."
+}
