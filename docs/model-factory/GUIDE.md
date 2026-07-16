@@ -5,9 +5,9 @@ Update this file when decisions change; do not spawn parallel plans.
 Every subsystem needs a **decision**, **audit status**, **reasoning**, and **primary source**.
 
 **Status (2026-07-16):** Wave A auth done. Stages **0–2** artifacts in this tree.
-Public Tinker plumbing smoke **passed** (`runs/inkling-smoke.md`).
-**Not execution-ready for private training** until axport ingress + Stage-0 sign-off + scrub preflight
-(`BLOCKED-axport-ingress.md`).
+Public smoke **passed** (`runs/inkling-smoke.md`). Axport cursor slice + Stage-0 sign-off done.
+First governed Inkling LoRA **completed** (`runs/inkling-axport-v1.md`) — labeled
+**exploratory** until sealed SudarshanBench is non-empty.
 
 ---
 
