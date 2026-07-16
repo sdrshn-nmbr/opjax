@@ -152,6 +152,8 @@ echo "=== Smoke (no private data) ==="
 export PATH="$HOME/.local/bin:$PATH"
 # shellcheck disable=SC1091
 [[ -f "$ROOT/.venv/bin/activate" ]] && source "$ROOT/.venv/bin/activate"
+# Factory package lives in src/ without requiring full `uv sync` (JAX/tunix).
+export PYTHONPATH="$ROOT/src${PYTHONPATH:+:$PYTHONPATH}"
 
 # Full mode also needs inkling renderers for Model Factory SFT
 if [[ "$MODE" == "full" ]]; then
