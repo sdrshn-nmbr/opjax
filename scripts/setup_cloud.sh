@@ -41,7 +41,20 @@ if [[ -f "$ROOT/.env" ]]; then
   echo "Loaded .env"
 else
   echo "No .env found (ok if Cursor Environment injects secrets)."
-  echo "  cp .env.example .env   # then fill values, or set Cloud Environment secrets"
+fi
+
+# Normalize Cursor Cloud / alternate secret names → project conventions
+if [[ -z "${HF_TOKEN:-}" && -n "${HUGGINGFACE_TOKEN:-}" ]]; then
+  export HF_TOKEN="$HUGGINGFACE_TOKEN"
+fi
+if [[ -z "${HF_TOKEN:-}" && -n "${HF_API_KEY:-}" ]]; then
+  export HF_TOKEN="$HF_API_KEY"
+fi
+if [[ -z "${PRIME_API_KEY:-}" && -n "${PRIMEINTELLECT_API_KEY:-}" ]]; then
+  export PRIME_API_KEY="$PRIMEINTELLECT_API_KEY"
+fi
+if [[ -z "${PRIME_API_KEY:-}" && -n "${PRIME_KEY:-}" ]]; then
+  export PRIME_API_KEY="$PRIME_KEY"
 fi
 
 check_secrets() {
