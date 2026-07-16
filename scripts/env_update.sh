@@ -37,7 +37,15 @@ if [[ -z "${TINKER_API_KEY:-}" ]]; then
   exit 1
 fi
 
-huggingface-cli login --token "$HF_TOKEN" --add-to-git-credential
+# huggingface-cli is deprecated; use `hf auth login` (hf-cli skill).
+if command -v hf >/dev/null 2>&1; then
+  hf auth login --token "$HF_TOKEN" --add-to-git-credential
+elif python -c "import huggingface_hub" >/dev/null 2>&1; then
+  python -c "from huggingface_hub import login; import os; login(token=os.environ['HF_TOKEN'], add_to_git_credential=True)"
+else
+  echo "ERROR: neither hf nor huggingface_hub available for login" >&2
+  exit 1
+fi
 
 if [[ -n "${PRIME_API_KEY:-}" ]]; then
   prime --plain config set-api-key "$PRIME_API_KEY"

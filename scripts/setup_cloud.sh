@@ -138,7 +138,10 @@ else
     "tinker-cookbook>=0.5" \
     "anthropic>=0.40" \
     "python-dotenv>=1.0" \
-    "hf_transfer>=0.1"
+    "hf_transfer>=0.1" \
+    "pyyaml>=6.0"
+  # Inkling renderer + tokenizer bridge (tml_renderers)
+  uv pip install 'tinker-cookbook[inkling]'
 fi
 
 echo "Installing prime CLI (uv tool)..."
@@ -150,9 +153,14 @@ export PATH="$HOME/.local/bin:$PATH"
 # shellcheck disable=SC1091
 [[ -f "$ROOT/.venv/bin/activate" ]] && source "$ROOT/.venv/bin/activate"
 
+# Full mode also needs inkling renderers for Model Factory SFT
+if [[ "$MODE" == "full" ]]; then
+  uv pip install 'tinker-cookbook[inkling]' || true
+fi
+
 python - <<'PY'
 import importlib
-for m in ("tinker", "huggingface_hub", "anthropic"):
+for m in ("tinker", "huggingface_hub", "anthropic", "tml_renderers"):
     try:
         mod = importlib.import_module(m)
         ver = getattr(mod, "__version__", "?")
@@ -169,6 +177,11 @@ else
 fi
 
 echo "  prime: $(command -v prime || echo missing)"
+if command -v hf >/dev/null 2>&1; then
+  echo "  OK hf CLI: $(command -v hf)"
+else
+  echo "  -- hf CLI not on PATH (huggingface_hub login fallback OK)"
+fi
 
 check_secrets || true
 
@@ -176,7 +189,7 @@ echo ""
 echo "=== Next ==="
 echo "  1. Put secrets in .env or Cursor Cloud Environment (HF_TOKEN, TINKER_API_KEY)."
 echo "  2. source .venv/bin/activate   # or: set -a && source .env && set +a"
-echo "  3. huggingface-cli login --token \"\$HF_TOKEN\"   # once per VM"
+echo "  3. hf auth login --token \"\$HF_TOKEN\"   # once per VM (or ./scripts/env_update.sh)"
 echo "  4. prime login                 # browser or API key"
 echo "  5. Optional: tinker run list / ServiceClient smoke — no private uploads yet"
 echo "Done ($MODE)."
