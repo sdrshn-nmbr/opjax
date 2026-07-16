@@ -63,7 +63,7 @@
       "rights_cleared": true,
       "secrets_scrubbed": true,
       "canary_tested": false,
-      "notes": "2026-07-16: operator OK; scrubbed slice axport_conway_v1.jsonl for Tinker."
+      "notes": "2026-07-16: operator OK; scrubbed slices axport_conway_v1.jsonl and axport_full_v2(_singleturn).jsonl for Tinker. Full R2 export under Stage-4 filters."
     },
     {
       "id": "example-public-oss",
