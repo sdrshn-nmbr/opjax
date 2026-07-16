@@ -1,0 +1,14 @@
+{
+  "id": "sb-0003",
+  "split": "train",
+  "title": "fix is_palindrome",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0003",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0003, edit solution.py so pytest -q passes. Do not modify tests. Task: fix is_palindrome.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0003",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

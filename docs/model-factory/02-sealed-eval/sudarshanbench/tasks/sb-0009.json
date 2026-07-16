@@ -1,0 +1,14 @@
+{
+  "id": "sb-0009",
+  "split": "sealed",
+  "title": "fix balanced parens",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0009",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0009, edit solution.py so pytest -q passes. Do not modify tests. Task: fix balanced parens.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0009",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

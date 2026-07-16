@@ -1,0 +1,14 @@
+{
+  "id": "sb-0008",
+  "split": "sealed",
+  "title": "fix merge sorted",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0008",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0008, edit solution.py so pytest -q passes. Do not modify tests. Task: fix merge sorted.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0008",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

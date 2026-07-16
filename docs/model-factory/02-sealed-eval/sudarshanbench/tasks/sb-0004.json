@@ -1,0 +1,14 @@
+{
+  "id": "sb-0004",
+  "split": "train",
+  "title": "fix unique preserve order",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0004",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0004, edit solution.py so pytest -q passes. Do not modify tests. Task: fix unique preserve order.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0004",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

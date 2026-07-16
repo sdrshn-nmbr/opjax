@@ -19,6 +19,13 @@ Each task under `tasks/<id>.json`:
 }
 ```
 
-## Current state
+## Current state (frozen 2026-07-16)
 
-Splits manifest is an **empty freeze scaffold**. Populate train/dev first; freeze sealed in its own commit before Stage 5.
+| Split | Count | IDs |
+|-------|-------|-----|
+| train | 4 | sb-0001…0004 |
+| dev | 3 | sb-0005…0007 |
+| sealed | 4 | sb-0008…0011 |
+| time_forward | 1 | sb-0012 |
+
+Fixtures live under `fixtures/<id>/` (broken `solution.py` + tests). Headline metric = `pytest -q` on sealed IDs only. **Never train on sealed.**

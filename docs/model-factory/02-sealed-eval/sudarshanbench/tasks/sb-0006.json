@@ -1,0 +1,14 @@
+{
+  "id": "sb-0006",
+  "split": "dev",
+  "title": "fix flatten one level",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0006",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0006, edit solution.py so pytest -q passes. Do not modify tests. Task: fix flatten one level.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0006",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

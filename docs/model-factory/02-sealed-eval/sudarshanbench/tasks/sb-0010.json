@@ -1,0 +1,14 @@
+{
+  "id": "sb-0010",
+  "split": "sealed",
+  "title": "fix top-k frequent",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0010",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0010, edit solution.py so pytest -q passes. Do not modify tests. Task: fix top-k frequent.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0010",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

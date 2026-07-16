@@ -2,7 +2,7 @@
   "version": 1,
   "owner": "sudarshan@conway.ai",
   "updated": "2026-07-16",
-  "notes": "EXAMPLE ONLY — copy and edit. Do not set upload_approved true for private Conway until employer review.",
+  "notes": "EXAMPLE TEMPLATE. Live decisions are in rights-manifest.json (axport cleared; Tinker approved).",
   "providers": {
     "tinker": {
       "upload_approved": false,

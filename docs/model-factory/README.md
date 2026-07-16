@@ -10,7 +10,7 @@ Living experiment artifacts for the personalized coding-model factory.
 
 | Stage | Path | Gate |
 |-------|------|------|
-| 0 Governance | [00-governance/](00-governance/) | No managed-trainer upload without signed rights + pre-upload gate |
+| 0 Governance | [00-governance/](00-governance/) ([live rights-manifest.json](00-governance/rights-manifest.json)) | Axport cleared; **Tinker** upload approved; other providers denied |
 | 1 Claim | [01-claim/](01-claim/) | Written hypothesis + kill + stats |
 | 2 Sealed eval | [02-sealed-eval/](02-sealed-eval/) | Disjoint splits; DeepSWE report never trains |
 | 3 Tournament | [03-tournament/](03-tournament/) | Cost-normalized base pick |

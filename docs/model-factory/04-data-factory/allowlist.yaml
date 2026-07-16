@@ -3,16 +3,16 @@
 
 version: 1
 projects:
-  - name: conway
+  - name: axport-all
     cwd_globs:
-      - "**/conway/**"
-    rights_slice: conway-axport-private
-    default_upload: deny
+      - "**/*"
+    rights_slice: axport-all-available
+    default_upload: tinker_only_after_scrub
+    notes: "2026-07-16 operator: use whatever is available via axport."
   - name: allowlisted-oss
-    # Populate with concrete org/repo slugs before curation runs.
     repos: []
     rights_slice: example-public-oss
-    default_upload: deny_until_cleared
+    default_upload: tinker_only_after_scrub
 
 filters:
   min_turns: 4

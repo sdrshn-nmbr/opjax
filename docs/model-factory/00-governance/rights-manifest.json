@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "owner": "sudarshan@conway.ai",
+  "updated": "2026-07-16",
+  "notes": "Operator decision 2026-07-16: axport corpus is usable for this side project. Tinker may receive scrubbed uploads. Other providers stay denied until explicitly opened. secrets_scrubbed stays false until pre-upload-gate is run on a concrete slice.",
+  "providers": {
+    "tinker": {
+      "upload_approved": true,
+      "retention_reviewed": true,
+      "retention_summary": "Side-project acceptance: Thinking Machines Tinker trains remotely; treat uploads as disclosure. Prefer scrubbed JSONL only. Revisit if Conway employer policy changes.",
+      "zero_retention_available": null,
+      "contact": "sudarshan@conway.ai"
+    },
+    "prime": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "Deferred — open when Stage 6 RL needs it.",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "modal": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "Deferred — open only if research pods need private traces.",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "fireworks": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "Deferred.",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "baseten": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "Deferred.",
+      "zero_retention_available": null,
+      "contact": null
+    },
+    "hf": {
+      "upload_approved": false,
+      "retention_reviewed": false,
+      "retention_summary": "Do not push private axport-derived datasets public.",
+      "zero_retention_available": null,
+      "contact": null
+    }
+  },
+  "data_slices": [
+    {
+      "id": "axport-all-available",
+      "sources": ["axport"],
+      "employer_approval": "operator-attested-side-project",
+      "license_tags": ["mixed-axport", "may-include-private-conway"],
+      "pii_risk": "high",
+      "third_party_model_outputs": true,
+      "rights_cleared": true,
+      "secrets_scrubbed": false,
+      "canary_tested": false,
+      "notes": "2026-07-16: operator said use whatever is available via axport. Still must scrub + pass pre-upload-gate before Tinker."
+    },
+    {
+      "id": "example-public-oss",
+      "sources": ["allowlisted-oss"],
+      "employer_approval": "n_a",
+      "license_tags": ["Apache-2.0", "MIT"],
+      "pii_risk": "low",
+      "third_party_model_outputs": false,
+      "rights_cleared": true,
+      "secrets_scrubbed": false,
+      "canary_tested": false,
+      "notes": "In-repo SudarshanBench fixtures / public OSS only."
+    }
+  ]
+}
