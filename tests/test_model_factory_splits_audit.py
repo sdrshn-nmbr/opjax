@@ -10,12 +10,13 @@ from opjax.model_factory.splits import (
 )
 
 
-def test_empty_sudarshanbench_manifest_is_disjoint():
+def test_sudarshanbench_manifest_is_disjoint_and_frozen():
     manifest = load_split_manifest(
         "docs/model-factory/02-sealed-eval/sudarshanbench/splits.json"
     )
     assert_manifest_disjoint(manifest)
-    assert manifest.sealed == []
+    assert len(manifest.sealed) >= 1
+    assert validate_no_train_on_sealed(manifest.train, manifest) == []
 
 
 def test_contamination_detects_deepswe_and_sealed():
