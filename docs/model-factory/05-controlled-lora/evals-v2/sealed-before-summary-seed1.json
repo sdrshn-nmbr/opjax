@@ -1,0 +1,18 @@
+{
+  "split": "sealed",
+  "seed": 1,
+  "arms": {
+    "fewshot_rag": {
+      "n_pass": 3,
+      "n": 4,
+      "pass_rate": 0.75,
+      "report": "data/model-factory/evals/sealed-v2-before/fewshot_rag_seed1_report.json"
+    },
+    "static_policy": {
+      "n_pass": 1,
+      "n": 4,
+      "pass_rate": 0.25,
+      "report": "data/model-factory/evals/sealed-v2-before/static_policy_seed1_report.json"
+    }
+  }
+}

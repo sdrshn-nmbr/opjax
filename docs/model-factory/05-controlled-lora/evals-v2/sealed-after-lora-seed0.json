@@ -1,0 +1,41 @@
+{
+  "stage": 5,
+  "arm": "lora",
+  "split": "sealed",
+  "seed": 0,
+  "model_name": "thinkingmachines/Inkling",
+  "sampler_path": "tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final",
+  "commit_sha": "2a48b80435d155ed319fe4c1568518ae793c16ae",
+  "harness": "opjax.model_factory.eval_sudarshanbench",
+  "n": 4,
+  "n_pass": 4,
+  "pass_rate": 1.0,
+  "wall_seconds": 84.81081642900244,
+  "checked_at": "2026-07-17T06:52:23.999967+00:00",
+  "results": [
+    {
+      "id": "sb-0008",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_text|>```python\ndef merge_sorted(a, b):\n    result = []\n    i = j = 0\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            result.append(a[i])\n            i += 1\n        else:\n            result.append(b[j])\n            j += 1\n    result.extend(a[i:])\n    result.extend(b[j:])\n    return result\n```<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0009",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_text|>```python\ndef balanced(s):\n    stack = []\n    for c in s:\n        if c == \"(\":\n            stack.append(c)\n        elif c == \")\":\n            if not stack:\n                return False\n            stack.pop()\n    return not stack\n```<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0010",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_text|>```python\nfrom collections import Counter\n\ndef top_k(xs, k):\n    return [x for x, _ in Counter(xs).most_common(k)]\n```<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "id": "sb-0011",
+      "pass": true,
+      "extracted": true,
+      "completion_preview": "<|message_model|><|content_text|>```python\ndef deep_get(d, path):\n    current = d\n    for key in path.split(\".\"):\n        current = current[key]\n    return current\n```<|end_message|><|content_model_end_sampling|>"
+    }
+  ]
+}

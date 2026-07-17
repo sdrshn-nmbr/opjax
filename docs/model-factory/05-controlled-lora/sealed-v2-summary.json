@@ -1,0 +1,34 @@
+{
+  "final_sampler": "tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final",
+  "sealed": {
+    "lora": {
+      "seeds": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mean": 1.0
+    },
+    "fewshot_rag": {
+      "seeds": [
+        0.25,
+        0.75,
+        0.75
+      ],
+      "mean": 0.583
+    },
+    "static_policy": {
+      "seeds": [
+        0.25,
+        0.25,
+        0.0
+      ],
+      "mean": 0.167
+    },
+    "base_seed0": 0.0,
+    "prompt_rules_seed0": 0.0
+  },
+  "kill_triggered": false,
+  "best_control": "fewshot_rag",
+  "lift_vs_best_control": 0.417
+}

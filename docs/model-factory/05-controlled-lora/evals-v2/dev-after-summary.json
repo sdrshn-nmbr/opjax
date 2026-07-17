@@ -1,0 +1,12 @@
+{
+  "split": "dev",
+  "seed": 0,
+  "arms": {
+    "lora": {
+      "n_pass": 3,
+      "n": 3,
+      "pass_rate": 1.0,
+      "report": "data/model-factory/evals/dev-v2-after/lora_seed0_report.json"
+    }
+  }
+}

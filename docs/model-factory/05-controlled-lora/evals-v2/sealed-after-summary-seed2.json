@@ -1,0 +1,12 @@
+{
+  "split": "sealed",
+  "seed": 2,
+  "arms": {
+    "lora": {
+      "n_pass": 4,
+      "n": 4,
+      "pass_rate": 1.0,
+      "report": "data/model-factory/evals/sealed-v2-after/lora_seed2_report.json"
+    }
+  }
+}
