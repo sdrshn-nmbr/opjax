@@ -1,0 +1,75 @@
+{
+  "n": 8,
+  "tp": 4,
+  "tn": 4,
+  "fp": 0,
+  "fn": 0,
+  "fp_rate": 0.0,
+  "fn_rate": 0.0,
+  "cases": [
+    {
+      "task_id": "sb-0013",
+      "label": "broken_fixture",
+      "expected_pass": false,
+      "predicted_pass": false,
+      "kind": "tn",
+      "reward": 0.0
+    },
+    {
+      "task_id": "sb-0013",
+      "label": "known_good",
+      "expected_pass": true,
+      "predicted_pass": true,
+      "kind": "tp",
+      "reward": 1.0
+    },
+    {
+      "task_id": "sb-0014",
+      "label": "broken_fixture",
+      "expected_pass": false,
+      "predicted_pass": false,
+      "kind": "tn",
+      "reward": 0.0
+    },
+    {
+      "task_id": "sb-0014",
+      "label": "known_good",
+      "expected_pass": true,
+      "predicted_pass": true,
+      "kind": "tp",
+      "reward": 1.0
+    },
+    {
+      "task_id": "sb-0015",
+      "label": "broken_fixture",
+      "expected_pass": false,
+      "predicted_pass": false,
+      "kind": "tn",
+      "reward": 0.0
+    },
+    {
+      "task_id": "sb-0015",
+      "label": "known_good",
+      "expected_pass": true,
+      "predicted_pass": true,
+      "kind": "tp",
+      "reward": 1.0
+    },
+    {
+      "task_id": "sb-0016",
+      "label": "broken_fixture",
+      "expected_pass": false,
+      "predicted_pass": false,
+      "kind": "tn",
+      "reward": 0.0
+    },
+    {
+      "task_id": "sb-0016",
+      "label": "known_good",
+      "expected_pass": true,
+      "predicted_pass": true,
+      "kind": "tp",
+      "reward": 1.0
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "findings": [
+    {
+      "channel": "train_jsonl",
+      "severity": "info",
+      "path": "data/model-factory/audits/axport_full_v2_singleturn.scrubbed.jsonl",
+      "detail": "path missing \u2014 skip (common when data/ is local-only)"
+    }
+  ]
+}

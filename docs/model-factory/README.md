@@ -4,7 +4,7 @@ Living experiment artifacts for the personalized coding-model factory.
 
 **Source plan (do not edit from agents casually):** `/opt/cursor/artifacts/plans/inkling_coding_ft_experiment_269bb455.plan.md`
 
-**Status:** Stages **0–2** are implemented as enforceable docs + tooling. Stages **3–10** are gated runbooks — do not fund training claims until earlier gates pass.
+**Status:** Stages **0–2** enforceable. Stage **3** base locked (Inkling). Stage **4** closeout recorded. Stage **5** LoRA sealed win (v2). Stage **6** env-qual + thin-RL tooling in progress — no Inkling RL spend without operator OK. Stages **7–10** remain gated runbooks.
 
 ## Index
 
@@ -14,9 +14,9 @@ Living experiment artifacts for the personalized coding-model factory.
 | 1 Claim | [01-claim/](01-claim/) | Written hypothesis + kill + stats |
 | 2 Sealed eval | [02-sealed-eval/](02-sealed-eval/) | Disjoint splits; DeepSWE report never trains |
 | 3 Tournament | [03-tournament/](03-tournament/) | Cost-normalized base pick |
-| 4 Data factory | [04-data-factory/](04-data-factory/) | Audit metrics + scrubbed JSONL |
-| 5 Controlled LoRA | [05-controlled-lora/](05-controlled-lora/) — [results-v1](05-controlled-lora/results-v1.md) | Sealed win vs no-training controls |
-| 6 Env RL | [06-env-rl/](06-env-rl/) | Verifier FP/FN + lag bounds |
+| 4 Data factory | [04-data-factory/](04-data-factory/) — [audit closeout](04-data-factory/audit-metrics.md) | Audit metrics + scrubbed JSONL |
+| 5 Controlled LoRA | [05-controlled-lora/](05-controlled-lora/) — [results-v2](05-controlled-lora/results-v2.md) — [promote](05-controlled-lora/promote-to-stage6.md) | Sealed win vs no-training controls |
+| 6 Env RL | [06-env-rl/](06-env-rl/) — [artifacts](06-env-rl/artifacts.md) — [harden](06-env-rl/sealed-harden.md) | Verifier FP/FN + lag bounds |
 | 7 Fusion | [07-fusion/](07-fusion/) | Solo sidekick sealed win first |
 | 8 Teacher | [08-teacher/](08-teacher/) | OPD only if logprobs+token-compatible |
 | 9 PorTAL | [09-portal/](09-portal/) | Qwen3→Gemma replication first |
@@ -45,6 +45,15 @@ uv run opjax-model-factory audit-jsonl path/to/data.jsonl
 # Validate sealed splits
 uv run opjax-model-factory check-splits \
   --manifest docs/model-factory/02-sealed-eval/sudarshanbench/splits.json
+
+# Stage 6 env-qual (local / $0)
+uv run opjax-model-factory scan-solutions \
+  --write docs/model-factory/06-env-rl/evals/solution-scan.json
+uv run opjax-model-factory verifier-probe \
+  --write docs/model-factory/06-env-rl/evals/verifier-probe.json
+
+# Thin RL planner only (no spend)
+uv run opjax-model-factory thin-rl -- --dry-run
 ```
 
 Also: `uv run opjax model-factory -- scrub …`

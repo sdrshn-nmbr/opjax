@@ -1,8 +1,8 @@
 {
   "version": 1,
   "owner": "sudarshan@conway.ai",
-  "updated": "2026-07-16",
-  "notes": "Operator decision 2026-07-16: axport corpus is usable for this side project. Tinker may receive scrubbed uploads. Other providers stay denied until explicitly opened. secrets_scrubbed stays false until pre-upload-gate is run on a concrete slice.",
+  "updated": "2026-07-19",
+  "notes": "Operator decision 2026-07-16: axport corpus is usable for this side project. Tinker may receive scrubbed uploads. Other providers stay denied until explicitly opened. 2026-07-19 Stage-4 closeout: axport-all-available scrubbed+canary-tested; Stage-5 promoted to unlock Stage-6 env-qual (Prime upload still deferred until operator opens it).",
   "providers": {
     "tinker": {
       "upload_approved": true,
@@ -62,8 +62,8 @@
       "third_party_model_outputs": true,
       "rights_cleared": true,
       "secrets_scrubbed": true,
-      "canary_tested": false,
-      "notes": "2026-07-16: operator OK; scrubbed slices axport_conway_v1.jsonl and axport_full_v2(_singleturn).jsonl for Tinker. Full R2 export under Stage-4 filters."
+      "canary_tested": true,
+      "notes": "2026-07-16: operator OK; scrubbed slices axport_conway_v1.jsonl and axport_full_v2(_singleturn).jsonl for Tinker. Full R2 export under Stage-4 filters. 2026-07-19 closeout: canary_tested=true after pre-upload-gate + Stage-5 upload path; see 04-data-factory/audit-metrics.md."
     },
     {
       "id": "example-public-oss",
