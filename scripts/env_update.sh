@@ -6,6 +6,7 @@
 #   HUGGINGFACE_TOKEN or HF_TOKEN
 #   TINKER_API_KEY
 #   PRIMEINTELLECT_API_KEY or PRIME_API_KEY  (optional but recommended)
+#   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY (axport read)
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -18,15 +19,15 @@ if [[ -f .env ]]; then
   set +a
 fi
 
+# Map Cloud secret names before any tool/auth step
+export HF_TOKEN="${HF_TOKEN:-${HUGGINGFACE_TOKEN:-${HF_API_KEY:-}}}"
+export PRIME_API_KEY="${PRIME_API_KEY:-${PRIMEINTELLECT_API_KEY:-${PRIME_KEY:-}}}"
+
 # Ensure packages exist (no-op if already installed)
 ./scripts/setup_cloud.sh --factory
 
 # shellcheck disable=SC1091
 source .venv/bin/activate
-
-# Aliases (also applied inside setup_cloud.sh)
-export HF_TOKEN="${HF_TOKEN:-${HUGGINGFACE_TOKEN:-${HF_API_KEY:-}}}"
-export PRIME_API_KEY="${PRIME_API_KEY:-${PRIMEINTELLECT_API_KEY:-}}"
 
 if [[ -z "${HF_TOKEN:-}" ]]; then
   echo "ERROR: HF_TOKEN / HUGGINGFACE_TOKEN not set" >&2

@@ -61,7 +61,7 @@ check_secrets() {
   echo ""
   echo "=== Secret presence (values hidden) ==="
   local required=(HF_TOKEN TINKER_API_KEY)
-  local optional=(PRIME_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY WANDB_API_KEY TOGETHER_API_KEY MODAL_TOKEN_ID MODAL_TOKEN_SECRET)
+  local optional=(PRIME_API_KEY ANTHROPIC_API_KEY OPENAI_API_KEY WANDB_API_KEY TOGETHER_API_KEY MODAL_TOKEN_ID MODAL_TOKEN_SECRET R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY)
   local missing=0
   for k in "${required[@]}"; do
     if [[ -n "${!k:-}" ]]; then
@@ -138,7 +138,8 @@ else
     "tinker-cookbook>=0.5" \
     "anthropic>=0.40" \
     "python-dotenv>=1.0" \
-    "hf_transfer>=0.1"
+    "hf_transfer>=0.1" \
+    "boto3>=1.34"
 fi
 
 echo "Installing prime CLI (uv tool)..."
@@ -174,9 +175,12 @@ check_secrets || true
 
 echo ""
 echo "=== Next ==="
-echo "  1. Put secrets in .env or Cursor Cloud Environment (HF_TOKEN, TINKER_API_KEY)."
+echo "  1. Cloud secrets: HUGGINGFACE_TOKEN / HF_TOKEN, TINKER_API_KEY,"
+echo "     PRIMEINTELLECT_API_KEY / PRIME_API_KEY,"
+echo "     R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY (aliases mapped here)."
 echo "  2. source .venv/bin/activate   # or: set -a && source .env && set +a"
-echo "  3. hf auth login --token \"\$HF_TOKEN\"   # once per VM (not huggingface-cli)"
-echo "  4. prime login / prime config set-api-key   # browser or API key"
-echo "  5. Optional: tinker run list / ServiceClient smoke — no private uploads yet"
+echo "  3. hf auth login --token \"\$HF_TOKEN\"   # once per VM (not huggingface-cli); or env_update.sh"
+echo "  4. prime --plain config set-api-key \"\$PRIME_API_KEY\"  # non-interactive cloud (or prime login)"
+echo "  5. ./scripts/smoke_cloud_toolchain.sh   # tinker/HF/prime + axport R2 read"
+echo "  6. No private training uploads until Stage-0 rights gate."
 echo "Done ($MODE)."
