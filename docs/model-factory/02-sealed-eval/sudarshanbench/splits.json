@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "train": [
     "sb-0001",
     "sb-0002",
@@ -15,11 +15,15 @@
     "sb-0008",
     "sb-0009",
     "sb-0010",
-    "sb-0011"
+    "sb-0011",
+    "sb-0013",
+    "sb-0014",
+    "sb-0015",
+    "sb-0016"
   ],
   "time_forward": [
     "sb-0012"
   ],
   "deepswe_report_split": [],
-  "notes": "Frozen 2026-07-16: in-repo mechanical sidekick micro-tasks. Sealed IDs must never train."
+  "notes": "v2 harden 2026-07-19: keep v1 sealed IDs (never train) and add sb-0013..0016 for Stage-6 headroom. v1 freeze archived at splits.v1-freeze.json. Headline Stage-6 metric = pytest on sealed v2."
 }

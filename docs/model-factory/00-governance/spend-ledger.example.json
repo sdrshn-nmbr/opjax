@@ -2,10 +2,31 @@
   "version": 1,
   "currency": "USD",
   "usd_budget_total": 1450,
-  "usd_spent": 0,
-  "usd_remaining": 1450,
+  "usd_spent": 286.34,
+  "usd_remaining": 1163.66,
   "gpu_hours_budget": 225,
   "gpu_hours_spent": 0,
-  "entries": [],
-  "notes": "Copy to data/model-factory/ledger/spend-ledger.json for live tracking. Agents must not raise usd_budget_total without a human dated note."
+  "entries": [
+    {
+      "id": "stage5-inkling-lora-v2",
+      "date": "2026-07-16",
+      "stage": 5,
+      "provider": "tinker",
+      "usd": 126.0,
+      "gpu_hours": 0,
+      "hypothesis_id": "stage1-sealed-lora",
+      "notes": "Inkling LoRA SFT v2 ~48.4M train tokens + sealed evals; sampler tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final. USD estimated from Usage chart Jul 16-17 Inkling bars; reconcile pending finer export."
+    },
+    {
+      "id": "period-other-jul13",
+      "date": "2026-07-13",
+      "stage": "unallocated",
+      "provider": "tinker",
+      "usd": 160.34,
+      "gpu_hours": 0,
+      "hypothesis_id": null,
+      "notes": "Residual to match July 2026 period total $286.34. Jul 13 ~$160 bar not attributed to Inkling in Usage legend — reclass when CSV export available."
+    }
+  ],
+  "notes": "Copy to data/model-factory/ledger/spend-ledger.json for live tracking. Reconciled 2026-07-19 from Tinker Usage screenshot. Agents must not raise usd_budget_total without a human dated note. Wallet remaining (~$65) is console balance, distinct from usd_remaining vs soft ceiling."
 }

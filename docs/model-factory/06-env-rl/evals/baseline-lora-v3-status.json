@@ -1,0 +1,12 @@
+{
+  "status": "blocked_network",
+  "checked_at": "2026-07-19T22:29:15Z",
+  "arm": "lora",
+  "split": "sealed",
+  "splits_version": 2,
+  "n_sealed": 8,
+  "sampler_path": "tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final",
+  "command": "PYTHONPATH=src python -m opjax.model_factory.eval_sudarshanbench --arms lora --sampler-path 'tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final' --split sealed --seed 0 --stage 6 --out-dir data/model-factory/evals/sealed-v3-baseline-lora",
+  "error": "tinker.APIConnectionError: Connection error (auth_token / ServiceClient init)",
+  "notes": "Sealed harden tasks + env-qual completed locally. Re-run baseline from a host with Tinker egress before funded thin RL. Do not waive kill contrast."
+}

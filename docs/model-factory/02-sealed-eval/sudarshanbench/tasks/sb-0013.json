@@ -1,0 +1,14 @@
+{
+  "id": "sb-0013",
+  "split": "sealed",
+  "title": "fix merge intervals",
+  "repo": "local:opjax",
+  "fixture_dir": "docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0013",
+  "prompt": "In docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0013, edit solution.py so pytest -q passes. Do not modify tests. Task: fix merge intervals.",
+  "test_command": "pytest -q docs/model-factory/02-sealed-eval/sudarshanbench/fixtures/sb-0013",
+  "rubric": [
+    "minimal-diff",
+    "no-test-edits"
+  ],
+  "license": "Apache-2.0"
+}

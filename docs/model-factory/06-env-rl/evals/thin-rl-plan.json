@@ -1,0 +1,24 @@
+{
+  "mode": "thin_rl_plan",
+  "checked_at": "2026-07-19T22:23:58Z",
+  "config": {
+    "model_name": "thinkingmachines/Inkling",
+    "sampler_path": "tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final",
+    "learning_rate": 1e-05,
+    "group_size": 2,
+    "max_steps": 20,
+    "max_tokens": 512,
+    "temperature": 0.7,
+    "kl_penalty_coef": 0.05,
+    "problems_per_step": 4,
+    "seed": 0,
+    "stage": 6
+  },
+  "task_ids": ["sb-0001", "sb-0002", "sb-0003", "sb-0004"],
+  "substrate": "tinker",
+  "warm_start": "tinker://21e391ab-7c5d-573c-9477-16c93df81a08:train:0/sampler_weights/final",
+  "loss_fn": "importance_sampling",
+  "est_tokens_rough": 163840,
+  "spend_approved": false,
+  "blocked": "pass --i-approve-spend after operator OK (and prefer --dry-run first)"
+}

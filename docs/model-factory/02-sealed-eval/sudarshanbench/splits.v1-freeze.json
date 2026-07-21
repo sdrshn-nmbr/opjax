@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "train": [
+    "sb-0001",
+    "sb-0002",
+    "sb-0003",
+    "sb-0004"
+  ],
+  "dev": [
+    "sb-0005",
+    "sb-0006",
+    "sb-0007"
+  ],
+  "sealed": [
+    "sb-0008",
+    "sb-0009",
+    "sb-0010",
+    "sb-0011"
+  ],
+  "time_forward": [
+    "sb-0012"
+  ],
+  "deepswe_report_split": [],
+  "notes": "Frozen 2026-07-16: in-repo mechanical sidekick micro-tasks. Sealed IDs must never train. Archived 2026-07-19 when splits.json advanced to v2 harden set."
+}
