@@ -1,0 +1,27 @@
+{
+  "name": "inference-book",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Local-only reading surface for the Inference Engineering PDF (personal use). Verbatim content is gitignored and never deployed.",
+  "scripts": {
+    "extract": "uv run scripts/extract_pdf.py \"$HOME/Downloads/Inference Engineering.pdf\"",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1 --port ${PORT:-4322}",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@fontsource-variable/newsreader": "^5.1.0",
+    "@fontsource/iosevka": "^5.1.0",
+    "astro": "^4.16.18",
+    "katex": "^0.16.15",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "post-training-book",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "A long-scrolling digital monograph on post-training open-source LLMs, assembled from 23 research blog posts by Baseten Research and Thinking Machines Lab.",
+  "scripts": {
+    "dev": "pnpm run sync && astro dev",
+    "sync": "node scripts/sync-chapters.mjs",
+    "build": "pnpm run sync && astro build",
+    "preview": "astro preview --host 127.0.0.1 --port ${PORT:-4321}",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@fontsource-variable/newsreader": "^5.1.0",
+    "@fontsource/iosevka": "^5.1.0",
+    "astro": "^4.16.18",
+    "katex": "^0.16.15",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
+    "typescript": "^5.7.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "sharp"]
+  }
+}

@@ -1,0 +1,77 @@
+---
+import BookLayout from '../layouts/BookLayout.astro';
+import { getCollection } from 'astro:content';
+
+const entries = await getCollection('chapters');
+const chapters = entries
+  .map((e) => ({
+    slug: e.slug,
+    title: e.data.title,
+    chapter: e.data.chapter,
+    pageStart: e.data.pageStart,
+    pageEnd: e.data.pageEnd,
+  }))
+  .sort((a, b) => a.chapter - b.chapter);
+---
+
+<BookLayout title="Inference Engineering — Local Reader">
+  <section class="cover">
+    <span class="cover-eyebrow">A Local Reader · Personal Use</span>
+    <h1 class="cover-title">Inference <em>Engineering</em></h1>
+    <p class="cover-subtitle">
+      A long-scroll reading surface for the book by Philip Kiely. The text is
+      reflowed from the source PDF and rendered with the same typography as the
+      Post-Training book — wide column, serif body, light/dark toggle, figures
+      inline with the prose that introduces them.
+    </p>
+    <div class="cover-meta">
+      <span>By Philip Kiely</span>
+      <span>{chapters.length} Chapters</span>
+      <span>Local-Only · Not Deployed</span>
+    </div>
+  </section>
+
+  <section class="guide" id="guide">
+    <p>
+      Read top to bottom. The
+      <a href="/book">whole book</a>
+      is rendered on a single long-scroll page; chapter openings carry the
+      chapter number, title, and original page range so the link back to the
+      PDF is one cross-reference away. Each chapter is separated from the next
+      by a small ornamented rule.
+    </p>
+    <p>
+      Use the contents below to jump to a specific chapter. The light-mode
+      toggle in the top nav is independent of the Post-Training book — both
+      surfaces can hold opposite themes simultaneously.
+    </p>
+  </section>
+
+  <section class="toc" id="contents">
+    <header class="toc-header">
+      <div class="toc-eyebrow">Contents</div>
+    </header>
+    {chapters.length === 0 ? (
+      <p class="guide" style="opacity:0.7">
+        No chapters extracted yet. Run <code>pnpm run extract</code> to populate
+        <code>src/content/chapters/</code> from the PDF, then reload.
+      </p>
+    ) : (
+      <ul class="toc-chapters" style="list-style:none;padding:0;">
+        {chapters.map((c) => (
+          <li class="toc-chapter">
+            <span class="toc-chapter-num">{String(c.chapter).padStart(2, '0')}</span>
+            <a class="toc-chapter-title" href={`/book#chapter-${c.chapter}`}>
+              {c.title}
+              {c.pageStart && c.pageEnd && (
+                <span class="toc-source">
+                  pp. {c.pageStart}–{c.pageEnd}
+                </span>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</BookLayout>
