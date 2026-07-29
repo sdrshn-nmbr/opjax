@@ -43,6 +43,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     sample.add_argument("--resume", action="store_true")
     sample.add_argument("--limit", type=int)
+    sample.add_argument("--workload", action="append", dest="workloads")
     sample.add_argument("--dry-run", action="store_true")
     sample.add_argument("--sample-timeout-seconds", type=float, default=600)
 
@@ -100,6 +101,7 @@ def main(argv: list[str] | None = None) -> int:
                     prompt_context=PromptContext(args.prompt_context),
                     resume=args.resume,
                     limit=args.limit,
+                    workloads=args.workloads,
                     dry_run=args.dry_run,
                     sample_timeout_seconds=args.sample_timeout_seconds,
                 )

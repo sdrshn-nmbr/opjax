@@ -114,6 +114,7 @@ async def sample_kernels(
     prompt_context: PromptContext,
     resume: bool,
     limit: int | None,
+    workloads: list[str] | None,
     dry_run: bool,
     sample_timeout_seconds: float,
 ) -> dict[str, Any]:
@@ -126,6 +127,13 @@ async def sample_kernels(
             "PALLAS_SAMPLE_DIAGNOSTIC prompt_context=baseline scorable=false",
             flush=True,
         )
+    public_tasks = list(bundle.splits["public_evaluation"]["task_ids"])
+    tasks = workloads or public_tasks
+    unknown = sorted(set(tasks) - set(public_tasks))
+    if unknown:
+        raise SamplingError(f"WORKLOAD_NOT_PUBLIC_JAXBENCH: {unknown}")
+    if limit is not None:
+        tasks = tasks[:limit]
     revision = verify_source_checkout(bundle, "jaxbench", jaxbench_root)
     fingerprint = _sampling_fingerprint(
         bundle=bundle,
@@ -134,9 +142,6 @@ async def sample_kernels(
         arm=arm,
         prompt_context=prompt_context,
     )
-    tasks = list(bundle.splits["public_evaluation"]["task_ids"])
-    if limit is not None:
-        tasks = tasks[:limit]
     if dry_run:
         return {
             "ok": True,
