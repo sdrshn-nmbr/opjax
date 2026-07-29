@@ -63,6 +63,27 @@ def workload(x):
     return jnp.square(x)
 """
 
+IDENTITY_FALLBACK = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x, enabled=True):
+    if enabled:
+        shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+        return pl.pallas_call(kernel, out_shape=shape)(x)
+    return x
+"""
+
+ASSIGNED_PALLAS_RESULT = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    output = pl.pallas_call(kernel, out_shape=shape)(x)
+    return output
+"""
+
 
 def _judge(
     source: str,
@@ -116,6 +137,20 @@ def test_plain_jax_fallback_is_rejected() -> None:
     assert inspection.authentic is False
     assert inspection.has_plain_jax_fallback is True
     assert "PLAIN_JAX_FALLBACK" in inspection.reasons
+
+
+def test_identity_fallback_is_rejected() -> None:
+    inspection = inspect_pallas_source(IDENTITY_FALLBACK)
+
+    assert inspection.authentic is False
+    assert inspection.has_plain_jax_fallback is True
+
+
+def test_assigned_pallas_result_is_not_misclassified_as_fallback() -> None:
+    inspection = inspect_pallas_source(ASSIGNED_PALLAS_RESULT)
+
+    assert inspection.authentic is True
+    assert inspection.has_plain_jax_fallback is False
 
 
 def test_reference_visible_context_is_never_scorable() -> None:

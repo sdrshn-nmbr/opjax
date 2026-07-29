@@ -122,10 +122,69 @@ def _is_pallas_call(name: str | None, direct_aliases: set[str], module_aliases: 
     return any(name == f"{alias}.pallas_call" for alias in module_aliases)
 
 
-def _is_plain_jax_call(name: str | None) -> bool:
-    if not name:
-        return False
-    return name.startswith(("jnp.", "jax.numpy.", "numpy.", "np."))
+def _expression_reaches_pallas(
+    expression: ast.AST,
+    *,
+    direct_aliases: set[str],
+    module_aliases: set[str],
+    reaches_pallas: set[str],
+    pallas_values: set[str],
+) -> bool:
+    for node in ast.walk(expression):
+        if isinstance(node, ast.Call):
+            called = _call_name(node)
+            if (
+                _is_pallas_call(called, direct_aliases, module_aliases)
+                or called in reaches_pallas
+                or called in pallas_values
+            ):
+                return True
+        if isinstance(node, ast.Name) and node.id in pallas_values:
+            return True
+    return False
+
+
+def _has_non_pallas_return(
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    direct_aliases: set[str],
+    module_aliases: set[str],
+    reaches_pallas: set[str],
+) -> bool:
+    pallas_values: set[str] = set()
+    nodes = list(_effective_block(function.body))
+    changed = True
+    while changed:
+        changed = False
+        for node in nodes:
+            if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+                continue
+            value = node.value
+            if value is None or not _expression_reaches_pallas(
+                value,
+                direct_aliases=direct_aliases,
+                module_aliases=module_aliases,
+                reaches_pallas=reaches_pallas,
+                pallas_values=pallas_values,
+            ):
+                continue
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            for target in targets:
+                if isinstance(target, ast.Name) and target.id not in pallas_values:
+                    pallas_values.add(target.id)
+                    changed = True
+    returns = [node for node in nodes if isinstance(node, ast.Return)]
+    return any(
+        node.value is not None
+        and not _expression_reaches_pallas(
+            node.value,
+            direct_aliases=direct_aliases,
+            module_aliases=module_aliases,
+            reaches_pallas=reaches_pallas,
+            pallas_values=pallas_values,
+        )
+        for node in returns
+    )
 
 
 def _effective_nodes(node: ast.AST) -> Iterable[ast.AST]:
@@ -215,7 +274,6 @@ def inspect_pallas_source(source: str) -> PallasInspection:
         )
         for name, function in functions.items()
     }
-    plain_returns: dict[str, bool] = {name: False for name in functions}
     for name, function in functions.items():
         for node in _effective_block(function.body):
             if isinstance(node, ast.Call):
@@ -228,11 +286,6 @@ def inspect_pallas_source(source: str) -> PallasInspection:
                         kernel_name = node.args[0].id
                         if kernel_name in functions:
                             graph[name].add(kernel_name)
-            if isinstance(node, ast.Return) and node.value is not None:
-                plain_returns[name] = plain_returns[name] or any(
-                    isinstance(child, ast.Call) and _is_plain_jax_call(_call_name(child))
-                    for child in ast.walk(node.value)
-                )
 
     reachable = {"workload"}
     pending = ["workload"]
@@ -243,9 +296,28 @@ def inspect_pallas_source(source: str) -> PallasInspection:
                 reachable.add(called)
                 pending.append(called)
 
+    reaches_pallas = {
+        name for name, count in pallas_calls.items() if count > 0
+    }
+    changed = True
+    while changed:
+        changed = False
+        for name, called_functions in graph.items():
+            if name not in reaches_pallas and called_functions & reaches_pallas:
+                reaches_pallas.add(name)
+                changed = True
+
     reachable_count = sum(pallas_calls[name] for name in reachable)
     total_count = sum(all_pallas_calls.values())
-    has_fallback = reachable_count > 0 and any(plain_returns[name] for name in reachable)
+    has_fallback = reachable_count > 0 and any(
+        _has_non_pallas_return(
+            functions[name],
+            direct_aliases=direct_aliases,
+            module_aliases=module_aliases,
+            reaches_pallas=reaches_pallas,
+        )
+        for name in reachable & reaches_pallas
+    )
     reasons: list[str] = []
     if reachable_count == 0:
         reasons.append("PALLAS_PATH_UNREACHABLE")
