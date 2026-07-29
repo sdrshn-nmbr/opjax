@@ -4,9 +4,9 @@
 Update this file when decisions change; do not spawn parallel plans.
 Every subsystem needs a **decision**, **audit status**, **reasoning**, and **primary source**.
 
-**Status (2026-07-23):** Sole plan =
-`~/.cursor/plans/inkling_coding_ft_experiment_269bb455.plan.md` (do not spawn parallel plans).
-Stages **0–5** done. Stage-6 SudarshanBench RL killed. Recalibrating to Pallas/JAXBench hillclimb (Kevin/MaxKernel) — operator keep/throw in plan §11.5.
+**Status (2026-07-29):** Sole plan =
+`~/.codex/plans/opjax-pallas-agent.plan.md` (do not spawn parallel Pallas plans).
+Stages **0–5** and the killed SudarshanBench thin-RL experiment are historical controls. The active Pallas track is at G0 experiment-contract freeze, followed by G1 evaluation hardening.
 
 ---
 

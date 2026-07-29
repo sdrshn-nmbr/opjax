@@ -1,35 +1,41 @@
-# Stage 1 — Falsifiable claim
+# Pallas Agent — Falsifiable claim
 
 ## Claim (binding)
 
-> A **governed LoRA** on a **currently trainable** base improves **one mechanical sidekick task family** over **prompt-only**, **few-shot/RAG**, and **static-policy** (linter/tool-guard) controls, at a **fixed USD / GPU-hour / wall-clock budget**, on a **sealed** SudarshanBench split.
+> Starting from base `thinkingmachines/Inkling`, governed Pallas-specific
+> training produces authentic Pallas kernels that compile on TPU v5e, are
+> correct at full target shapes, and outperform the JAX/XLA baseline on unseen
+> kernel families.
 
-## Scope of “mechanical sidekick”
+Success is lexicographic: compile, correct, authentic Pallas, stable timing, and
+then faster than baseline. Failing an earlier condition prevents headline
+credit from a later condition.
 
-First family (v1): **bounded implementation tasks** — apply a specified change in an allowlisted repo with tests as oracle (edit files, run tests, stop). Explicitly **not** open-ended product planning, Fusion routing, or multi-hour autonomy.
+## Controls
 
-## Controls (must all be run)
+| Arm | Starting point | Training |
+|-----|----------------|----------|
+| `A` | Base Inkling | None |
+| `B` | Base Inkling | Verified Pallas SFT |
+| `C` | Base Inkling | Kernel-domain adaptive LoRA, then B's identical SFT |
+| `D` | Base Inkling | Kernel-domain adaptive LoRA only; diagnostic |
 
-| Arm | Description |
-|-----|-------------|
-| `base` | Frozen base, default system prompt |
-| `prompt_rules` | Base + tigerstyle/philosophy rules in system prompt |
-| `fewshot_rag` | Base + retrieved exemplars from train split only |
-| `static_policy` | Base + linters/tool guards (no weight update) |
-| `lora` | Governed LoRA/SFT under Stage-5 runbook |
+Public JAXBench is a comparator, not a globally sealed benchmark. A separate
+private family-heldout evaluation is required for a generalization claim.
 
-## Kill condition (restored)
+## Stop conditions
 
-If Stage-5 `lora` fails to beat the best no-training control on the **sealed** split under the Stage-5 spend cap:
-
-1. Stop weight-training claims for this task family.
-2. Either raise data quality (Stage 4), change task family, or park the project.
-3. Do **not** proceed to Stage 6–7 “because moonshot.”
-
-Ambition strengthens falsification; it does not guarantee continuation.
+- If B does not improve correct authentic Pallas over A, audit SFT data,
+  rendering, model capacity, and evaluation sensitivity before escalation.
+- If C does not robustly improve private-family results over B, remove
+  domain-adaptive LoRA from the main recipe.
+- If improvement occurs only on public JAXBench, make no generalization claim.
+- Do not run RL before supervised competence, verifier integrity, reward
+  variance, and private-development headroom are demonstrated.
 
 ## Non-claims
 
-- Does not claim Composer/SWE-1.7 parity.
-- Does not claim Inkling-Small superiority (contingent).
-- Does not claim PorTAL / OPD / Fusion benefits.
+- No Composer-equivalence or broad continual-pretraining claim.
+- No general coding-agent claim.
+- No GPU result presented as TPU evidence.
+- No inference-time agent result presented as a weight-training result.

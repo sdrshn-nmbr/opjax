@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "jax",
+      "kind": "git",
+      "url": "https://github.com/jax-ml/jax.git",
+      "revision": "aaf50c6a71d3bde4188c1836323f3a0ae9cb9e7f",
+      "license": "Apache-2.0",
+      "roles": [
+        "binding_api",
+        "documentation",
+        "tests",
+        "dapt_candidate"
+      ],
+      "training_policy": "allowlisted_paths_only",
+      "allowlisted_paths": [
+        "docs/pallas",
+        "jax/_src/pallas",
+        "tests/pallas"
+      ]
+    },
+    {
+      "id": "jaxbench",
+      "kind": "git",
+      "url": "https://github.com/AI-Hypercomputer/accelerator-agents.git",
+      "revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+      "license": "Apache-2.0",
+      "roles": [
+        "public_evaluation",
+        "harness"
+      ],
+      "training_policy": "forbidden",
+      "allowlisted_paths": []
+    }
+  ]
+}

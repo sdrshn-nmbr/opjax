@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-v1-v5e",
+  "base_model": "thinkingmachines/Inkling",
+  "target": {
+    "accelerator": "tpu",
+    "hardware": "v5e",
+    "topology": "v5litepod-1"
+  },
+  "prompt": {
+    "scored_context": "spec",
+    "diagnostic_context": "baseline",
+    "mode": "pallas_required"
+  },
+  "sampling": {
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "max_tokens": 8192,
+    "max_retries": 2
+  },
+  "arms": {
+    "A": {
+      "start": "thinkingmachines/Inkling",
+      "objectives": []
+    },
+    "B": {
+      "start": "thinkingmachines/Inkling",
+      "objectives": [
+        "pallas_sft"
+      ]
+    },
+    "C": {
+      "start": "thinkingmachines/Inkling",
+      "objectives": [
+        "kernel_domain_adaptive_lora",
+        "pallas_sft"
+      ]
+    },
+    "D": {
+      "diagnostic_only": true,
+      "start": "thinkingmachines/Inkling",
+      "objectives": [
+        "kernel_domain_adaptive_lora"
+      ]
+    }
+  }
+}

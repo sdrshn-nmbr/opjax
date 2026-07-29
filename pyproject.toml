@@ -8,7 +8,6 @@ dependencies = [
     "chex==0.1.91",
     "dialog",
     "gemma",
-    "google-tunix",
     "huggingface-hub==0.36.2",
     "jaxtyping==0.3.9",
     "modal==1.4.2",
@@ -21,10 +20,18 @@ dependencies = [
 [project.scripts]
 opjax = "opjax.cli:main"
 opjax-model-factory = "opjax.model_factory.cli:main"
+opjax-pallas = "opjax.pallas.cli:main"
 
 [dependency-groups]
 dev = [
     "pytest==9.0.3",
+]
+tinker = [
+    "tinker==0.23.0",
+    "tinker-cookbook[inkling]==0.5.2",
+]
+tpu = [
+    "google-tunix",
 ]
 
 [build-system]
@@ -39,3 +46,12 @@ pythonpath = ["src"]
 google-tunix = { path = "references/tunix", editable = true }
 gemma = { git = "https://github.com/google-deepmind/gemma.git" }
 dialog = { git = "https://github.com/google-deepmind/dialog.git" }
+
+[tool.uv]
+default-groups = ["dev", "tpu"]
+conflicts = [
+    [
+        { group = "tinker" },
+        { group = "tpu" },
+    ],
+]

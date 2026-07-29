@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "split_id": "pallas-v1",
+  "train": {
+    "task_ids": [],
+    "family_ids": [],
+    "forbidden_source_ids": [
+      "jaxbench"
+    ]
+  },
+  "development": {
+    "task_ids": [],
+    "family_ids": []
+  },
+  "public_evaluation": {
+    "source_id": "jaxbench",
+    "task_ids": [
+      "10p_Sparse_MoE",
+      "11p_Megablox_GMM",
+      "12p_RMSNorm",
+      "13p_Cross_Entropy",
+      "14p_Ragged_Dot",
+      "15p_RetNet_Retention",
+      "16p_Mamba2_SSD",
+      "17p_Triangle_Multiplication",
+      "18k_Conv2D_ReLU_BiasAdd",
+      "19k_Matmul_Subtract_Multiply_ReLU",
+      "1p_Flash_Attention",
+      "20k_Gemm_Multiply_LeakyReLU",
+      "21k_Gemm_Divide_Sum_Scaling",
+      "22k_Conv2d_InstanceNorm_Divide",
+      "23k_Matmul_Sum_Max_AvgPool_LogSumExp_LogSumExp",
+      "24k_Matmul_Scale_ResidualAdd_Clamp_LogSumExp_Mish",
+      "25k_Conv3d_GroupNorm_Mean",
+      "26k_BMM_InstanceNorm_Sum_ResidualAdd_Multiply",
+      "27k_Matmul_Mish_Mish",
+      "28k_ConvTranspose3d_LayerNorm_GELU_Scaling",
+      "29k_Matmul_Swish_Sum_GroupNorm",
+      "2p_GQA_Attention",
+      "30k_Matmul_Scaling_ResidualAdd",
+      "31k_Gemm_BatchNorm_GELU_ReLU",
+      "32k_Gemm_Sigmoid_LogSumExp",
+      "33k_Conv3d_Mish_Tanh",
+      "34k_Conv2d_Activation_BatchNorm",
+      "35k_Gemm_Scaling_Hardtanh_GELU",
+      "36k_Matmul_Sigmoid_Sum",
+      "37k_Matmul_Swish_Scaling",
+      "38k_Matmul_Dropout_Softmax",
+      "39k_Conv2d_GELU_GlobalAvgPool",
+      "3p_MLA_Attention",
+      "40k_Gemm_GroupNorm_Min_BiasAdd",
+      "41k_Gemm_Add_ReLU",
+      "42k_Gemm_Max_Subtract_GELU",
+      "43k_Gemm_BatchNorm_Scaling_Softmax",
+      "44k_Matmul_Divide_GELU",
+      "45k_Gemm_GroupNorm_Swish_Multiply_Swish",
+      "46k_Conv2d_GroupNorm_Tanh_HardSwish_ResidualAdd_LogSumExp",
+      "47k_Matmul_Add_Swish_Tanh_GELU_Hardtanh",
+      "48k_Matmul_BatchNorm_BiasAdd_Divide_Swish",
+      "49k_Matmul_AvgPool_GELU_Scale_Max",
+      "4p_Sparse_Attention",
+      "50k_Matmul_GELU_Softmax",
+      "5p_Flex_Attention",
+      "6p_Paged_Attention",
+      "7p_Ragged_Paged_Attention",
+      "8p_GEMM",
+      "9p_SwiGLU_MLP"
+    ]
+  },
+  "private_evaluation": {
+    "task_ids": [],
+    "family_ids": [],
+    "generalization_claim_ready": false
+  }
+}

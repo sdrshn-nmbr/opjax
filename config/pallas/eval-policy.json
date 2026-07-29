@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "policy_id": "pallas-v1-v5e",
+  "scored_prompt_context": "spec",
+  "diagnostic_prompt_contexts": [
+    "baseline"
+  ],
+  "authenticity": {
+    "require_reachable_pallas_call": true,
+    "reject_plain_jax_fallback": true
+  },
+  "correctness": {
+    "require_full_shapes": true,
+    "oracle": "jaxbench_baseline"
+  },
+  "timing": {
+    "num_warmup": 3,
+    "num_iters": 20,
+    "min_repeated_runs": 3,
+    "max_coefficient_of_variation": 0.1,
+    "headline_speedup_threshold": 1.05
+  },
+  "headline_order": [
+    "compiled",
+    "correct",
+    "authentic_pallas",
+    "stable_timing",
+    "faster_than_baseline"
+  ]
+}

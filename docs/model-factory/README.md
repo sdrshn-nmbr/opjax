@@ -2,10 +2,10 @@
 
 Living experiment artifacts for the personalized coding-model factory.
 
-**SOLE canonical plan (edit/append only this):** `/Users/sudarshan/.cursor/plans/inkling_coding_ft_experiment_269bb455.plan.md`  
-Do **not** create parallel Model Factory / Inkling / Stage-N plan files. Superseded stubs point here.
+**SOLE canonical plan and work log:** `/Users/sudarshan/.codex/plans/opjax-pallas-agent.plan.md`
+Do **not** create parallel Pallas plan files. The former Cursor plan is historical evidence only.
 
-**Status (2026-07-23):** Stages **0–5** done (Stage-5 sealed win). Stage-6 SudarshanBench thin RL **killed** (Δ+0). JAXBench baselines in (`41/50` TPU correct, 0 Pallas / no speedups). **Next:** operator keep/throw on **Pallas hillclimb** (Kevin/MaxKernel spine) — see plan §11.5. Stages **7–10** gated.
+**Status (2026-07-29):** The sidekick and thin-RL results are historical controls. The Pallas-agent plan is bound; **G0 experiment-contract freeze** is active, followed by **G1 evaluation hardening**.
 
 ## Index
 
@@ -55,6 +55,14 @@ uv run opjax-model-factory verifier-probe \
 
 # Thin RL planner only (no spend)
 uv run opjax-model-factory thin-rl -- --dry-run
+
+# Pallas contract and pinned JAXBench checkout
+uv run --no-default-groups --group tinker opjax-pallas \
+  validate-contracts --jaxbench-root /path/to/pinned/accelerator-agents
+
+# Sampling and official evaluation are separate, resumable operations
+uv run --no-default-groups --group tinker opjax-pallas sample --help
+uv run --no-default-groups --group tinker opjax-pallas evaluate --help
 ```
 
 Also: `uv run opjax model-factory -- scrub …`

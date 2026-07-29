@@ -1,0 +1,350 @@
+"""Authenticity, credit, and headline rules for Pallas evaluation."""
+
+from __future__ import annotations
+
+import ast
+import difflib
+import statistics
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Iterable
+
+COPY_SIMILARITY_THRESHOLD = 0.90
+DEFAULT_HEADLINE_SPEEDUP = 1.05
+
+
+class PromptContext(str, Enum):
+    SPEC = "spec"
+    BASELINE = "baseline"
+
+    @property
+    def scorable(self) -> bool:
+        return self is PromptContext.SPEC
+
+
+@dataclass(frozen=True)
+class PallasInspection:
+    parses: bool
+    has_workload: bool
+    reachable_functions: tuple[str, ...] = ()
+    reachable_pallas_calls: int = 0
+    unreachable_pallas_calls: int = 0
+    has_plain_jax_fallback: bool = False
+    authentic: bool = False
+    reasons: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class TimingEvidence:
+    samples_ms: tuple[float, ...]
+    median_ms: float | None
+    coefficient_of_variation: float | None
+    stable: bool
+    reason: str | None
+
+
+@dataclass(frozen=True)
+class KernelVerdict:
+    workload: str
+    compiled: bool
+    correct: bool
+    prompt_context: PromptContext
+    inspection: PallasInspection
+    similarity: float | None = None
+    verbatim_file_copy: bool = False
+    speedup: float | None = None
+    timing_stable: bool | None = None
+    copied: bool = False
+    credited: bool = False
+    pallas_credited: bool = False
+    headline_credited: bool = False
+    no_credit_reasons: tuple[str, ...] = field(default_factory=tuple)
+
+    @property
+    def scorable(self) -> bool:
+        return self.prompt_context.scorable
+
+    @property
+    def uses_pallas(self) -> bool:
+        return self.inspection.authentic
+
+
+def extract_workload_src(module_src: str) -> str | None:
+    try:
+        tree = ast.parse(module_src)
+    except SyntaxError:
+        return None
+    for node in tree.body:
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "workload":
+            return ast.get_source_segment(module_src, node)
+    return None
+
+
+def _normalise(src: str) -> str:
+    return " ".join(src.split())
+
+
+def baseline_similarity(candidate_src: str, baseline_src: str) -> float | None:
+    candidate = extract_workload_src(candidate_src)
+    baseline = extract_workload_src(baseline_src)
+    if not candidate or not baseline:
+        return None
+    return difflib.SequenceMatcher(
+        None,
+        _normalise(baseline),
+        _normalise(candidate),
+    ).ratio()
+
+
+def is_verbatim_file_copy(candidate_src: str, baseline_src: str) -> bool:
+    return _normalise(candidate_src) == _normalise(baseline_src)
+
+
+def _call_name(node: ast.Call) -> str | None:
+    function = node.func
+    if isinstance(function, ast.Name):
+        return function.id
+    if isinstance(function, ast.Attribute):
+        parts = [function.attr]
+        value = function.value
+        while isinstance(value, ast.Attribute):
+            parts.append(value.attr)
+            value = value.value
+        if isinstance(value, ast.Name):
+            parts.append(value.id)
+        return ".".join(reversed(parts))
+    return None
+
+
+def _is_pallas_call(name: str | None, direct_aliases: set[str], module_aliases: set[str]) -> bool:
+    if name in direct_aliases:
+        return True
+    return any(name == f"{alias}.pallas_call" for alias in module_aliases)
+
+
+def _is_plain_jax_call(name: str | None) -> bool:
+    if not name:
+        return False
+    return name.startswith(("jnp.", "jax.numpy.", "numpy.", "np."))
+
+
+def inspect_pallas_source(source: str) -> PallasInspection:
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return PallasInspection(
+            parses=False,
+            has_workload=False,
+            reasons=("SYNTAX_INVALID",),
+        )
+
+    module_aliases: set[str] = set()
+    direct_aliases: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            if module in {"jax.experimental", "jax.experimental.pallas"}:
+                for alias in node.names:
+                    if module == "jax.experimental" and alias.name == "pallas":
+                        module_aliases.add(alias.asname or alias.name)
+                    if module == "jax.experimental.pallas" and alias.name == "pallas_call":
+                        direct_aliases.add(alias.asname or alias.name)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "jax.experimental.pallas":
+                    module_aliases.add(alias.asname or alias.name)
+
+    functions = {
+        node.name: node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    if "workload" not in functions:
+        return PallasInspection(
+            parses=True,
+            has_workload=False,
+            reasons=("WORKLOAD_MISSING",),
+        )
+
+    graph: dict[str, set[str]] = {name: set() for name in functions}
+    pallas_calls: dict[str, int] = {name: 0 for name in functions}
+    plain_returns: dict[str, bool] = {name: False for name in functions}
+    for name, function in functions.items():
+        for node in ast.walk(function):
+            if isinstance(node, ast.Call):
+                called = _call_name(node)
+                if called in functions:
+                    graph[name].add(called)
+                if _is_pallas_call(called, direct_aliases, module_aliases):
+                    pallas_calls[name] += 1
+                    if node.args and isinstance(node.args[0], ast.Name):
+                        kernel_name = node.args[0].id
+                        if kernel_name in functions:
+                            graph[name].add(kernel_name)
+            if isinstance(node, ast.Return) and node.value is not None:
+                plain_returns[name] = plain_returns[name] or any(
+                    isinstance(child, ast.Call) and _is_plain_jax_call(_call_name(child))
+                    for child in ast.walk(node.value)
+                )
+
+    reachable = {"workload"}
+    pending = ["workload"]
+    while pending:
+        current = pending.pop()
+        for called in graph[current]:
+            if called not in reachable:
+                reachable.add(called)
+                pending.append(called)
+
+    reachable_count = sum(pallas_calls[name] for name in reachable)
+    total_count = sum(pallas_calls.values())
+    has_fallback = reachable_count > 0 and any(plain_returns[name] for name in reachable)
+    reasons: list[str] = []
+    if reachable_count == 0:
+        reasons.append("PALLAS_PATH_UNREACHABLE")
+    if has_fallback:
+        reasons.append("PLAIN_JAX_FALLBACK")
+    return PallasInspection(
+        parses=True,
+        has_workload=True,
+        reachable_functions=tuple(sorted(reachable)),
+        reachable_pallas_calls=reachable_count,
+        unreachable_pallas_calls=total_count - reachable_count,
+        has_plain_jax_fallback=has_fallback,
+        authentic=reachable_count > 0 and not has_fallback,
+        reasons=tuple(reasons),
+    )
+
+
+def timing_evidence(
+    samples_ms: Iterable[float],
+    *,
+    min_runs: int,
+    max_coefficient_of_variation: float,
+) -> TimingEvidence:
+    samples = tuple(float(sample) for sample in samples_ms)
+    if len(samples) < min_runs:
+        return TimingEvidence(
+            samples_ms=samples,
+            median_ms=statistics.median(samples) if samples else None,
+            coefficient_of_variation=None,
+            stable=False,
+            reason=f"TIMING_REPEATS_INSUFFICIENT: {len(samples)} < {min_runs}",
+        )
+    mean = statistics.fmean(samples)
+    coefficient = statistics.pstdev(samples) / mean if mean > 0 else None
+    stable = coefficient is not None and coefficient <= max_coefficient_of_variation
+    return TimingEvidence(
+        samples_ms=samples,
+        median_ms=statistics.median(samples),
+        coefficient_of_variation=coefficient,
+        stable=stable,
+        reason=None if stable else "TIMING_UNSTABLE",
+    )
+
+
+def judge(
+    *,
+    workload: str,
+    candidate_src: str,
+    baseline_src: str,
+    compiled: bool,
+    correct: bool,
+    prompt_context: PromptContext | str,
+    speedup: float | None = None,
+    timing_stable: bool | None = None,
+    copy_threshold: float = COPY_SIMILARITY_THRESHOLD,
+    headline_speedup_threshold: float = DEFAULT_HEADLINE_SPEEDUP,
+) -> KernelVerdict:
+    context = PromptContext(prompt_context)
+    inspection = inspect_pallas_source(candidate_src)
+    similarity = baseline_similarity(candidate_src, baseline_src)
+    verbatim = is_verbatim_file_copy(candidate_src, baseline_src)
+    near_copy = verbatim or (similarity is not None and similarity >= copy_threshold)
+    copied = context is PromptContext.BASELINE and near_copy
+
+    reasons: list[str] = []
+    if not context.scorable:
+        reasons.append("DIAGNOSTIC_PROMPT_CONTEXT")
+    if not compiled:
+        reasons.append("TPU_COMPILE_FAILED")
+    if not correct:
+        reasons.append("CORRECTNESS_FAILED")
+    if copied:
+        reasons.append("REFERENCE_COPY")
+    reasons.extend(inspection.reasons)
+    if timing_stable is False:
+        reasons.append("TIMING_UNSTABLE")
+
+    credited = context.scorable and correct and not copied
+    pallas_credited = credited and compiled and inspection.authentic
+    headline = (
+        pallas_credited
+        and timing_stable is True
+        and speedup is not None
+        and speedup >= headline_speedup_threshold
+    )
+    return KernelVerdict(
+        workload=workload,
+        compiled=compiled,
+        correct=correct,
+        prompt_context=context,
+        inspection=inspection,
+        similarity=similarity,
+        verbatim_file_copy=verbatim,
+        speedup=speedup,
+        timing_stable=timing_stable,
+        copied=copied,
+        credited=credited,
+        pallas_credited=pallas_credited,
+        headline_credited=headline,
+        no_credit_reasons=tuple(dict.fromkeys(reasons)),
+    )
+
+
+REWARD_CORRECT = 0.3
+REWARD_PALLAS = 0.3
+REWARD_SPEED_MAX = 0.4
+REWARD_SPEED_SATURATION = 2.0
+
+
+def diagnostic_reward(verdict: KernelVerdict) -> float:
+    if not verdict.credited:
+        return 0.0
+    total = REWARD_CORRECT
+    if not verdict.pallas_credited:
+        return total
+    total += REWARD_PALLAS
+    if verdict.timing_stable and verdict.speedup and verdict.speedup > 1:
+        fraction = min(
+            (verdict.speedup - 1) / (REWARD_SPEED_SATURATION - 1),
+            1,
+        )
+        total += REWARD_SPEED_MAX * fraction
+    return round(total, 4)
+
+
+def summarise(verdicts: list[KernelVerdict]) -> dict[str, object]:
+    scorable = [verdict for verdict in verdicts if verdict.scorable]
+    speedups = [
+        verdict.speedup
+        for verdict in verdicts
+        if verdict.pallas_credited and verdict.timing_stable and verdict.speedup is not None
+    ]
+    return {
+        "n": len(verdicts),
+        "n_scorable": len(scorable),
+        "n_correct_raw": sum(verdict.correct for verdict in verdicts),
+        "n_copied": sum(verdict.copied for verdict in verdicts),
+        "n_credited": sum(verdict.credited for verdict in verdicts),
+        "n_authentic_pallas": sum(verdict.inspection.authentic for verdict in verdicts),
+        "n_pallas_credited": sum(verdict.pallas_credited for verdict in verdicts),
+        "n_headline_credited": sum(verdict.headline_credited for verdict in verdicts),
+        "best_stable_pallas_speedup": max(speedups) if speedups else None,
+        "mean_diagnostic_reward": (
+            round(sum(diagnostic_reward(verdict) for verdict in scorable) / len(scorable), 4)
+            if scorable
+            else None
+        ),
+        "generalization_claim_ready": False,
+    }
