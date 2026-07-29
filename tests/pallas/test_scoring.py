@@ -53,6 +53,16 @@ def workload(x, use_pallas=True):
     return jnp.square(x)
 """
 
+CONSTANT_DEAD = """\
+import jax.numpy as jnp
+from jax.experimental import pallas as pl
+
+def workload(x):
+    if False:
+        return pl.pallas_call(kernel, out_shape=x)(x)
+    return jnp.square(x)
+"""
+
 
 def _judge(
     source: str,
@@ -92,6 +102,14 @@ def test_dead_code_pallas_is_rejected() -> None:
     assert "PALLAS_PATH_UNREACHABLE" in inspection.reasons
 
 
+def test_constant_false_pallas_branch_is_rejected() -> None:
+    inspection = inspect_pallas_source(CONSTANT_DEAD)
+
+    assert inspection.authentic is False
+    assert inspection.reachable_pallas_calls == 0
+    assert inspection.unreachable_pallas_calls == 1
+
+
 def test_plain_jax_fallback_is_rejected() -> None:
     inspection = inspect_pallas_source(FALLBACK)
 
@@ -108,6 +126,15 @@ def test_reference_visible_context_is_never_scorable() -> None:
     assert verdict.headline_credited is False
     assert diagnostic_reward(verdict) == 0
     assert "DIAGNOSTIC_PROMPT_CONTEXT" in verdict.no_credit_reasons
+
+
+def test_copied_reference_is_explicitly_rejected() -> None:
+    verdict = _judge(BASELINE, context="baseline", speedup=10, stable=True)
+
+    assert verdict.verbatim_file_copy is True
+    assert verdict.copied is True
+    assert verdict.credited is False
+    assert "REFERENCE_COPY" in verdict.no_credit_reasons
 
 
 def test_correct_slow_pallas_is_not_headline_success() -> None:

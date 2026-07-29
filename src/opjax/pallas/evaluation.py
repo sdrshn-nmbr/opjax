@@ -18,6 +18,7 @@ from opjax.pallas.contracts import (
     ContractBundle,
     ContractError,
     git_revision,
+    source_by_id,
     verify_source_checkout,
 )
 from opjax.pallas.scoring import (
@@ -115,6 +116,7 @@ def environment_fingerprint(
     arm: str,
     prompt_context: PromptContext,
     runtime_hardware: dict[str, Any] | None,
+    sample_fingerprint_sha256: str | None,
 ) -> dict[str, Any]:
     prompt_contract = {
         "prompt": bundle.experiment["prompt"],
@@ -135,6 +137,7 @@ def environment_fingerprint(
         "prompt_contract_sha256": _sha256_bytes(
             json.dumps(prompt_contract, sort_keys=True, separators=(",", ":")).encode()
         ),
+        "sample_fingerprint_sha256": sample_fingerprint_sha256,
         "target": bundle.experiment["target"],
         "runtime_hardware": runtime_hardware,
         "packages": {
@@ -144,6 +147,67 @@ def environment_fingerprint(
         "python": platform.python_version(),
         "platform": platform.platform(),
     }
+
+
+def validate_sample_run(
+    *,
+    bundle: ContractBundle,
+    sample_run: Path,
+    kernels: list[Path],
+    model_id: str,
+    arm: str,
+    prompt_context: PromptContext,
+) -> str:
+    manifest_path = sample_run / "manifest.json"
+    samples_path = sample_run / "samples.jsonl"
+    if not manifest_path.is_file() or not samples_path.is_file():
+        raise EvaluationError(f"SAMPLE_RUN_INCOMPLETE: {sample_run}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    fingerprint = manifest.get("fingerprint")
+    if manifest.get("status") != "sampled" or not isinstance(fingerprint, dict):
+        raise EvaluationError(f"SAMPLE_RUN_NOT_COMPLETE: {sample_run}")
+    expected_model = (
+        bundle.experiment["base_model"]
+        if arm == "A"
+        else fingerprint.get("model_path")
+    )
+    required = {
+        "contract_sha256": bundle.sha256,
+        "jaxbench_revision": source_by_id(bundle, "jaxbench")["revision"],
+        "arm": arm,
+        "prompt_context": prompt_context.value,
+    }
+    for key, expected in required.items():
+        if fingerprint.get(key) != expected:
+            raise EvaluationError(
+                "SAMPLE_FINGERPRINT_MISMATCH: "
+                f"{key}: expected={expected!r} observed={fingerprint.get(key)!r}"
+            )
+    if model_id != expected_model:
+        raise EvaluationError(
+            f"SAMPLE_MODEL_MISMATCH: expected={expected_model!r} observed={model_id!r}"
+        )
+    rows = load_jsonl(samples_path)
+    sample_by_workload = {row["workload"]: row for row in rows}
+    kernel_ids = {kernel.stem for kernel in kernels}
+    if set(sample_by_workload) != kernel_ids:
+        raise EvaluationError(
+            "SAMPLE_KERNEL_SET_MISMATCH: "
+            f"sample_only={sorted(set(sample_by_workload) - kernel_ids)} "
+            f"kernel_only={sorted(kernel_ids - set(sample_by_workload))}"
+        )
+    for kernel in kernels:
+        expected_hash = sample_by_workload[kernel.stem].get("code_sha256")
+        observed_hash = _sha256_file(kernel)
+        if expected_hash != observed_hash:
+            raise EvaluationError(
+                "SAMPLE_KERNEL_HASH_MISMATCH: "
+                f"{kernel.stem}: expected={expected_hash} observed={observed_hash}"
+            )
+    sha256 = fingerprint.get("sha256")
+    if not isinstance(sha256, str) or len(sha256) != 64:
+        raise EvaluationError("SAMPLE_FINGERPRINT_INVALID")
+    return sha256
 
 
 def probe_runtime_hardware(timeout_seconds: float = 60) -> dict[str, Any]:
@@ -445,6 +509,7 @@ def evaluate_kernels(
     repo_root: Path,
     jaxbench_root: Path,
     kernels_dir: Path,
+    sample_run: Path | None,
     out_dir: Path,
     model_id: str,
     arm: str,
@@ -466,6 +531,20 @@ def evaluate_kernels(
     unknown = sorted(path.stem for path in kernels if path.stem not in public_ids)
     if unknown:
         raise EvaluationError(f"KERNELS_NOT_PUBLIC_JAXBENCH: {unknown}")
+    if not dry_run and sample_run is None:
+        raise EvaluationError("SAMPLE_RUN_REQUIRED")
+    sample_fingerprint_sha256 = (
+        validate_sample_run(
+            bundle=bundle,
+            sample_run=sample_run,
+            kernels=kernels,
+            model_id=model_id,
+            arm=arm,
+            prompt_context=prompt_context,
+        )
+        if sample_run is not None
+        else None
+    )
     runtime_hardware = None if dry_run else probe_runtime_hardware()
     if runtime_hardware is not None:
         _assert_tpu_runtime(runtime_hardware, bundle.experiment["target"])
@@ -478,6 +557,7 @@ def evaluate_kernels(
         arm=arm,
         prompt_context=prompt_context,
         runtime_hardware=runtime_hardware,
+        sample_fingerprint_sha256=sample_fingerprint_sha256,
     )
     if dry_run:
         return {

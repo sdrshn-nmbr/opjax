@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 import pytest
@@ -10,8 +11,11 @@ from opjax.pallas.evaluation import (
     _assert_tpu_runtime,
     _load_or_create_manifest,
     _parse_json_output,
+    validate_sample_run,
 )
+from opjax.pallas.contracts import load_contracts
 from opjax.pallas.prompts import extract_code, render_prompt, spec_only
+from opjax.pallas.scoring import PromptContext
 
 BASELINE = """\
 import jax.numpy as jnp
@@ -25,6 +29,7 @@ def workload(x):
     \"\"\"Square each element.\"\"\"
     return jnp.square(x)
 """
+CONFIG_ROOT = Path(__file__).parents[2] / "config" / "pallas"
 
 
 def test_spec_prompt_withholds_reference_body() -> None:
@@ -121,4 +126,63 @@ def test_runtime_hardware_must_match_declared_tpu_generation() -> None:
         _assert_tpu_runtime(
             {"platforms": ["tpu"], "device_kinds": ["TPU v4"]},
             {"hardware": "v5e"},
+        )
+
+
+def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) -> None:
+    bundle = load_contracts(CONFIG_ROOT)
+    sample_run = tmp_path / "sample"
+    kernels = sample_run / "kernels"
+    kernels.mkdir(parents=True)
+    source = "def workload(x):\n    return x\n"
+    kernel = kernels / "1p_Flash_Attention.py"
+    kernel.write_text(source, encoding="utf-8")
+    code_sha256 = hashlib.sha256(source.encode()).hexdigest()
+    fingerprint = {
+        "sha256": "a" * 64,
+        "contract_sha256": bundle.sha256,
+        "jaxbench_revision": next(
+            source["revision"]
+            for source in bundle.sources["sources"]
+            if source["id"] == "jaxbench"
+        ),
+        "arm": "A",
+        "prompt_context": "spec",
+        "model_path": None,
+    }
+    (sample_run / "manifest.json").write_text(
+        json.dumps({"status": "sampled", "fingerprint": fingerprint}),
+        encoding="utf-8",
+    )
+    (sample_run / "samples.jsonl").write_text(
+        json.dumps(
+            {
+                "workload": "1p_Flash_Attention",
+                "code_sha256": code_sha256,
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    observed = validate_sample_run(
+        bundle=bundle,
+        sample_run=sample_run,
+        kernels=[kernel],
+        model_id="thinkingmachines/Inkling",
+        arm="A",
+        prompt_context=PromptContext.SPEC,
+    )
+
+    assert observed == "a" * 64
+
+    kernel.write_text(source + "# changed\n", encoding="utf-8")
+    with pytest.raises(EvaluationError, match="SAMPLE_KERNEL_HASH_MISMATCH"):
+        validate_sample_run(
+            bundle=bundle,
+            sample_run=sample_run,
+            kernels=[kernel],
+            model_id="thinkingmachines/Inkling",
+            arm="A",
+            prompt_context=PromptContext.SPEC,
         )

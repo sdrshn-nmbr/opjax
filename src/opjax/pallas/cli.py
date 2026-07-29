@@ -50,6 +50,11 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--repo-root", type=Path, default=Path("."))
     evaluate.add_argument("--jaxbench-root", type=Path, required=True)
     evaluate.add_argument("--kernels-dir", type=Path, required=True)
+    evaluate.add_argument(
+        "--sample-run",
+        type=Path,
+        help="Completed opjax-pallas sample run; required unless --dry-run",
+    )
     evaluate.add_argument("--out-dir", type=Path, required=True)
     evaluate.add_argument("--model-id", required=True)
     evaluate.add_argument("--arm", choices=["A", "B", "C", "D"], required=True)
@@ -107,6 +112,7 @@ def main(argv: list[str] | None = None) -> int:
                 repo_root=args.repo_root,
                 jaxbench_root=args.jaxbench_root,
                 kernels_dir=args.kernels_dir,
+                sample_run=args.sample_run,
                 out_dir=args.out_dir,
                 model_id=args.model_id,
                 arm=args.arm,

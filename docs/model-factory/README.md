@@ -62,6 +62,7 @@ uv run --no-default-groups --group tinker opjax-pallas \
 
 # Sampling and official evaluation are separate, resumable operations
 uv run --no-default-groups --group tinker opjax-pallas sample --help
+# A non-dry evaluation requires the completed sample run for provenance.
 uv run --no-default-groups --group tinker opjax-pallas evaluate --help
 ```
 

@@ -233,6 +233,7 @@ async def sample_kernels(
                 break
         assert sequence is not None
         inspection = inspect_pallas_source(code or "")
+        candidate = code or completion
         row = {
             "schema_version": 1,
             "workload": workload,
@@ -240,7 +241,8 @@ async def sample_kernels(
             "prompt_context": prompt_context.value,
             "prompt_sha256": source_sha256(prompt),
             "completion_sha256": source_sha256(completion),
-            "code_sha256": source_sha256(code) if code else None,
+            "completion": completion,
+            "code_sha256": source_sha256(candidate),
             "n_tokens": len(sequence.tokens),
             "stop_reason": str(getattr(sequence, "stop_reason", "")),
             "attempts": attempts,
@@ -256,8 +258,7 @@ async def sample_kernels(
                 "reasons": list(inspection.reasons),
             },
         }
-        if code:
-            (kernels_dir / f"{workload}.py").write_text(code, encoding="utf-8")
+        (kernels_dir / f"{workload}.py").write_text(candidate, encoding="utf-8")
         rows.append(row)
         _write_jsonl(samples_path, rows)
         print(

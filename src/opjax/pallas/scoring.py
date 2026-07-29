@@ -128,6 +128,44 @@ def _is_plain_jax_call(name: str | None) -> bool:
     return name.startswith(("jnp.", "jax.numpy.", "numpy.", "np."))
 
 
+def _effective_nodes(node: ast.AST) -> Iterable[ast.AST]:
+    yield node
+    if isinstance(node, ast.If):
+        yield from _effective_nodes(node.test)
+        if isinstance(node.test, ast.Constant) and isinstance(node.test.value, bool):
+            branch = node.body if node.test.value else node.orelse
+            yield from _effective_block(branch)
+        else:
+            yield from _effective_block(node.body)
+            yield from _effective_block(node.orelse)
+        return
+    if isinstance(node, ast.While):
+        yield from _effective_nodes(node.test)
+        if not (
+            isinstance(node.test, ast.Constant)
+            and node.test.value is False
+        ):
+            yield from _effective_block(node.body)
+        yield from _effective_block(node.orelse)
+        return
+    for field_name, value in ast.iter_fields(node):
+        if field_name in {"body", "orelse", "finalbody"} and isinstance(value, list):
+            yield from _effective_block(value)
+        elif isinstance(value, ast.AST):
+            yield from _effective_nodes(value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, ast.AST):
+                    yield from _effective_nodes(item)
+
+
+def _effective_block(statements: list[ast.stmt]) -> Iterable[ast.AST]:
+    for statement in statements:
+        yield from _effective_nodes(statement)
+        if isinstance(statement, (ast.Return, ast.Raise, ast.Break, ast.Continue)):
+            break
+
+
 def inspect_pallas_source(source: str) -> PallasInspection:
     try:
         tree = ast.parse(source)
@@ -168,9 +206,18 @@ def inspect_pallas_source(source: str) -> PallasInspection:
 
     graph: dict[str, set[str]] = {name: set() for name in functions}
     pallas_calls: dict[str, int] = {name: 0 for name in functions}
+    all_pallas_calls: dict[str, int] = {
+        name: sum(
+            1
+            for node in ast.walk(function)
+            if isinstance(node, ast.Call)
+            and _is_pallas_call(_call_name(node), direct_aliases, module_aliases)
+        )
+        for name, function in functions.items()
+    }
     plain_returns: dict[str, bool] = {name: False for name in functions}
     for name, function in functions.items():
-        for node in ast.walk(function):
+        for node in _effective_block(function.body):
             if isinstance(node, ast.Call):
                 called = _call_name(node)
                 if called in functions:
@@ -197,7 +244,7 @@ def inspect_pallas_source(source: str) -> PallasInspection:
                 pending.append(called)
 
     reachable_count = sum(pallas_calls[name] for name in reachable)
-    total_count = sum(pallas_calls.values())
+    total_count = sum(all_pallas_calls.values())
     has_fallback = reachable_count > 0 and any(plain_returns[name] for name in reachable)
     reasons: list[str] = []
     if reachable_count == 0:
