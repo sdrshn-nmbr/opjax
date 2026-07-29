@@ -9,7 +9,7 @@ import os
 import platform
 import subprocess
 import sys
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -25,13 +25,27 @@ from opjax.pallas.scoring import (
     PromptContext,
     diagnostic_reward,
     judge,
-    summarise,
     timing_evidence,
 )
 
 
 class EvaluationError(RuntimeError):
     """The evaluation cannot produce comparable evidence."""
+
+
+@dataclass(frozen=True)
+class SampleCandidate:
+    sample_id: str
+    workload: str
+    seed: int
+    kernel: Path
+    sample: dict[str, Any]
+
+
+@dataclass(frozen=True)
+class ValidatedSampleRun:
+    fingerprint_sha256: str
+    candidates: tuple[SampleCandidate, ...]
 
 
 def _utc_now() -> str:
@@ -102,8 +116,13 @@ def _package_version(name: str) -> str | None:
         return None
 
 
-def kernel_set_fingerprint(kernels: list[Path]) -> dict[str, str]:
-    return {path.stem: _sha256_file(path) for path in kernels}
+def kernel_set_fingerprint(
+    candidates: tuple[SampleCandidate, ...],
+) -> dict[str, str]:
+    return {
+        candidate.sample_id: _sha256_file(candidate.kernel)
+        for candidate in candidates
+    }
 
 
 def environment_fingerprint(
@@ -111,7 +130,7 @@ def environment_fingerprint(
     bundle: ContractBundle,
     repo_root: Path,
     jaxbench_root: Path,
-    kernels: list[Path],
+    candidates: tuple[SampleCandidate, ...],
     model_id: str,
     arm: str,
     prompt_context: PromptContext,
@@ -130,7 +149,7 @@ def environment_fingerprint(
         "opjax_tracked_dirty": _git_tracked_dirty(repo_root),
         "jaxbench_revision": verify_source_checkout(bundle, "jaxbench", jaxbench_root),
         "jaxbench_tracked_dirty": _git_tracked_dirty(jaxbench_root),
-        "kernel_sha256": kernel_set_fingerprint(kernels),
+        "kernel_sha256": kernel_set_fingerprint(candidates),
         "model_id": model_id,
         "arm": arm,
         "prompt_context": prompt_context.value,
@@ -153,11 +172,10 @@ def validate_sample_run(
     *,
     bundle: ContractBundle,
     sample_run: Path,
-    kernels: list[Path],
     model_id: str,
     arm: str,
     prompt_context: PromptContext,
-) -> str:
+) -> ValidatedSampleRun:
     manifest_path = sample_run / "manifest.json"
     samples_path = sample_run / "samples.jsonl"
     if not manifest_path.is_file() or not samples_path.is_file():
@@ -187,27 +205,84 @@ def validate_sample_run(
         raise EvaluationError(
             f"SAMPLE_MODEL_MISMATCH: expected={expected_model!r} observed={model_id!r}"
         )
+    request = fingerprint.get("request")
+    if not isinstance(request, dict):
+        raise EvaluationError("SAMPLE_REQUEST_MISSING")
+    requested_ids = request.get("sample_ids")
+    if (
+        not isinstance(requested_ids, list)
+        or not requested_ids
+        or not all(isinstance(sample_id, str) for sample_id in requested_ids)
+        or len(requested_ids) != len(set(requested_ids))
+    ):
+        raise EvaluationError("SAMPLE_REQUEST_INVALID")
     rows = load_jsonl(samples_path)
-    sample_by_workload = {row["workload"]: row for row in rows}
-    kernel_ids = {kernel.stem for kernel in kernels}
-    if set(sample_by_workload) != kernel_ids:
+    sample_by_id: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        sample_id = row.get("sample_id")
+        if not isinstance(sample_id, str):
+            raise EvaluationError("SAMPLE_ID_MISSING")
+        if sample_id in sample_by_id:
+            raise EvaluationError(f"SAMPLE_ID_DUPLICATE: {sample_id}")
+        sample_by_id[sample_id] = row
+    if set(sample_by_id) != set(requested_ids):
         raise EvaluationError(
-            "SAMPLE_KERNEL_SET_MISMATCH: "
-            f"sample_only={sorted(set(sample_by_workload) - kernel_ids)} "
-            f"kernel_only={sorted(kernel_ids - set(sample_by_workload))}"
+            "SAMPLE_SET_MISMATCH: "
+            f"missing={sorted(set(requested_ids) - set(sample_by_id))} "
+            f"extra={sorted(set(sample_by_id) - set(requested_ids))}"
         )
-    for kernel in kernels:
-        expected_hash = sample_by_workload[kernel.stem].get("code_sha256")
+    public_ids = set(bundle.splits["public_evaluation"]["task_ids"])
+    contract_seeds = set(bundle.experiment["sampling"]["seeds"])
+    candidates: list[SampleCandidate] = []
+    sample_root = sample_run.resolve()
+    for sample_id in requested_ids:
+        row = sample_by_id[sample_id]
+        workload = row.get("workload")
+        seed = row.get("seed")
+        kernel_path = row.get("kernel_path")
+        if workload not in public_ids:
+            raise EvaluationError(
+                f"SAMPLE_WORKLOAD_NOT_PUBLIC: {sample_id}: {workload!r}"
+            )
+        if seed not in contract_seeds:
+            raise EvaluationError(f"SAMPLE_SEED_INVALID: {sample_id}: {seed!r}")
+        expected_id = f"{workload}::seed={seed}"
+        if sample_id != expected_id:
+            raise EvaluationError(
+                f"SAMPLE_ID_MISMATCH: expected={expected_id} observed={sample_id}"
+            )
+        expected_path = f"kernels/seed-{seed}/{workload}.py"
+        if kernel_path != expected_path:
+            raise EvaluationError(
+                "SAMPLE_KERNEL_PATH_MISMATCH: "
+                f"{sample_id}: expected={expected_path} observed={kernel_path!r}"
+            )
+        kernel = (sample_run / kernel_path).resolve()
+        if not kernel.is_relative_to(sample_root) or not kernel.is_file():
+            raise EvaluationError(f"SAMPLE_KERNEL_MISSING: {sample_id}: {kernel}")
+        expected_hash = row.get("code_sha256")
         observed_hash = _sha256_file(kernel)
         if expected_hash != observed_hash:
             raise EvaluationError(
                 "SAMPLE_KERNEL_HASH_MISMATCH: "
-                f"{kernel.stem}: expected={expected_hash} observed={observed_hash}"
+                f"{sample_id}: expected={expected_hash} observed={observed_hash}"
             )
+        candidates.append(
+            SampleCandidate(
+                sample_id=sample_id,
+                workload=workload,
+                seed=seed,
+                kernel=kernel,
+                sample=row,
+            )
+        )
     sha256 = fingerprint.get("sha256")
     if not isinstance(sha256, str) or len(sha256) != 64:
         raise EvaluationError("SAMPLE_FINGERPRINT_INVALID")
-    return sha256
+    return ValidatedSampleRun(
+        fingerprint_sha256=sha256,
+        candidates=tuple(candidates),
+    )
 
 
 def probe_runtime_hardware(timeout_seconds: float = 60) -> dict[str, Any]:
@@ -294,10 +369,11 @@ def _load_or_create_manifest(
             raise EvaluationError("RESUME_FINGERPRINT_MISMATCH")
         return manifest
     manifest = {
-        "schema_version": 1,
+        "schema_version": 2,
         "created_at": _utc_now(),
         "status": "running",
         "fingerprint": fingerprint,
+        "generator": {"argv": list(sys.argv)},
     }
     _write_json(manifest_path, manifest)
     return manifest
@@ -398,15 +474,20 @@ def _result_correct(value: dict[str, Any]) -> bool:
     return value.get("correct") is True
 
 
+def _result_compiled(value: dict[str, Any]) -> bool:
+    return value.get("status") in {"incorrect", "correct"}
+
+
 def _evaluate_workload(
     *,
     bundle: ContractBundle,
     jaxbench_root: Path,
-    kernel: Path,
+    candidate: SampleCandidate,
     prompt_context: PromptContext,
     timeout_seconds: float,
 ) -> dict[str, Any]:
-    workload = kernel.stem
+    workload = candidate.workload
+    kernel = candidate.kernel
     policy = bundle.eval_policy
     timing_policy = policy["timing"]
     raw_runs = [
@@ -422,12 +503,7 @@ def _evaluate_workload(
         for _ in range(timing_policy["min_repeated_runs"])
     ]
     results = [run["result"] for run in raw_runs]
-    compiled = all(
-        run["returncode"] == 0
-        and run["result"].get("status") not in {"error", "compile_error"}
-        and not run["result"].get("error")
-        for run in raw_runs
-    )
+    compiled = all(_result_compiled(result) for result in results)
     correct = compiled and all(_result_correct(result) for result in results)
     baseline_medians = [
         result["baseline"]["median_ms"]
@@ -476,8 +552,10 @@ def _evaluate_workload(
         headline_speedup_threshold=timing_policy["headline_speedup_threshold"],
     )
     return {
-        "schema_version": 1,
+        "schema_version": 2,
+        "sample_id": candidate.sample_id,
         "workload": workload,
+        "seed": candidate.seed,
         "checked_at": _utc_now(),
         "kernel_sha256": _sha256_file(kernel),
         "compiled": compiled,
@@ -503,13 +581,166 @@ def _evaluate_workload(
     }
 
 
+def _rate(numerator: int, denominator: int) -> float | None:
+    return round(numerator / denominator, 6) if denominator else None
+
+
+def _oracle_metrics(
+    *,
+    candidates: tuple[SampleCandidate, ...],
+    rows_by_id: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    rows = [rows_by_id[candidate.sample_id] for candidate in candidates]
+    n = len(candidates)
+    n_parseable = sum(
+        candidate.sample.get("status") == "sampled"
+        for candidate in candidates
+    )
+    n_authentic_emissions = sum(
+        candidate.sample.get("inspection", {}).get("authentic") is True
+        for candidate in candidates
+    )
+    n_compiled = sum(row.get("compiled") is True for row in rows)
+    n_correct = sum(row.get("correct") is True for row in rows)
+    n_timing_stable = sum(
+        row.get("timing", {}).get("stable") is True for row in rows
+    )
+    n_pallas_credited = sum(row.get("pallas_credited") is True for row in rows)
+    n_headline_credited = sum(
+        row.get("headline_credited") is True for row in rows
+    )
+    stable_speedups = [
+        float(row["speedup"])
+        for row in rows
+        if row.get("pallas_credited") is True
+        and row.get("timing", {}).get("stable") is True
+        and isinstance(row.get("speedup"), (int, float))
+    ]
+    return {
+        "n_samples": n,
+        "n_sampling_attempts": sum(
+            len(candidate.sample.get("attempts", []))
+            for candidate in candidates
+        ),
+        "n_parseable": n_parseable,
+        "parse_rate": _rate(n_parseable, n),
+        "n_authentic_emissions": n_authentic_emissions,
+        "authentic_emission_rate": _rate(n_authentic_emissions, n),
+        "n_compiled": n_compiled,
+        "compilation_rate": _rate(n_compiled, n),
+        "n_correct": n_correct,
+        "correctness_rate": _rate(n_correct, n),
+        "n_timing_stable": n_timing_stable,
+        "timing_stability_rate": _rate(n_timing_stable, n),
+        "n_pallas_credited": n_pallas_credited,
+        "pallas_credit_rate": _rate(n_pallas_credited, n),
+        "n_headline_credited": n_headline_credited,
+        "headline_credit_rate": _rate(n_headline_credited, n),
+        "best_stable_pallas_speedup": (
+            max(stable_speedups) if stable_speedups else None
+        ),
+    }
+
+
+def _oracle_summary(
+    *,
+    bundle: ContractBundle,
+    candidates: tuple[SampleCandidate, ...],
+    rows: list[dict[str, Any]],
+) -> dict[str, Any]:
+    rows_by_id = {row["sample_id"]: row for row in rows}
+    if len(rows_by_id) != len(rows):
+        raise EvaluationError("RESULT_SAMPLE_ID_DUPLICATE")
+    missing = sorted(
+        candidate.sample_id
+        for candidate in candidates
+        if candidate.sample_id not in rows_by_id
+    )
+    if missing:
+        raise EvaluationError(f"RESULTS_INCOMPLETE: {missing}")
+    overall = _oracle_metrics(candidates=candidates, rows_by_id=rows_by_id)
+    by_seed: dict[str, dict[str, Any]] = {}
+    for seed in bundle.experiment["sampling"]["seeds"]:
+        selected = tuple(
+            candidate for candidate in candidates if candidate.seed == seed
+        )
+        if selected:
+            by_seed[str(seed)] = _oracle_metrics(
+                candidates=selected,
+                rows_by_id=rows_by_id,
+            )
+    rate_names = (
+        "parse_rate",
+        "authentic_emission_rate",
+        "compilation_rate",
+        "correctness_rate",
+        "timing_stability_rate",
+        "pallas_credit_rate",
+        "headline_credit_rate",
+    )
+    seed_rate_ranges = {
+        name: round(
+            max(float(metrics[name]) for metrics in by_seed.values())
+            - min(float(metrics[name]) for metrics in by_seed.values()),
+            6,
+        )
+        for name in rate_names
+        if by_seed and all(metrics[name] is not None for metrics in by_seed.values())
+    }
+    workloads = list(
+        dict.fromkeys(candidate.workload for candidate in candidates)
+    )
+    by_workload = {
+        workload: _oracle_metrics(
+            candidates=tuple(
+                candidate
+                for candidate in candidates
+                if candidate.workload == workload
+            ),
+            rows_by_id=rows_by_id,
+        )
+        for workload in workloads
+    }
+    expected_seed_count = len({candidate.seed for candidate in candidates})
+    seed_consistency = {
+        "n_workloads": len(by_workload),
+        "n_workloads_with_all_seeds_parseable": sum(
+            metrics["n_parseable"] == expected_seed_count
+            for metrics in by_workload.values()
+        ),
+        "n_workloads_with_any_authentic_emission": sum(
+            metrics["n_authentic_emissions"] > 0
+            for metrics in by_workload.values()
+        ),
+        "n_workloads_with_all_seeds_authentic": sum(
+            metrics["n_authentic_emissions"] == expected_seed_count
+            for metrics in by_workload.values()
+        ),
+        "n_workloads_with_any_correct": sum(
+            metrics["n_correct"] > 0
+            for metrics in by_workload.values()
+        ),
+        "n_workloads_with_all_seeds_correct": sum(
+            metrics["n_correct"] == expected_seed_count
+            for metrics in by_workload.values()
+        ),
+    }
+    return {
+        **overall,
+        "by_seed": by_seed,
+        "seed_rate_ranges": seed_rate_ranges,
+        "seed_consistency": seed_consistency,
+        "by_workload": by_workload,
+        "generalization_claim_ready": False,
+    }
+
+
 def evaluate_kernels(
     *,
     bundle: ContractBundle,
     repo_root: Path,
     jaxbench_root: Path,
-    kernels_dir: Path,
-    sample_run: Path | None,
+    sample_run: Path,
     out_dir: Path,
     model_id: str,
     arm: str,
@@ -520,31 +751,14 @@ def evaluate_kernels(
 ) -> dict[str, Any]:
     verify_source_checkout(bundle, "jaxbench", jaxbench_root)
     _assert_public_workloads_match(bundle, jaxbench_root)
-    kernels = sorted(
-        path
-        for path in kernels_dir.glob("*.py")
-        if path.is_file() and not path.name.startswith("._")
+    validated_sample = validate_sample_run(
+        bundle=bundle,
+        sample_run=sample_run,
+        model_id=model_id,
+        arm=arm,
+        prompt_context=prompt_context,
     )
-    if not kernels:
-        raise EvaluationError(f"KERNELS_EMPTY: {kernels_dir}")
-    public_ids = set(bundle.splits["public_evaluation"]["task_ids"])
-    unknown = sorted(path.stem for path in kernels if path.stem not in public_ids)
-    if unknown:
-        raise EvaluationError(f"KERNELS_NOT_PUBLIC_JAXBENCH: {unknown}")
-    if not dry_run and sample_run is None:
-        raise EvaluationError("SAMPLE_RUN_REQUIRED")
-    sample_fingerprint_sha256 = (
-        validate_sample_run(
-            bundle=bundle,
-            sample_run=sample_run,
-            kernels=kernels,
-            model_id=model_id,
-            arm=arm,
-            prompt_context=prompt_context,
-        )
-        if sample_run is not None
-        else None
-    )
+    candidates = validated_sample.candidates
     runtime_hardware = None if dry_run else probe_runtime_hardware()
     if runtime_hardware is not None:
         _assert_tpu_runtime(runtime_hardware, bundle.experiment["target"])
@@ -552,18 +766,22 @@ def evaluate_kernels(
         bundle=bundle,
         repo_root=repo_root,
         jaxbench_root=jaxbench_root,
-        kernels=kernels,
+        candidates=candidates,
         model_id=model_id,
         arm=arm,
         prompt_context=prompt_context,
         runtime_hardware=runtime_hardware,
-        sample_fingerprint_sha256=sample_fingerprint_sha256,
+        sample_fingerprint_sha256=validated_sample.fingerprint_sha256,
     )
+    if not dry_run and fingerprint["opjax_tracked_dirty"]:
+        raise EvaluationError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
+    if not dry_run and fingerprint["jaxbench_tracked_dirty"]:
+        raise EvaluationError(f"JAXBENCH_TRACKED_DIRTY: {jaxbench_root}")
     if dry_run:
         return {
             "ok": True,
             "dry_run": True,
-            "n_kernels": len(kernels),
+            "n_samples": len(candidates),
             "fingerprint": fingerprint,
         }
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -574,54 +792,52 @@ def evaluate_kernels(
     )
     results_path = out_dir / "tpu_results.jsonl"
     rows = load_jsonl(results_path)
-    completed = {row["workload"] for row in rows}
-    for kernel in kernels:
-        if kernel.stem in completed:
-            print(f"PALLAS_EVAL_RESUME workload={kernel.stem} status=skipped", flush=True)
+    completed: set[str] = set()
+    valid_ids = {candidate.sample_id for candidate in candidates}
+    for row in rows:
+        sample_id = row.get("sample_id")
+        if not isinstance(sample_id, str) or sample_id not in valid_ids:
+            raise EvaluationError(f"RESULT_SAMPLE_ID_INVALID: {sample_id!r}")
+        if sample_id in completed:
+            raise EvaluationError(f"RESULT_SAMPLE_ID_DUPLICATE: {sample_id}")
+        completed.add(sample_id)
+    for candidate in candidates:
+        if candidate.sample_id in completed:
+            print(
+                f"PALLAS_EVAL_RESUME sample_id={candidate.sample_id} status=skipped",
+                flush=True,
+            )
             continue
-        print(f"PALLAS_EVAL_WORKLOAD workload={kernel.stem} status=started", flush=True)
+        print(
+            "PALLAS_EVAL_START "
+            f"sample_id={candidate.sample_id} workload={candidate.workload} "
+            f"seed={candidate.seed}",
+            flush=True,
+        )
         row = _evaluate_workload(
             bundle=bundle,
             jaxbench_root=jaxbench_root,
-            kernel=kernel,
+            candidate=candidate,
             prompt_context=prompt_context,
             timeout_seconds=timeout_seconds,
         )
         rows.append(row)
         _write_jsonl(results_path, rows)
         print(
-            "PALLAS_EVAL_WORKLOAD "
-            f"workload={kernel.stem} compiled={row['compiled']} "
+            "PALLAS_EVAL_DONE "
+            f"sample_id={candidate.sample_id} compiled={row['compiled']} "
             f"correct={row['correct']} pallas={row['inspection']['authentic']} "
             f"headline={row['headline_credited']}",
             flush=True,
         )
-    verdicts = [
-        judge(
-            workload=row["workload"],
-            candidate_src=(kernels_dir / f"{row['workload']}.py").read_text(encoding="utf-8"),
-            baseline_src=(
-                jaxbench_root
-                / "JAXBench"
-                / "benchmark"
-                / row["workload"]
-                / "baseline.py"
-            ).read_text(encoding="utf-8"),
-            compiled=bool(row["compiled"]),
-            correct=bool(row["correct"]),
-            prompt_context=row["prompt_context"],
-            speedup=row.get("speedup"),
-            timing_stable=row.get("timing", {}).get("stable"),
-            headline_speedup_threshold=bundle.eval_policy["timing"][
-                "headline_speedup_threshold"
-            ],
-        )
-        for row in rows
-    ]
-    summary = summarise(verdicts)
+    summary = _oracle_summary(
+        bundle=bundle,
+        candidates=candidates,
+        rows=rows,
+    )
     summary.update(
         {
-            "schema_version": 1,
+            "schema_version": 2,
             "checked_at": _utc_now(),
             "contract_sha256": bundle.sha256,
             "fingerprint": fingerprint,

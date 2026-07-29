@@ -73,3 +73,21 @@ def test_jaxbench_cannot_be_made_trainable(tmp_path: Path) -> None:
 
     with pytest.raises(ContractError, match="JAXBENCH_TRAINING_FORBIDDEN"):
         load_contracts(root)
+
+
+def test_sampling_seeds_must_be_unique_and_retry_disjoint(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "experiment.json"
+    experiment = json.loads(path.read_text(encoding="utf-8"))
+    experiment["sampling"]["seeds"] = [0, 0]
+    path.write_text(json.dumps(experiment), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="SAMPLING_SEEDS_INVALID"):
+        load_contracts(root)
+
+    experiment["sampling"]["seeds"] = [0, 2]
+    experiment["sampling"]["retry_seed_stride"] = 2
+    path.write_text(json.dumps(experiment), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="RETRY_SEED_STRIDE_INVALID"):
+        load_contracts(root)

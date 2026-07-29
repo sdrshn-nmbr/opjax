@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
+import importlib.metadata
 import json
+import subprocess
+import sys
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -15,7 +19,7 @@ from tinker import types
 from tinker_cookbook import model_info, renderers
 from tinker_cookbook.tokenizer_utils import get_tokenizer
 
-from opjax.pallas.contracts import ContractBundle, verify_source_checkout
+from opjax.pallas.contracts import ContractBundle, git_revision, verify_source_checkout
 from opjax.pallas.prompts import (
     SYSTEM_PALLAS_REQUIRED,
     extract_code,
@@ -28,6 +32,14 @@ from opjax.pallas.scoring import PromptContext, inspect_pallas_source
 
 class SamplingError(RuntimeError):
     """Sampling cannot continue without corrupting comparability."""
+
+
+@dataclass(frozen=True)
+class SampleRequest:
+    sample_id: str
+    workload: str
+    seed: int
+    kernel_path: str
 
 
 def _utc_now() -> str:
@@ -66,6 +78,138 @@ def _weights_path(model_path: str) -> str:
     return model_path.replace("/sampler_weights/", "/weights/", 1)
 
 
+def _git_tracked_dirty(path: Path) -> bool:
+    result = subprocess.run(
+        ["git", "-C", str(path), "status", "--porcelain", "--untracked-files=no"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.returncode != 0 or bool(result.stdout.strip())
+
+
+def _package_version(name: str) -> str | None:
+    try:
+        return importlib.metadata.version(name)
+    except importlib.metadata.PackageNotFoundError:
+        return None
+
+
+def _sample_request(workload: str, seed: int) -> SampleRequest:
+    return SampleRequest(
+        sample_id=f"{workload}::seed={seed}",
+        workload=workload,
+        seed=seed,
+        kernel_path=f"kernels/seed-{seed}/{workload}.py",
+    )
+
+
+def _select_values(
+    *,
+    requested: list[Any] | None,
+    allowed: list[Any],
+    error_code: str,
+) -> list[Any]:
+    if requested is None:
+        return allowed
+    if len(requested) != len(set(requested)):
+        raise SamplingError(f"{error_code}_DUPLICATE: {requested}")
+    unknown = sorted(set(requested) - set(allowed))
+    if unknown:
+        raise SamplingError(f"{error_code}_UNKNOWN: {unknown}")
+    requested_set = set(requested)
+    return [value for value in allowed if value in requested_set]
+
+
+def _requested_samples(
+    *,
+    public_tasks: list[str],
+    contract_seeds: list[int],
+    workloads: list[str] | None,
+    seeds: list[int] | None,
+    limit: int | None,
+) -> list[SampleRequest]:
+    selected_workloads = _select_values(
+        requested=workloads,
+        allowed=public_tasks,
+        error_code="WORKLOAD",
+    )
+    if limit is not None:
+        if limit <= 0:
+            raise SamplingError(f"LIMIT_INVALID: {limit}")
+        selected_workloads = selected_workloads[:limit]
+    selected_seeds = _select_values(
+        requested=seeds,
+        allowed=contract_seeds,
+        error_code="SEED",
+    )
+    return [
+        _sample_request(workload, seed)
+        for workload in selected_workloads
+        for seed in selected_seeds
+    ]
+
+
+def _attempt_seed(
+    *,
+    declared_seed: int,
+    attempt: int,
+    retry_seed_stride: int,
+) -> int:
+    return declared_seed + attempt * retry_seed_stride
+
+
+def _validate_existing_rows(
+    *,
+    out_dir: Path,
+    requests: list[SampleRequest],
+    row_by_id: dict[str, dict[str, Any]],
+) -> None:
+    request_by_id = {request.sample_id: request for request in requests}
+    for sample_id, row in row_by_id.items():
+        request = request_by_id[sample_id]
+        expected = {
+            "workload": request.workload,
+            "seed": request.seed,
+            "kernel_path": request.kernel_path,
+        }
+        for key, value in expected.items():
+            if row.get(key) != value:
+                raise SamplingError(
+                    "RESUME_SAMPLE_PROVENANCE_MISMATCH: "
+                    f"{sample_id}: {key}: expected={value!r} "
+                    f"observed={row.get(key)!r}"
+                )
+        kernel = out_dir / request.kernel_path
+        if not kernel.is_file():
+            raise SamplingError(f"RESUME_KERNEL_MISSING: {sample_id}: {kernel}")
+        observed_hash = source_sha256(kernel.read_text(encoding="utf-8"))
+        if row.get("code_sha256") != observed_hash:
+            raise SamplingError(
+                "RESUME_KERNEL_HASH_MISMATCH: "
+                f"{sample_id}: expected={row.get('code_sha256')} "
+                f"observed={observed_hash}"
+            )
+
+
+def _sampling_result(
+    *,
+    requests: list[SampleRequest],
+    ordered_rows: list[dict[str, Any]],
+    out_dir: Path,
+) -> dict[str, Any]:
+    return {
+        "ok": True,
+        "n_requested": len(requests),
+        "n_samples": len(ordered_rows),
+        "n_parseable": sum(row["status"] == "sampled" for row in ordered_rows),
+        "n_authentic": sum(
+            row["inspection"]["authentic"] for row in ordered_rows
+        ),
+        "out_dir": str(out_dir),
+    }
+
+
 async def _sampling_client(
     *,
     service: tinker.ServiceClient,
@@ -87,10 +231,18 @@ def _sampling_fingerprint(
     model_path: str | None,
     arm: str,
     prompt_context: PromptContext,
+    requests: list[SampleRequest],
+    opjax_revision: str,
+    opjax_tracked_dirty: bool,
+    jaxbench_tracked_dirty: bool,
+    renderer_name: str,
 ) -> dict[str, Any]:
     value = {
         "contract_sha256": bundle.sha256,
+        "opjax_revision": opjax_revision,
+        "opjax_tracked_dirty": opjax_tracked_dirty,
         "jaxbench_revision": jaxbench_revision,
+        "jaxbench_tracked_dirty": jaxbench_tracked_dirty,
         "base_model": bundle.experiment["base_model"],
         "model_path": model_path,
         "arm": arm,
@@ -98,6 +250,16 @@ def _sampling_fingerprint(
         "prompt": bundle.experiment["prompt"],
         "sampling": bundle.experiment["sampling"],
         "system_prompt_sha256": source_sha256(SYSTEM_PALLAS_REQUIRED),
+        "renderer": renderer_name,
+        "packages": {
+            "tinker": _package_version("tinker"),
+            "tinker-cookbook": _package_version("tinker-cookbook"),
+        },
+        "request": {
+            "sample_ids": [request.sample_id for request in requests],
+            "workloads": list(dict.fromkeys(request.workload for request in requests)),
+            "seeds": list(dict.fromkeys(request.seed for request in requests)),
+        },
     }
     value["sha256"] = hashlib.sha256(
         json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
@@ -108,6 +270,7 @@ def _sampling_fingerprint(
 async def sample_kernels(
     *,
     bundle: ContractBundle,
+    repo_root: Path,
     jaxbench_root: Path,
     out_dir: Path,
     arm: str,
@@ -116,6 +279,7 @@ async def sample_kernels(
     resume: bool,
     limit: int | None,
     workloads: list[str] | None,
+    seeds: list[int] | None,
     dry_run: bool,
     sample_timeout_seconds: float,
 ) -> dict[str, Any]:
@@ -129,25 +293,44 @@ async def sample_kernels(
             flush=True,
         )
     public_tasks = list(bundle.splits["public_evaluation"]["task_ids"])
-    tasks = workloads or public_tasks
-    unknown = sorted(set(tasks) - set(public_tasks))
-    if unknown:
-        raise SamplingError(f"WORKLOAD_NOT_PUBLIC_JAXBENCH: {unknown}")
-    if limit is not None:
-        tasks = tasks[:limit]
-    revision = verify_source_checkout(bundle, "jaxbench", jaxbench_root)
+    sampling_config = bundle.experiment["sampling"]
+    requests = _requested_samples(
+        public_tasks=public_tasks,
+        contract_seeds=list(sampling_config["seeds"]),
+        workloads=workloads,
+        seeds=seeds,
+        limit=limit,
+    )
+    opjax_revision = git_revision(repo_root)
+    opjax_tracked_dirty = _git_tracked_dirty(repo_root)
+    jaxbench_revision = verify_source_checkout(bundle, "jaxbench", jaxbench_root)
+    jaxbench_tracked_dirty = _git_tracked_dirty(jaxbench_root)
+    if not dry_run and opjax_tracked_dirty:
+        raise SamplingError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
+    if not dry_run and jaxbench_tracked_dirty:
+        raise SamplingError(f"JAXBENCH_TRACKED_DIRTY: {jaxbench_root}")
+    renderer_name = model_info.get_recommended_renderer_name(
+        bundle.experiment["base_model"]
+    )
     fingerprint = _sampling_fingerprint(
         bundle=bundle,
-        jaxbench_revision=revision,
+        jaxbench_revision=jaxbench_revision,
         model_path=model_path,
         arm=arm,
         prompt_context=prompt_context,
+        requests=requests,
+        opjax_revision=opjax_revision,
+        opjax_tracked_dirty=opjax_tracked_dirty,
+        jaxbench_tracked_dirty=jaxbench_tracked_dirty,
+        renderer_name=renderer_name,
     )
     if dry_run:
         return {
             "ok": True,
             "dry_run": True,
-            "n_requested": len(tasks),
+            "n_requested": len(requests),
+            "n_workloads": len({request.workload for request in requests}),
+            "n_seeds": len({request.seed for request in requests}),
             "fingerprint": fingerprint,
         }
     manifest_path = out_dir / "manifest.json"
@@ -159,22 +342,53 @@ async def sample_kernels(
             raise SamplingError("RESUME_FINGERPRINT_MISMATCH")
     else:
         manifest = {
-            "schema_version": 1,
+            "schema_version": 2,
             "created_at": _utc_now(),
             "status": "sampling",
             "fingerprint": fingerprint,
+            "generator": {"argv": list(sys.argv)},
         }
         _write_json(manifest_path, manifest)
 
     samples_path = out_dir / "samples.jsonl"
     rows = _load_jsonl(samples_path)
-    completed = {row["workload"] for row in rows}
-    kernels_dir = out_dir / "kernels"
-    kernels_dir.mkdir(parents=True, exist_ok=True)
-
-    renderer_name = model_info.get_recommended_renderer_name(
-        bundle.experiment["base_model"]
+    row_by_id: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        sample_id = row.get("sample_id")
+        if not isinstance(sample_id, str):
+            raise SamplingError("SAMPLE_ID_MISSING")
+        if sample_id in row_by_id:
+            raise SamplingError(f"SAMPLE_ID_DUPLICATE: {sample_id}")
+        row_by_id[sample_id] = row
+    requested_ids = [request.sample_id for request in requests]
+    unexpected = sorted(set(row_by_id) - set(requested_ids))
+    if unexpected:
+        raise SamplingError(f"RESUME_SAMPLE_SET_MISMATCH: {unexpected}")
+    _validate_existing_rows(
+        out_dir=out_dir,
+        requests=requests,
+        row_by_id=row_by_id,
     )
+    if len(row_by_id) == len(requested_ids):
+        ordered_rows = [row_by_id[sample_id] for sample_id in requested_ids]
+        manifest.update(
+            {
+                "status": "sampled",
+                "completed_at": manifest.get("completed_at") or _utc_now(),
+                "n_samples": len(ordered_rows),
+            }
+        )
+        _write_json(manifest_path, manifest)
+        print(
+            f"PALLAS_SAMPLE_RESUME status=complete n_samples={len(ordered_rows)}",
+            flush=True,
+        )
+        return _sampling_result(
+            requests=requests,
+            ordered_rows=ordered_rows,
+            out_dir=out_dir,
+        )
+
     tokenizer = get_tokenizer(bundle.experiment["base_model"])
     renderer = renderers.get_renderer(renderer_name, tokenizer)
     http_client = httpx.AsyncClient(
@@ -190,11 +404,10 @@ async def sample_kernels(
         base_model=bundle.experiment["base_model"],
         model_path=model_path,
     )
-    sampling_config = bundle.experiment["sampling"]
-    for index, workload in enumerate(tasks):
-        if workload in completed:
-            print(f"PALLAS_SAMPLE_RESUME workload={workload} status=skipped", flush=True)
-            continue
+    semaphore = asyncio.Semaphore(sampling_config["max_concurrency"])
+
+    async def sample_one(request: SampleRequest) -> dict[str, Any]:
+        workload = request.workload
         baseline_path = (
             jaxbench_root / "JAXBench" / "benchmark" / workload / "baseline.py"
         )
@@ -210,36 +423,49 @@ async def sample_kernels(
         ]
         model_input = renderer.build_generation_prompt(messages)
         stops = renderer.get_stop_sequences()
-        print(f"PALLAS_SAMPLE_WORKLOAD workload={workload} status=started", flush=True)
+        print(
+            "PALLAS_SAMPLE_START "
+            f"sample_id={request.sample_id} workload={workload} seed={request.seed}",
+            flush=True,
+        )
         attempts: list[dict[str, Any]] = []
         completion = ""
         code = None
         sequence = None
         for attempt in range(sampling_config["max_retries"] + 1):
+            effective_seed = _attempt_seed(
+                declared_seed=request.seed,
+                attempt=attempt,
+                retry_seed_stride=sampling_config["retry_seed_stride"],
+            )
             parameters = types.SamplingParams(
                 max_tokens=sampling_config["max_tokens"],
                 temperature=sampling_config["temperature"],
                 top_p=sampling_config["top_p"],
-                seed=sampling_config["seeds"][0] + index + 1000 * attempt,
+                seed=effective_seed,
                 stop=stops or None,
             )
-            result = await asyncio.wait_for(
-                sampling_client.sample_async(
-                    prompt=model_input,
-                    num_samples=1,
-                    sampling_params=parameters,
-                ),
-                timeout=sample_timeout_seconds,
-            )
+            async with semaphore:
+                result = await asyncio.wait_for(
+                    sampling_client.sample_async(
+                        prompt=model_input,
+                        num_samples=1,
+                        sampling_params=parameters,
+                    ),
+                    timeout=sample_timeout_seconds,
+                )
             sequence = result.sequences[0]
             completion = renderer.tokenizer.decode(sequence.tokens)
             code = extract_code(completion)
             attempts.append(
                 {
                     "attempt": attempt,
+                    "sampling_seed": effective_seed,
                     "n_tokens": len(sequence.tokens),
                     "stop_reason": str(getattr(sequence, "stop_reason", "")),
                     "usable_code": bool(code and parses(code)),
+                    "completion_sha256": source_sha256(completion),
+                    "completion": completion,
                 }
             )
             if code and parses(code):
@@ -248,8 +474,11 @@ async def sample_kernels(
         inspection = inspect_pallas_source(code or "")
         candidate = code or completion
         row = {
-            "schema_version": 1,
+            "schema_version": 2,
+            "sample_id": request.sample_id,
             "workload": workload,
+            "seed": request.seed,
+            "kernel_path": request.kernel_path,
             "sampled_at": _utc_now(),
             "prompt_context": prompt_context.value,
             "prompt_sha256": source_sha256(prompt),
@@ -271,20 +500,59 @@ async def sample_kernels(
                 "reasons": list(inspection.reasons),
             },
         }
-        (kernels_dir / f"{workload}.py").write_text(candidate, encoding="utf-8")
-        rows.append(row)
-        _write_jsonl(samples_path, rows)
-        print(
-            f"PALLAS_SAMPLE_WORKLOAD workload={workload} status={row['status']} "
-            f"authentic={inspection.authentic}",
-            flush=True,
-        )
-    manifest.update({"status": "sampled", "completed_at": _utc_now()})
+        _atomic_write(out_dir / request.kernel_path, candidate)
+        return row
+
+    pending = [
+        asyncio.create_task(sample_one(request))
+        for request in requests
+        if request.sample_id not in row_by_id
+    ]
+    for request in requests:
+        if request.sample_id in row_by_id:
+            print(
+                f"PALLAS_SAMPLE_RESUME sample_id={request.sample_id} status=skipped",
+                flush=True,
+            )
+    try:
+        for completed_task in asyncio.as_completed(pending):
+            row = await completed_task
+            row_by_id[row["sample_id"]] = row
+            ordered_rows = [
+                row_by_id[sample_id]
+                for sample_id in requested_ids
+                if sample_id in row_by_id
+            ]
+            _write_jsonl(samples_path, ordered_rows)
+            inspection = row["inspection"]
+            print(
+                "PALLAS_SAMPLE_DONE "
+                f"sample_id={row['sample_id']} status={row['status']} "
+                f"authentic={inspection['authentic']}",
+                flush=True,
+            )
+    except BaseException:
+        for task in pending:
+            task.cancel()
+        await asyncio.gather(*pending, return_exceptions=True)
+        raise
+    finally:
+        await http_client.aclose()
+
+    missing = sorted(set(requested_ids) - set(row_by_id))
+    if missing:
+        raise SamplingError(f"SAMPLES_INCOMPLETE: {missing}")
+    ordered_rows = [row_by_id[sample_id] for sample_id in requested_ids]
+    manifest.update(
+        {
+            "status": "sampled",
+            "completed_at": _utc_now(),
+            "n_samples": len(ordered_rows),
+        }
+    )
     _write_json(manifest_path, manifest)
-    return {
-        "ok": True,
-        "n_requested": len(tasks),
-        "n_samples": len(rows),
-        "n_authentic": sum(row["inspection"]["authentic"] for row in rows),
-        "out_dir": str(out_dir),
-    }
+    return _sampling_result(
+        requests=requests,
+        ordered_rows=ordered_rows,
+        out_dir=out_dir,
+    )

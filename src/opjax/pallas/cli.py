@@ -32,6 +32,7 @@ def build_parser() -> argparse.ArgumentParser:
     inspect.add_argument("path", type=Path)
 
     sample = commands.add_parser("sample")
+    sample.add_argument("--repo-root", type=Path, default=Path("."))
     sample.add_argument("--jaxbench-root", type=Path, required=True)
     sample.add_argument("--out-dir", type=Path, required=True)
     sample.add_argument("--arm", choices=["A", "B", "C", "D"], default="A")
@@ -44,17 +45,18 @@ def build_parser() -> argparse.ArgumentParser:
     sample.add_argument("--resume", action="store_true")
     sample.add_argument("--limit", type=int)
     sample.add_argument("--workload", action="append", dest="workloads")
+    sample.add_argument("--seed", action="append", dest="seeds", type=int)
     sample.add_argument("--dry-run", action="store_true")
     sample.add_argument("--sample-timeout-seconds", type=float, default=600)
 
     evaluate = commands.add_parser("evaluate")
     evaluate.add_argument("--repo-root", type=Path, default=Path("."))
     evaluate.add_argument("--jaxbench-root", type=Path, required=True)
-    evaluate.add_argument("--kernels-dir", type=Path, required=True)
     evaluate.add_argument(
         "--sample-run",
         type=Path,
-        help="Completed opjax-pallas sample run; required unless --dry-run",
+        required=True,
+        help="Completed opjax-pallas sample run",
     )
     evaluate.add_argument("--out-dir", type=Path, required=True)
     evaluate.add_argument("--model-id", required=True)
@@ -94,6 +96,7 @@ def main(argv: list[str] | None = None) -> int:
             result = asyncio.run(
                 sample_kernels(
                     bundle=bundle,
+                    repo_root=args.repo_root,
                     jaxbench_root=args.jaxbench_root,
                     out_dir=args.out_dir,
                     arm=args.arm,
@@ -102,6 +105,7 @@ def main(argv: list[str] | None = None) -> int:
                     resume=args.resume,
                     limit=args.limit,
                     workloads=args.workloads,
+                    seeds=args.seeds,
                     dry_run=args.dry_run,
                     sample_timeout_seconds=args.sample_timeout_seconds,
                 )
@@ -113,7 +117,6 @@ def main(argv: list[str] | None = None) -> int:
                 bundle=bundle,
                 repo_root=args.repo_root,
                 jaxbench_root=args.jaxbench_root,
-                kernels_dir=args.kernels_dir,
                 sample_run=args.sample_run,
                 out_dir=args.out_dir,
                 model_id=args.model_id,

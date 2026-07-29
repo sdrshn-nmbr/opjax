@@ -18,6 +18,8 @@
       1,
       2
     ],
+    "retry_seed_stride": 1000000,
+    "max_concurrency": 8,
     "temperature": 0.2,
     "top_p": 0.95,
     "max_tokens": 8192,

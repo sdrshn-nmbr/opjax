@@ -120,6 +120,29 @@ def _validate_experiment(value: dict[str, Any]) -> None:
         "DIAGNOSTIC_CONTEXT_INVALID",
         "baseline required",
     )
+    sampling = value.get("sampling", {})
+    seeds = sampling.get("seeds")
+    _require(
+        isinstance(seeds, list)
+        and len(seeds) >= 2
+        and all(isinstance(seed, int) and seed >= 0 for seed in seeds)
+        and len(set(seeds)) == len(seeds),
+        "SAMPLING_SEEDS_INVALID",
+        repr(seeds),
+    )
+    retry_seed_stride = sampling.get("retry_seed_stride")
+    _require(
+        isinstance(retry_seed_stride, int)
+        and retry_seed_stride > max(seeds),
+        "RETRY_SEED_STRIDE_INVALID",
+        repr(retry_seed_stride),
+    )
+    _require(
+        isinstance(sampling.get("max_concurrency"), int)
+        and sampling["max_concurrency"] > 0,
+        "SAMPLING_CONCURRENCY_INVALID",
+        repr(sampling.get("max_concurrency")),
+    )
     arms = value.get("arms", {})
     _require(set(arms) == set(EXPECTED_ARMS), "ARMS_INVALID", repr(sorted(arms)))
     for arm, objectives in EXPECTED_ARMS.items():

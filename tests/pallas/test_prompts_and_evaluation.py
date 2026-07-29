@@ -8,9 +8,12 @@ import pytest
 
 from opjax.pallas.evaluation import (
     EvaluationError,
+    SampleCandidate,
     _assert_tpu_runtime,
     _load_or_create_manifest,
+    _oracle_summary,
     _parse_json_output,
+    _result_compiled,
     validate_sample_run,
 )
 from opjax.pallas.contracts import load_contracts
@@ -132,7 +135,7 @@ def test_runtime_hardware_must_match_declared_tpu_generation() -> None:
 def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) -> None:
     bundle = load_contracts(CONFIG_ROOT)
     sample_run = tmp_path / "sample"
-    kernels = sample_run / "kernels"
+    kernels = sample_run / "kernels" / "seed-0"
     kernels.mkdir(parents=True)
     source = "def workload(x):\n    return x\n"
     kernel = kernels / "1p_Flash_Attention.py"
@@ -149,6 +152,11 @@ def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) ->
         "arm": "A",
         "prompt_context": "spec",
         "model_path": None,
+        "request": {
+            "sample_ids": ["1p_Flash_Attention::seed=0"],
+            "workloads": ["1p_Flash_Attention"],
+            "seeds": [0],
+        },
     }
     (sample_run / "manifest.json").write_text(
         json.dumps({"status": "sampled", "fingerprint": fingerprint}),
@@ -157,7 +165,11 @@ def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) ->
     (sample_run / "samples.jsonl").write_text(
         json.dumps(
             {
+                "schema_version": 2,
+                "sample_id": "1p_Flash_Attention::seed=0",
                 "workload": "1p_Flash_Attention",
+                "seed": 0,
+                "kernel_path": "kernels/seed-0/1p_Flash_Attention.py",
                 "code_sha256": code_sha256,
             }
         )
@@ -168,21 +180,72 @@ def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) ->
     observed = validate_sample_run(
         bundle=bundle,
         sample_run=sample_run,
-        kernels=[kernel],
         model_id="thinkingmachines/Inkling",
         arm="A",
         prompt_context=PromptContext.SPEC,
     )
 
-    assert observed == "a" * 64
+    assert observed.fingerprint_sha256 == "a" * 64
+    assert observed.candidates[0].sample_id == "1p_Flash_Attention::seed=0"
 
     kernel.write_text(source + "# changed\n", encoding="utf-8")
     with pytest.raises(EvaluationError, match="SAMPLE_KERNEL_HASH_MISMATCH"):
         validate_sample_run(
             bundle=bundle,
             sample_run=sample_run,
-            kernels=[kernel],
             model_id="thinkingmachines/Inkling",
             arm="A",
             prompt_context=PromptContext.SPEC,
         )
+
+
+def test_compilation_is_separate_from_correctness() -> None:
+    assert _result_compiled({"status": "correct"}) is True
+    assert _result_compiled({"status": "incorrect"}) is True
+    assert _result_compiled({"status": "compile_error"}) is False
+    assert _result_compiled({"status": "runtime_error"}) is False
+
+
+def test_oracle_summary_quantifies_seed_variation(tmp_path: Path) -> None:
+    bundle = load_contracts(CONFIG_ROOT)
+    source = "def workload(x):\n    return x\n"
+    candidates = tuple(
+        SampleCandidate(
+            sample_id=f"1p_Flash_Attention::seed={seed}",
+            workload="1p_Flash_Attention",
+            seed=seed,
+            kernel=tmp_path / f"{seed}.py",
+            sample={
+                "status": "sampled",
+                "inspection": {"authentic": seed != 1},
+                "attempts": [{"attempt": 0}],
+            },
+        )
+        for seed in (0, 1, 2)
+    )
+    rows = [
+        {
+            "sample_id": candidate.sample_id,
+            "compiled": candidate.seed != 1,
+            "correct": candidate.seed == 0,
+            "pallas_credited": candidate.seed == 0,
+            "headline_credited": False,
+            "timing": {"stable": candidate.seed == 0},
+            "speedup": 0.9 if candidate.seed == 0 else None,
+        }
+        for candidate in candidates
+    ]
+
+    summary = _oracle_summary(
+        bundle=bundle,
+        candidates=candidates,
+        rows=rows,
+    )
+
+    assert summary["n_samples"] == 3
+    assert summary["parse_rate"] == 1.0
+    assert summary["compilation_rate"] == round(2 / 3, 6)
+    assert summary["correctness_rate"] == round(1 / 3, 6)
+    assert summary["seed_rate_ranges"]["correctness_rate"] == 1.0
+    assert summary["seed_consistency"]["n_workloads_with_any_correct"] == 1
+    assert summary["seed_consistency"]["n_workloads_with_all_seeds_correct"] == 0
