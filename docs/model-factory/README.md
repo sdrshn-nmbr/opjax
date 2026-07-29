@@ -2,9 +2,10 @@
 
 Living experiment artifacts for the personalized coding-model factory.
 
-**Source plan (do not edit from agents casually):** `/opt/cursor/artifacts/plans/inkling_coding_ft_experiment_269bb455.plan.md`
+**SOLE canonical plan (edit/append only this):** `/Users/sudarshan/.cursor/plans/inkling_coding_ft_experiment_269bb455.plan.md`  
+Do **not** create parallel Model Factory / Inkling / Stage-N plan files. Superseded stubs point here.
 
-**Status:** Stages **0–2** enforceable. Stage **3** base locked (Inkling). Stage **4** closeout recorded. Stage **5** LoRA sealed win (v2). Stage **6** env-qual + thin-RL tooling in progress — no Inkling RL spend without operator OK. Stages **7–10** remain gated runbooks.
+**Status (2026-07-23):** Stages **0–5** done (Stage-5 sealed win). Stage-6 SudarshanBench thin RL **killed** (Δ+0). JAXBench baselines in (`41/50` TPU correct, 0 Pallas / no speedups). **Next:** operator keep/throw on **Pallas hillclimb** (Kevin/MaxKernel spine) — see plan §11.5. Stages **7–10** gated.
 
 ## Index
 

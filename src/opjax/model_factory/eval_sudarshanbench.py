@@ -9,6 +9,7 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,17 +58,38 @@ def _load_split_ids(splits_path: Path, split: str) -> list[str]:
     return list(data.get(split, []))
 
 
-def _fewshot_block(tasks_dir: Path, fixtures_root: Path, train_ids: list[str], k: int = 2) -> str:
+def _resolve_fixture(fixture_dir: str | Path, repo_root: Path) -> Path:
+    """Resolve task fixture paths for local or cloud (/workspace) checkouts."""
+    path = Path(fixture_dir)
+    if not path.is_absolute():
+        return repo_root / path
+    if path.exists():
+        return path
+    # Cloud agents wrote absolute /workspace/... paths; remap when missing.
+    text = str(path)
+    if text.startswith("/workspace/"):
+        remapped = repo_root / text.removeprefix("/workspace/")
+        if remapped.exists():
+            return remapped
+    return path
+
+
+def _fewshot_block(
+    tasks_dir: Path,
+    fixtures_root: Path,
+    train_ids: list[str],
+    repo_root: Path,
+    k: int = 2,
+) -> str:
     """Build few-shot exemplars from train-split fixtures only (never sealed)."""
+    del fixtures_root  # task JSON carries fixture_dir; keep arg for call-site stability
     chunks: list[str] = []
     for tid in train_ids[:k]:
         task_path = tasks_dir / f"{tid}.json"
         if not task_path.exists():
             continue
         task = json.loads(task_path.read_text())
-        fixture = Path(task["fixture_dir"])
-        if not fixture.is_absolute():
-            fixture = Path("/workspace") / fixture
+        fixture = _resolve_fixture(task["fixture_dir"], repo_root)
         sol = (fixture / "solution.py").read_text()
         prompt_md = (fixture / "PROMPT.md").read_text() if (fixture / "PROMPT.md").exists() else task.get("prompt", "")
         chunks.append(
@@ -121,7 +143,7 @@ async def _sample(
 
 def _run_pytest(fixture_dir: Path) -> bool:
     proc = subprocess.run(
-        ["python", "-m", "pytest", "-q", str(fixture_dir)],
+        [sys.executable, "-m", "pytest", "-q", str(fixture_dir)],
         capture_output=True,
         text=True,
     )
@@ -134,6 +156,39 @@ def _system_for_arm(arm: str) -> str:
     if arm == "static_policy":
         return STATIC_POLICY_SYSTEM
     return DEFAULT_SYSTEM
+
+
+def _weights_path_from_sampler(sampler_path: str) -> str | None:
+    """Map sampler_weights checkpoint → training weights sibling (same run)."""
+    if "/sampler_weights/" not in sampler_path:
+        return None
+    return sampler_path.replace("/sampler_weights/", "/weights/", 1)
+
+
+async def _create_sampling_client(
+    service: tinker.ServiceClient,
+    *,
+    model_name: str,
+    sampler_path: str | None,
+) -> tinker.SamplingClient:
+    """Create a sampling client.
+
+    Cold ``create_sampling_client(model_path=…/sampler_weights/…)`` can hang
+    indefinitely for large Inkling LoRAs. Rematerialize from ``weights/…`` and
+    ``save_weights_and_get_sampling_client`` is the reliable path.
+    """
+    if not sampler_path:
+        return await service.create_sampling_client_async(base_model=model_name)
+
+    weights_path = _weights_path_from_sampler(sampler_path)
+    if weights_path:
+        print(f"rematerializing LoRA sampling client from {weights_path}", flush=True)
+        training = await service.create_training_client_from_state_async(weights_path)
+        if hasattr(training, "save_weights_and_get_sampling_client_async"):
+            return await training.save_weights_and_get_sampling_client_async()
+        return await asyncio.to_thread(training.save_weights_and_get_sampling_client)
+
+    return await service.create_sampling_client_async(model_path=sampler_path)
 
 
 async def eval_arm(
@@ -150,26 +205,30 @@ async def eval_arm(
     stage: int,
     split: str,
     commit_sha: str | None,
+    repo_root: Path,
+    sample_timeout_s: float = 600.0,
 ) -> dict:
     t0 = time.perf_counter()
     service = tinker.ServiceClient()
-    if sampler_path:
-        sampling = service.create_sampling_client(model_path=sampler_path)
-    else:
-        sampling = service.create_sampling_client(base_model=model_name)
+    sampling = await _create_sampling_client(
+        service, model_name=model_name, sampler_path=sampler_path
+    )
+    print(f"sampling client ready in {time.perf_counter() - t0:.1f}s", flush=True)
 
     renderer_name = model_info.get_recommended_renderer_name(model_name)
     tok = get_tokenizer(model_name)
     renderer = renderers.get_renderer(renderer_name, tok)
     system = _system_for_arm(arm)
-    fewshot = _fewshot_block(tasks_dir, fixtures_root, train_ids) if arm == "fewshot_rag" else ""
+    fewshot = (
+        _fewshot_block(tasks_dir, fixtures_root, train_ids, repo_root)
+        if arm == "fewshot_rag"
+        else ""
+    )
 
     results = []
-    for tid in task_ids:
+    for i, tid in enumerate(task_ids, start=1):
         task = json.loads((tasks_dir / f"{tid}.json").read_text())
-        src_fix = Path(task["fixture_dir"])
-        if not src_fix.is_absolute():
-            src_fix = Path("/workspace") / src_fix
+        src_fix = _resolve_fixture(task["fixture_dir"], repo_root)
         broken = (src_fix / "solution.py").read_text()
         prompt = (
             f"{fewshot}"
@@ -177,12 +236,20 @@ async def eval_arm(
             f"Current broken solution.py:\n```python\n{broken}\n```\n"
             "Return the complete fixed solution.py."
         )
+        print(f"[{i}/{len(task_ids)}] sampling {tid} …", flush=True)
+        task_t0 = time.perf_counter()
         try:
-            completion = await _sample(
-                sampling, renderer, system, prompt, seed=seed
+            completion = await asyncio.wait_for(
+                _sample(sampling, renderer, system, prompt, seed=seed),
+                timeout=sample_timeout_s,
             )
             code = _extract_code(completion)
         except Exception as exc:
+            print(
+                f"[{i}/{len(task_ids)}] {tid} error {type(exc).__name__} "
+                f"({time.perf_counter() - task_t0:.1f}s)",
+                flush=True,
+            )
             results.append(
                 {"id": tid, "pass": False, "error": f"{type(exc).__name__}: {exc}"}
             )
@@ -209,6 +276,11 @@ async def eval_arm(
             passed = _run_pytest(work)
         else:
             passed = False
+        print(
+            f"[{i}/{len(task_ids)}] {tid} pass={passed} "
+            f"({time.perf_counter() - task_t0:.1f}s)",
+            flush=True,
+        )
         results.append(
             {
                 "id": tid,
@@ -257,6 +329,7 @@ async def async_main(args: argparse.Namespace) -> int:
     arms = [a.strip() for a in args.arms.split(",") if a.strip()]
     summary = {"split": args.split, "seed": args.seed, "arms": {}}
 
+    repo_root = Path(args.repo_root).resolve()
     for arm in arms:
         sampler = args.sampler_path if arm == "lora" else None
         if arm == "lora" and not sampler:
@@ -274,6 +347,7 @@ async def async_main(args: argparse.Namespace) -> int:
             stage=args.stage,
             split=args.split,
             commit_sha=commit_sha,
+            repo_root=repo_root,
         )
         report_path = out / f"{arm}_seed{args.seed}_report.json"
         report_path.write_text(json.dumps(report, indent=2) + "\n")
@@ -316,6 +390,11 @@ def main(argv: list[str] | None = None) -> int:
         default="docs/model-factory/02-sealed-eval/sudarshanbench/fixtures",
     )
     p.add_argument("--out-dir", default="data/model-factory/evals/sealed-v2-before")
+    p.add_argument(
+        "--repo-root",
+        default=".",
+        help="Repo root for resolving relative fixture_dir paths (replaces /workspace).",
+    )
     args = p.parse_args(argv)
     return asyncio.run(async_main(args))
 
