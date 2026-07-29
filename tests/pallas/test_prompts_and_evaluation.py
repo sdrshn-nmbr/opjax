@@ -10,6 +10,7 @@ from opjax.pallas.evaluation import (
     EvaluationError,
     SampleCandidate,
     _assert_tpu_runtime,
+    _evaluate_workload,
     _load_or_create_manifest,
     _oracle_summary,
     _parse_json_output,
@@ -249,3 +250,49 @@ def test_oracle_summary_quantifies_seed_variation(tmp_path: Path) -> None:
     assert summary["seed_rate_ranges"]["correctness_rate"] == 1.0
     assert summary["seed_consistency"]["n_workloads_with_any_correct"] == 1
     assert summary["seed_consistency"]["n_workloads_with_all_seeds_correct"] == 0
+
+
+def test_static_rejection_does_not_launch_jaxbench(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle = load_contracts(CONFIG_ROOT)
+    kernel = tmp_path / "candidate.py"
+    kernel.write_text("this is not python", encoding="utf-8")
+    baseline_dir = (
+        tmp_path
+        / "jaxbench"
+        / "JAXBench"
+        / "benchmark"
+        / "1p_Flash_Attention"
+    )
+    baseline_dir.mkdir(parents=True)
+    (baseline_dir / "baseline.py").write_text(BASELINE, encoding="utf-8")
+    candidate = SampleCandidate(
+        sample_id="1p_Flash_Attention::seed=0",
+        workload="1p_Flash_Attention",
+        seed=0,
+        kernel=kernel,
+        sample={},
+    )
+
+    def fail_if_executed(**_: object) -> dict[str, object]:
+        raise AssertionError("JAXBench must not execute a static rejection")
+
+    monkeypatch.setattr(
+        "opjax.pallas.evaluation._run_jaxbench_once",
+        fail_if_executed,
+    )
+
+    result = _evaluate_workload(
+        bundle=bundle,
+        jaxbench_root=tmp_path / "jaxbench",
+        candidate=candidate,
+        prompt_context=PromptContext.SPEC,
+        timeout_seconds=1,
+    )
+
+    assert result["execution_status"] == "STATIC_REJECTED"
+    assert result["raw_runs"] == []
+    assert result["compiled"] is False
+    assert result["correct"] is False

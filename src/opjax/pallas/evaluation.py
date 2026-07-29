@@ -24,6 +24,7 @@ from opjax.pallas.contracts import (
 from opjax.pallas.scoring import (
     PromptContext,
     diagnostic_reward,
+    inspect_pallas_source,
     judge,
     timing_evidence,
 )
@@ -490,20 +491,31 @@ def _evaluate_workload(
     kernel = candidate.kernel
     policy = bundle.eval_policy
     timing_policy = policy["timing"]
-    raw_runs = [
-        _run_jaxbench_once(
-            jaxbench_root=jaxbench_root,
-            workload=workload,
-            kernel=kernel,
-            tpu=bundle.experiment["target"]["hardware"],
-            num_warmup=timing_policy["num_warmup"],
-            num_iters=timing_policy["num_iters"],
-            timeout_seconds=timeout_seconds,
-        )
-        for _ in range(timing_policy["min_repeated_runs"])
-    ]
+    source = kernel.read_text(encoding="utf-8")
+    preflight = inspect_pallas_source(source)
+    execution_status = (
+        "EXECUTED"
+        if preflight.parses and preflight.has_workload
+        else "STATIC_REJECTED"
+    )
+    raw_runs = (
+        [
+            _run_jaxbench_once(
+                jaxbench_root=jaxbench_root,
+                workload=workload,
+                kernel=kernel,
+                tpu=bundle.experiment["target"]["hardware"],
+                num_warmup=timing_policy["num_warmup"],
+                num_iters=timing_policy["num_iters"],
+                timeout_seconds=timeout_seconds,
+            )
+            for _ in range(timing_policy["min_repeated_runs"])
+        ]
+        if execution_status == "EXECUTED"
+        else []
+    )
     results = [run["result"] for run in raw_runs]
-    compiled = all(_result_compiled(result) for result in results)
+    compiled = bool(results) and all(_result_compiled(result) for result in results)
     correct = compiled and all(_result_correct(result) for result in results)
     baseline_medians = [
         result["baseline"]["median_ms"]
@@ -535,7 +547,6 @@ def _evaluate_workload(
         if baseline_median is not None and kernel_median is not None and kernel_median > 0
         else None
     )
-    source = kernel.read_text(encoding="utf-8")
     baseline_path = (
         jaxbench_root / "JAXBench" / "benchmark" / workload / "baseline.py"
     )
@@ -557,6 +568,7 @@ def _evaluate_workload(
         "workload": workload,
         "seed": candidate.seed,
         "checked_at": _utc_now(),
+        "execution_status": execution_status,
         "kernel_sha256": _sha256_file(kernel),
         "compiled": compiled,
         "correct": correct,
