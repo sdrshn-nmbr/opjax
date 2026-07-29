@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+import httpx
 import tinker
 from tinker import types
 from tinker_cookbook import model_info, renderers
@@ -176,7 +177,14 @@ async def sample_kernels(
     )
     tokenizer = get_tokenizer(bundle.experiment["base_model"])
     renderer = renderers.get_renderer(renderer_name, tokenizer)
-    service = tinker.ServiceClient()
+    http_client = httpx.AsyncClient(
+        timeout=httpx.Timeout(30.0),
+        follow_redirects=True,
+    )
+    service = tinker.ServiceClient(
+        http_client=http_client,
+        max_retries=0,
+    )
     sampling_client = await _sampling_client(
         service=service,
         base_model=bundle.experiment["base_model"],
