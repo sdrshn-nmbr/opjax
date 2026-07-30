@@ -162,6 +162,7 @@ def main(argv: list[str] | None = None) -> int:
         EvaluationError,
         LoweringEvidenceError,
         OSError,
+        RuntimeError,
         ValueError,
     ) as exc:
         if args.command == "verify-corpus-candidate" and bundle is not None:
