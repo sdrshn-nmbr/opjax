@@ -7,7 +7,12 @@ from pathlib import Path
 import pytest
 
 from opjax.pallas.contracts import load_contracts
-from opjax.pallas.corpus import CorpusError, build_corpus, validate_corpus_release
+from opjax.pallas.corpus import (
+    CorpusError,
+    build_corpus,
+    record_verification_failure,
+    validate_corpus_release,
+)
 
 CONFIG_ROOT = Path(__file__).parents[2] / "config" / "pallas"
 
@@ -176,3 +181,48 @@ def test_build_corpus_rejects_nonempty_output(tmp_path: Path) -> None:
             out_dir=out_dir,
             include_hf=False,
         )
+
+
+def test_failed_verification_is_preserved_without_sft_promotion(
+    tmp_path: Path,
+) -> None:
+    config, checkouts = _fixture_contracts(tmp_path)
+    bundle = load_contracts(config)
+    discovery = tmp_path / "discovery"
+    build_corpus(
+        bundle=bundle,
+        repo_root=Path(__file__).parents[2],
+        source_checkouts=checkouts,
+        out_dir=discovery,
+        include_hf=False,
+    )
+    candidate = next(
+        json.loads(line)
+        for line in (discovery / "candidates.jsonl").read_text().splitlines()
+        if json.loads(line)["objective"] == "sft"
+    )
+    verification_root = tmp_path / "verification"
+    record_verification_failure(
+        bundle=bundle,
+        corpus_root=discovery,
+        candidate_id=candidate["candidate_id"],
+        out_dir=verification_root,
+        error=CorpusError("TPU_COMPILE_FAILED: unsupported layout"),
+    )
+
+    release = tmp_path / "release"
+    manifest = build_corpus(
+        bundle=bundle,
+        repo_root=Path(__file__).parents[2],
+        source_checkouts=checkouts,
+        out_dir=release,
+        verification_roots=[verification_root],
+        include_hf=False,
+    )
+
+    assert manifest["counts"]["sft"] == 0
+    verification = json.loads(
+        (release / "verification.jsonl").read_text(encoding="utf-8")
+    )
+    assert verification["verified"] is False
+    assert verification["failure"]["code"] == "TPU_COMPILE_FAILED"

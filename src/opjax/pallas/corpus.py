@@ -645,6 +645,10 @@ def _verification_index(
                 raise CorpusError(
                     f"VERIFICATION_HASH_MISMATCH: {candidate_id}"
                 )
+            if value.get("verified") is False:
+                value["_artifact_path"] = str(path.resolve())
+                records[candidate_id] = value
+                continue
             if calibration_root is None:
                 raise CorpusError("VERIFICATION_CALIBRATION_REQUIRED")
             lowering = validate_candidate_evidence(
@@ -660,6 +664,43 @@ def _verification_index(
             value["_artifact_path"] = str(path.resolve())
             records[candidate_id] = value
     return records
+
+
+def record_verification_failure(
+    *,
+    bundle: ContractBundle,
+    corpus_root: Path,
+    candidate_id: str,
+    out_dir: Path,
+    error: Exception,
+) -> dict[str, Any]:
+    candidates = {
+        row["candidate_id"]: row
+        for row in _read_jsonl(corpus_root / "candidates.jsonl")
+    }
+    candidate = candidates.get(candidate_id)
+    if candidate is None:
+        raise CorpusError(f"CANDIDATE_UNKNOWN: {candidate_id}") from error
+    message = str(error)
+    record = {
+        "schema_version": 1,
+        "kind": "pallas_corpus_verification",
+        "candidate_id": candidate_id,
+        "verified_at": _utc_now(),
+        "contract_sha256": bundle.sha256,
+        "source_revision": candidate["source_revision"],
+        "kernel_sha256": candidate["content_sha256"],
+        "correctness_seeds": [],
+        "verified": False,
+        "failure": {
+            "code": message.partition(":")[0],
+            "detail": message,
+            "error_type": type(error).__name__,
+        },
+    }
+    record["verification_sha256"] = _canonical_sha256(record)
+    _write_json(out_dir / "verification.json", record)
+    return record
 
 
 def _dapt_row(candidate: dict[str, Any]) -> dict[str, Any]:
@@ -767,7 +808,7 @@ def build_corpus(
         expected_runtime=bundle.eval_policy["runtime"],
     )
     verification_rows = []
-    if verifications:
+    if any(record.get("verified") is True for record in verifications.values()):
         if calibration_root is None:
             raise CorpusError("VERIFICATION_CALIBRATION_REQUIRED")
         shutil.copytree(calibration_root, out_dir / "evidence" / "calibration")
@@ -780,6 +821,13 @@ def build_corpus(
             raise CorpusError(f"VERIFICATION_CANDIDATE_UNKNOWN: {candidate_id}")
         if verification.get("kernel_sha256") != candidate["content_sha256"]:
             raise CorpusError(f"VERIFICATION_KERNEL_MISMATCH: {candidate_id}")
+        verification_rows.append(
+            {
+                key: value
+                for key, value in verification.items()
+                if key != "_artifact_path"
+            }
+        )
         if verification.get("verified") is not True:
             continue
         if candidate["status"] != "verification_required":
@@ -799,9 +847,6 @@ def build_corpus(
             out_dir / evidence_relative_path,
         )
         verification["evidence_relative_path"] = evidence_relative_path.as_posix()
-        verification_rows.append(
-            {key: value for key, value in verification.items() if key != "_artifact_path"}
-        )
     dapt_rows = [
         _dapt_row(candidate)
         for candidate in candidates

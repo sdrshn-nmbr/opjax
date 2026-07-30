@@ -10,7 +10,11 @@ from dataclasses import asdict
 from pathlib import Path
 
 from opjax.pallas.contracts import ContractError, load_contracts
-from opjax.pallas.corpus import CorpusError, verify_corpus_candidate
+from opjax.pallas.corpus import (
+    CorpusError,
+    record_verification_failure,
+    verify_corpus_candidate,
+)
 from opjax.pallas.evaluation import (
     EvaluationError,
     audit_lowering_evidence,
@@ -91,6 +95,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    bundle = None
     try:
         bundle = load_contracts(args.config_root)
         if args.command == "calibrate-lowering":
@@ -159,6 +164,17 @@ def main(argv: list[str] | None = None) -> int:
         OSError,
         ValueError,
     ) as exc:
+        if args.command == "verify-corpus-candidate" and bundle is not None:
+            try:
+                record_verification_failure(
+                    bundle=bundle,
+                    corpus_root=args.corpus_root,
+                    candidate_id=args.candidate_id,
+                    out_dir=args.out_dir,
+                    error=exc,
+                )
+            except (CorpusError, OSError, ValueError):
+                pass
         print(
             json.dumps(
                 {
