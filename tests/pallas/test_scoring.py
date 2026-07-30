@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import pytest
+
 from opjax.pallas.scoring import (
     PromptContext,
+    TimingEvidenceError,
     diagnostic_reward,
     inspect_pallas_source,
     judge,
@@ -204,13 +207,42 @@ def test_unstable_fast_kernel_is_not_headline_success() -> None:
 
 
 def test_timing_requires_repeated_stable_measurements() -> None:
+    empty = timing_evidence([], min_runs=3, max_coefficient_of_variation=0.1)
     insufficient = timing_evidence([1.0, 1.01], min_runs=3, max_coefficient_of_variation=0.1)
     stable = timing_evidence([1.0, 1.01, 0.99], min_runs=3, max_coefficient_of_variation=0.1)
     unstable = timing_evidence([1.0, 2.0, 4.0], min_runs=3, max_coefficient_of_variation=0.1)
 
+    assert empty.stable is False
+    assert empty.median_ms is None
     assert insufficient.stable is False
     assert stable.stable is True
     assert unstable.stable is False
+
+
+@pytest.mark.parametrize(
+    "invalid_sample",
+    [0.0, -1.0, float("nan"), float("inf"), True, "1.0"],
+)
+def test_timing_rejects_non_positive_or_non_finite_samples(
+    invalid_sample: object,
+) -> None:
+    with pytest.raises(TimingEvidenceError, match="TIMING_SAMPLES_INVALID"):
+        timing_evidence(
+            [1.0, invalid_sample, 1.1],
+            min_runs=3,
+            max_coefficient_of_variation=0.1,
+        )
+
+
+def test_timing_accepts_positive_integer_measurements() -> None:
+    evidence = timing_evidence(
+        [1, 1, 1],
+        min_runs=3,
+        max_coefficient_of_variation=0.1,
+    )
+
+    assert evidence.samples_ms == (1.0, 1.0, 1.0)
+    assert evidence.stable is True
 
 
 def test_summary_separates_diagnostics_from_headline() -> None:

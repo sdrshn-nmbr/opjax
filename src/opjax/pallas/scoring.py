@@ -9,6 +9,9 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Iterable
 
+import chex
+import jax.numpy as jnp
+
 COPY_SIMILARITY_THRESHOLD = 0.90
 DEFAULT_HEADLINE_SPEEDUP = 1.05
 
@@ -20,6 +23,10 @@ class PromptContext(str, Enum):
     @property
     def scorable(self) -> bool:
         return self is PromptContext.SPEC
+
+
+class TimingEvidenceError(ValueError):
+    """Timing samples violate the numerical evidence contract."""
 
 
 @dataclass(frozen=True)
@@ -341,7 +348,22 @@ def timing_evidence(
     min_runs: int,
     max_coefficient_of_variation: float,
 ) -> TimingEvidence:
-    samples = tuple(float(sample) for sample in samples_ms)
+    try:
+        raw_samples = tuple(samples_ms)
+        for sample in raw_samples:
+            chex.assert_rank(sample, 0)
+            try:
+                chex.assert_type(sample, float)
+            except AssertionError:
+                chex.assert_type(sample, int)
+        samples = tuple(float(sample) for sample in raw_samples)
+        values = jnp.asarray(samples)
+        chex.assert_rank(values, 1)
+        chex.assert_tree_all_finite(values)
+        if samples:
+            chex.assert_scalar_positive(min(samples))
+    except (AssertionError, TypeError, ValueError) as exc:
+        raise TimingEvidenceError(f"TIMING_SAMPLES_INVALID: {exc}") from exc
     if len(samples) < min_runs:
         return TimingEvidence(
             samples_ms=samples,

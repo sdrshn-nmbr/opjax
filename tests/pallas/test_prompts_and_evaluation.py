@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -15,6 +16,7 @@ from opjax.pallas.evaluation import (
     _oracle_summary,
     _parse_json_output,
     _result_compiled,
+    probe_runtime_hardware,
     validate_sample_run,
 )
 from opjax.pallas.contracts import load_contracts
@@ -115,22 +117,137 @@ def test_jaxbench_json_parser_accepts_log_prefix() -> None:
 
 
 def test_runtime_hardware_must_match_declared_tpu_generation() -> None:
+    metadata = {
+        "device_count": 1,
+        "process_count": 1,
+        "process_index": 0,
+    }
     _assert_tpu_runtime(
-        {"platforms": ["tpu"], "device_kinds": ["TPU v5 lite"]},
+        {
+            **metadata,
+            "platforms": ["tpu"],
+            "device_kinds": ["TPU v5 lite"],
+        },
         {"hardware": "v5e"},
     )
 
     with pytest.raises(EvaluationError, match="HARDWARE_TARGET_MISMATCH"):
         _assert_tpu_runtime(
-            {"platforms": ["cpu"], "device_kinds": ["Apple M3"]},
+            {
+                **metadata,
+                "platforms": ["cpu"],
+                "device_kinds": ["Apple M3"],
+            },
             {"hardware": "v5e"},
         )
 
     with pytest.raises(EvaluationError, match="HARDWARE_TARGET_MISMATCH"):
         _assert_tpu_runtime(
-            {"platforms": ["tpu"], "device_kinds": ["TPU v4"]},
+            {
+                **metadata,
+                "platforms": ["tpu"],
+                "device_kinds": ["TPU v4"],
+            },
             {"hardware": "v5e"},
         )
+
+    for invalid_kind in (
+        "TPU v5p",
+        "not-v5e-but-contains-5",
+        "TPU v4 and v5 lite",
+    ):
+        with pytest.raises(EvaluationError, match="HARDWARE_TARGET_MISMATCH"):
+            _assert_tpu_runtime(
+                {
+                    **metadata,
+                    "platforms": ["tpu"],
+                    "device_kinds": [invalid_kind],
+                },
+                {"hardware": "v5e"},
+            )
+
+
+@pytest.mark.parametrize(
+    "invalid_metadata",
+    [
+        {
+            "platforms": ["tpu"],
+            "device_kinds": ["TPU v5 lite"],
+            "device_count": 0,
+            "process_count": 1,
+            "process_index": 0,
+        },
+        {
+            "platforms": ["tpu"],
+            "device_kinds": [],
+            "device_count": 1,
+            "process_count": 1,
+            "process_index": 0,
+        },
+        {
+            "platforms": ["tpu"],
+            "device_kinds": ["TPU v5 lite"],
+            "device_count": 1,
+            "process_count": 1,
+            "process_index": 1,
+        },
+    ],
+)
+def test_runtime_hardware_rejects_inconsistent_probe_metadata(
+    invalid_metadata: dict[str, object],
+) -> None:
+    with pytest.raises(EvaluationError, match="HARDWARE_PROBE_INVALID"):
+        _assert_tpu_runtime(invalid_metadata, {"hardware": "v5e"})
+
+
+def test_runtime_probe_uses_chex_tpu_availability_preflight(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    observed_command: list[str] = []
+
+    def run(command: list[str], **_: object) -> subprocess.CompletedProcess[str]:
+        observed_command.extend(command)
+        return subprocess.CompletedProcess(
+            command,
+            0,
+            stdout=json.dumps(
+                {
+                    "platforms": ["tpu"],
+                    "device_kinds": ["TPU v5 lite"],
+                    "device_count": 1,
+                    "process_count": 1,
+                    "process_index": 0,
+                }
+            ),
+            stderr="",
+        )
+
+    monkeypatch.setattr("opjax.pallas.evaluation.subprocess.run", run)
+
+    result = probe_runtime_hardware()
+
+    assert result["platforms"] == ["tpu"]
+    assert (
+        "chex.assert_devices_available(1, 'tpu', not_less_than=True)"
+        in observed_command[2]
+    )
+
+
+def test_runtime_probe_rejects_failed_chex_preflight(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def run(*_: object, **__: object) -> subprocess.CompletedProcess[str]:
+        return subprocess.CompletedProcess(
+            [],
+            1,
+            stdout="",
+            stderr="AssertionError: [Chex] No 1 TPUs available",
+        )
+
+    monkeypatch.setattr("opjax.pallas.evaluation.subprocess.run", run)
+
+    with pytest.raises(EvaluationError, match="HARDWARE_PROBE_FAILED"):
+        probe_runtime_hardware()
 
 
 def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) -> None:

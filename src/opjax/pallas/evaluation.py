@@ -7,6 +7,7 @@ import importlib.metadata
 import json
 import os
 import platform
+import re
 import subprocess
 import sys
 from dataclasses import asdict, dataclass
@@ -162,7 +163,14 @@ def environment_fingerprint(
         "runtime_hardware": runtime_hardware,
         "packages": {
             name: _package_version(name)
-            for name in ("jax", "jaxlib", "libtpu", "tinker", "tinker-cookbook")
+            for name in (
+                "chex",
+                "jax",
+                "jaxlib",
+                "libtpu",
+                "tinker",
+                "tinker-cookbook",
+            )
         },
         "python": platform.python_version(),
         "platform": platform.platform(),
@@ -288,7 +296,8 @@ def validate_sample_run(
 
 def probe_runtime_hardware(timeout_seconds: float = 60) -> dict[str, Any]:
     source = (
-        "import json, jax; "
+        "import chex, json, jax; "
+        "chex.assert_devices_available(1, 'tpu', not_less_than=True); "
         "devices=jax.devices(); "
         "print(json.dumps({"
         "'platforms': sorted({d.platform for d in devices}),"
@@ -322,14 +331,38 @@ def _assert_tpu_runtime(
     observed: dict[str, Any],
     target: dict[str, Any],
 ) -> None:
+    device_count = observed.get("device_count")
+    process_count = observed.get("process_count")
+    process_index = observed.get("process_index")
+    if (
+        not isinstance(device_count, int)
+        or isinstance(device_count, bool)
+        or device_count < 1
+        or not isinstance(process_count, int)
+        or isinstance(process_count, bool)
+        or process_count < 1
+        or not isinstance(process_index, int)
+        or isinstance(process_index, bool)
+        or not 0 <= process_index < process_count
+    ):
+        raise EvaluationError(f"HARDWARE_PROBE_INVALID: {observed}")
     if observed.get("platforms") != ["tpu"]:
         raise EvaluationError(
             f"HARDWARE_TARGET_MISMATCH: expected=tpu observed={observed.get('platforms')}"
         )
     hardware = str(target["hardware"]).lower()
-    kinds = " ".join(str(kind).lower() for kind in observed.get("device_kinds", []))
+    device_kinds = observed.get("device_kinds")
+    if (
+        not isinstance(device_kinds, list)
+        or not device_kinds
+        or not all(isinstance(kind, str) and kind for kind in device_kinds)
+    ):
+        raise EvaluationError(f"HARDWARE_PROBE_INVALID: {observed}")
     expected_generation = hardware.removeprefix("v").removesuffix("e")
-    if expected_generation not in kinds:
+    expected_kind = re.compile(
+        rf"^tpu\s+v{re.escape(expected_generation)}(?:e|\s+lite)(?:\s|$)"
+    )
+    if not any(expected_kind.search(kind.lower()) for kind in device_kinds):
         raise EvaluationError(
             "HARDWARE_TARGET_MISMATCH: "
             f"expected={target['hardware']} observed={observed.get('device_kinds')}"
