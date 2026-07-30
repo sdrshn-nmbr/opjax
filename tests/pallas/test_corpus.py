@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import opjax.pallas.corpus as corpus_module
 from opjax.pallas.contracts import load_contracts
 from opjax.pallas.corpus import (
     CorpusError,
@@ -226,3 +227,20 @@ def test_failed_verification_is_preserved_without_sft_promotion(
     )
     assert verification["verified"] is False
     assert verification["failure"]["code"] == "TPU_COMPILE_FAILED"
+
+
+def test_tpu_preflight_uses_chex_0190_signature(monkeypatch: pytest.MonkeyPatch) -> None:
+    observed: list[tuple[tuple[object, ...], dict[str, object]]] = []
+
+    def assert_devices(*args: object, **kwargs: object) -> None:
+        observed.append((args, kwargs))
+
+    monkeypatch.setattr(
+        corpus_module.chex,
+        "assert_devices_available",
+        assert_devices,
+    )
+
+    corpus_module._assert_tpu_available()
+
+    assert observed == [((1, "tpu"), {"not_less_than": True})]

@@ -1042,6 +1042,13 @@ def _generate_inputs(
     return tuple(inputs)
 
 
+def _assert_tpu_available() -> None:
+    try:
+        chex.assert_devices_available(1, "tpu", not_less_than=True)
+    except AssertionError as exc:
+        raise CorpusError(f"TPU_REQUIRED: {exc}") from exc
+
+
 def verify_corpus_candidate(
     *,
     bundle: ContractBundle,
@@ -1074,10 +1081,7 @@ def verify_corpus_candidate(
         calibration_root,
         expected_runtime=bundle.eval_policy["runtime"],
     )["runtime"]
-    try:
-        chex.assert_devices_available("tpu", 1)
-    except AssertionError as exc:
-        raise CorpusError(f"TPU_REQUIRED: {exc}") from exc
+    _assert_tpu_available()
     source_path = source_checkout / candidate["source_path"]
     if _sha256_file(source_path) != candidate["content_sha256"]:
         raise CorpusError(f"CANDIDATE_SOURCE_HASH_MISMATCH: {candidate_id}")
