@@ -148,6 +148,7 @@ def test_build_corpus_keeps_sft_pending_until_tpu_verification(
     sft = next(row for row in candidates if row["objective"] == "sft")
     assert sft["static_inspection"]["authentic"] is True
     assert sft["rejection_reasons"] == []
+    assert "def jax_relu(x):" in sft["metadata"]["oracle_source"]
     assert validate_corpus_release(out_dir)["ok"] is True
 
 

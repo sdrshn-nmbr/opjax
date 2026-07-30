@@ -483,6 +483,16 @@ def _pallasbench_candidates(
                 candidate_function = node.value.id
                 break
         task["candidate_function"] = candidate_function
+        baseline_source = (
+            checkout / task["baseline_path"]
+        ).read_text(encoding="utf-8")
+        baseline_tree = ast.parse(baseline_source)
+        task["oracle_source"] = next(
+            ast.get_source_segment(baseline_source, node)
+            for node in baseline_tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == task["baseline_function"]
+        )
         inspection_source = (
             f"{content}\n\ndef workload(*args):\n"
             f"    return {candidate_function}(*args)\n"
@@ -739,7 +749,9 @@ def _sft_row(candidate: dict[str, Any], verification: dict[str, Any]) -> dict[st
         f"{metadata['task_name']} operation. The callable must accept inputs "
         f"with shapes {metadata['input_shapes']} and dtypes "
         f"{metadata.get('input_dtypes') or ['float32'] * len(metadata['input_shapes'])}. "
-        "It must match the independent JAX oracle at the full declared shapes. "
+        "It must match this independent JAX semantic oracle at the full "
+        "declared shapes:\n\n"
+        f"```python\n{metadata['oracle_source']}\n```\n\n"
         "Do not use interpret mode or a plain-JAX fallback."
     )
     return {
