@@ -21,6 +21,7 @@ dependencies = [
 opjax = "opjax.cli:main"
 opjax-model-factory = "opjax.model_factory.cli:main"
 opjax-pallas = "opjax.pallas.cli:main"
+opjax-pallas-eval = "opjax.pallas.evaluation_cli:main"
 
 [dependency-groups]
 dev = [

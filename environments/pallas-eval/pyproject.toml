@@ -1,0 +1,20 @@
+[project]
+name = "opjax-pallas-eval"
+version = "0.1.0"
+requires-python = ">=3.10,<3.11"
+dependencies = [
+    "chex==0.1.90",
+    "jax[tpu]==0.6.2",
+]
+
+[tool.uv]
+package = false
+environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+required-environments = [
+    "sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+find-links = [
+    "https://storage.googleapis.com/jax-releases/libtpu_releases.html",
+]
