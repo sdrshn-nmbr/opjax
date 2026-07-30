@@ -206,6 +206,43 @@ def _validate_eval_policy(value: dict[str, Any], experiment: dict[str, Any]) -> 
     _require(timing.get("num_iters", 0) > 0, "TIMING_ITERS_INVALID", repr(timing))
     threshold = timing.get("headline_speedup_threshold")
     _require(isinstance(threshold, (int, float)) and threshold > 1, "SPEEDUP_THRESHOLD_INVALID", repr(threshold))
+    authenticity = value.get("authenticity", {})
+    _require(
+        authenticity.get("require_empirical_tpu_lowering") is True,
+        "LOWERING_EVIDENCE_POLICY_INVALID",
+        repr(authenticity),
+    )
+    _require(
+        authenticity.get("reject_interpret_mode") is True,
+        "INTERPRET_POLICY_INVALID",
+        repr(authenticity),
+    )
+    repetitions = authenticity.get("profile_repetitions")
+    _require(
+        isinstance(repetitions, int)
+        and not isinstance(repetitions, bool)
+        and repetitions >= 3,
+        "PROFILE_REPETITIONS_INVALID",
+        repr(repetitions),
+    )
+    _require(
+        authenticity.get("compiler_marker") == "tpu_custom_call",
+        "LOWERING_MARKER_INVALID",
+        repr(authenticity.get("compiler_marker")),
+    )
+    runtime = value.get("runtime", {})
+    expected_runtime = {
+        "python": "3.10.12",
+        "chex": "0.1.90",
+        "jax": "0.6.2",
+        "jaxlib": "0.6.2",
+        "libtpu": "0.0.17",
+    }
+    _require(
+        runtime == expected_runtime,
+        "EVALUATION_RUNTIME_INVALID",
+        repr(runtime),
+    )
 
 
 def source_by_id(bundle: ContractBundle, source_id: str) -> dict[str, Any]:

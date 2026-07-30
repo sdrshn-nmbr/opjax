@@ -22,6 +22,11 @@ from opjax.pallas.contracts import (
     source_by_id,
     verify_source_checkout,
 )
+from opjax.pallas.lowering import (
+    LoweringEvidenceError,
+    validate_calibration,
+    validate_candidate_evidence,
+)
 from opjax.pallas.scoring import (
     PromptContext,
     diagnostic_reward,
@@ -138,6 +143,7 @@ def environment_fingerprint(
     prompt_context: PromptContext,
     runtime_hardware: dict[str, Any] | None,
     sample_fingerprint_sha256: str | None,
+    lowering_calibration_sha256: str,
 ) -> dict[str, Any]:
     prompt_contract = {
         "prompt": bundle.experiment["prompt"],
@@ -159,6 +165,7 @@ def environment_fingerprint(
             json.dumps(prompt_contract, sort_keys=True, separators=(",", ":")).encode()
         ),
         "sample_fingerprint_sha256": sample_fingerprint_sha256,
+        "lowering_calibration_sha256": lowering_calibration_sha256,
         "target": bundle.experiment["target"],
         "runtime_hardware": runtime_hardware,
         "packages": {
@@ -369,6 +376,23 @@ def _assert_tpu_runtime(
         )
 
 
+def _assert_evaluation_runtime(
+    fingerprint: dict[str, Any],
+    expected: dict[str, str],
+) -> None:
+    observed = {
+        "python": fingerprint.get("python"),
+        **{
+            name: fingerprint.get("packages", {}).get(name)
+            for name in ("chex", "jax", "jaxlib", "libtpu")
+        },
+    }
+    if observed != expected:
+        raise EvaluationError(
+            f"EVALUATION_RUNTIME_MISMATCH: expected={expected} observed={observed}"
+        )
+
+
 def _assert_public_workloads_match(bundle: ContractBundle, jaxbench_root: Path) -> None:
     benchmark = jaxbench_root / "JAXBench" / "benchmark"
     if not benchmark.is_dir():
@@ -512,12 +536,98 @@ def _result_compiled(value: dict[str, Any]) -> bool:
     return value.get("status") in {"incorrect", "correct"}
 
 
+def _capture_lowering_evidence(
+    *,
+    bundle: ContractBundle,
+    jaxbench_root: Path,
+    candidate: SampleCandidate,
+    calibration_root: Path,
+    evidence_root: Path,
+    timeout_seconds: float,
+) -> dict[str, Any]:
+    expected_runtime = bundle.eval_policy["runtime"]
+    candidate_root = (
+        evidence_root / f"seed-{candidate.seed}" / candidate.workload
+    )
+    command_result: dict[str, Any] | None = None
+    if not (candidate_root / "candidate.json").is_file():
+        command = [
+            sys.executable,
+            "-m",
+            "opjax.pallas.lowering",
+            "capture-candidate",
+            "--jaxbench-root",
+            str(jaxbench_root),
+            "--workload",
+            candidate.workload,
+            "--kernel",
+            str(candidate.kernel),
+            "--out-dir",
+            str(candidate_root),
+            "--repetitions",
+            str(bundle.eval_policy["authenticity"]["profile_repetitions"]),
+        ]
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                timeout=timeout_seconds,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return {
+                "attempted": True,
+                "verified": False,
+                "error": f"LOWERING_CAPTURE_TIMEOUT: {exc}",
+            }
+        command_result = {
+            "returncode": process.returncode,
+            "stdout_tail": process.stdout[-2000:],
+            "stderr_tail": process.stderr[-2000:],
+        }
+        if process.returncode != 0:
+            return {
+                "attempted": True,
+                "verified": False,
+                "error": "LOWERING_CAPTURE_FAILED",
+                "command": command_result,
+            }
+    try:
+        verdict = validate_candidate_evidence(
+            calibration_root=calibration_root,
+            candidate_root=candidate_root,
+            expected_kernel_sha256=_sha256_file(candidate.kernel),
+            expected_runtime=expected_runtime,
+        )
+    except LoweringEvidenceError as exc:
+        return {
+            "attempted": True,
+            "verified": False,
+            "error": str(exc),
+            "command": command_result,
+        }
+    return {
+        "attempted": True,
+        "verified": verdict.verified,
+        "calibration_sha256": verdict.calibration_sha256,
+        "candidate_sha256": verdict.candidate_sha256,
+        "kernel_sha256": verdict.kernel_sha256,
+        "runtime": verdict.runtime,
+        "reasons": list(verdict.reasons),
+        "artifact_root": str(candidate_root.relative_to(evidence_root.parent)),
+        "command": command_result,
+    }
+
+
 def _evaluate_workload(
     *,
     bundle: ContractBundle,
     jaxbench_root: Path,
     candidate: SampleCandidate,
     prompt_context: PromptContext,
+    lowering_calibration: Path,
+    lowering_evidence_root: Path,
     timeout_seconds: float,
 ) -> dict[str, Any]:
     workload = candidate.workload
@@ -550,6 +660,19 @@ def _evaluate_workload(
     results = [run["result"] for run in raw_runs]
     compiled = bool(results) and all(_result_compiled(result) for result in results)
     correct = compiled and all(_result_correct(result) for result in results)
+    lowering_evidence: dict[str, Any] = {
+        "attempted": False,
+        "verified": None,
+    }
+    if correct and preflight.authentic:
+        lowering_evidence = _capture_lowering_evidence(
+            bundle=bundle,
+            jaxbench_root=jaxbench_root,
+            candidate=candidate,
+            calibration_root=lowering_calibration,
+            evidence_root=lowering_evidence_root,
+            timeout_seconds=timeout_seconds,
+        )
     baseline_medians = [
         result["baseline"]["median_ms"]
         for result in results
@@ -594,6 +717,10 @@ def _evaluate_workload(
         speedup=speedup,
         timing_stable=timing_stable,
         headline_speedup_threshold=timing_policy["headline_speedup_threshold"],
+        lowering_verified=lowering_evidence["verified"],
+        require_lowering_evidence=bundle.eval_policy["authenticity"][
+            "require_empirical_tpu_lowering"
+        ],
     )
     return {
         "schema_version": 2,
@@ -617,6 +744,7 @@ def _evaluate_workload(
         "baseline_median_ms": baseline_median,
         "kernel_median_ms": kernel_median,
         "speedup": speedup,
+        "lowering_evidence": lowering_evidence,
         "credited": verdict.credited,
         "pallas_credited": verdict.pallas_credited,
         "headline_credited": verdict.headline_credited,
@@ -650,6 +778,10 @@ def _oracle_metrics(
     n_timing_stable = sum(
         row.get("timing", {}).get("stable") is True for row in rows
     )
+    n_lowering_verified = sum(
+        row.get("lowering_evidence", {}).get("verified") is True
+        for row in rows
+    )
     n_pallas_credited = sum(row.get("pallas_credited") is True for row in rows)
     n_headline_credited = sum(
         row.get("headline_credited") is True for row in rows
@@ -677,6 +809,8 @@ def _oracle_metrics(
         "correctness_rate": _rate(n_correct, n),
         "n_timing_stable": n_timing_stable,
         "timing_stability_rate": _rate(n_timing_stable, n),
+        "n_lowering_verified": n_lowering_verified,
+        "lowering_verification_rate": _rate(n_lowering_verified, n),
         "n_pallas_credited": n_pallas_credited,
         "pallas_credit_rate": _rate(n_pallas_credited, n),
         "n_headline_credited": n_headline_credited,
@@ -720,6 +854,7 @@ def _oracle_summary(
         "compilation_rate",
         "correctness_rate",
         "timing_stability_rate",
+        "lowering_verification_rate",
         "pallas_credit_rate",
         "headline_credit_rate",
     )
@@ -787,6 +922,7 @@ def _rescore_result_rows(
     jaxbench_root: Path,
     prompt_context: PromptContext,
     headline_speedup_threshold: float,
+    require_lowering_evidence: bool = False,
 ) -> list[dict[str, Any]]:
     rows_by_id = {row.get("sample_id"): row for row in rows}
     if len(rows_by_id) != len(rows):
@@ -833,6 +969,13 @@ def _rescore_result_rows(
                 f"RESULT_SPEEDUP_INVALID: {candidate.sample_id}"
             )
         source = candidate.kernel.read_text(encoding="utf-8")
+        lowering = row.get("lowering_evidence")
+        lowering_verified = (
+            lowering.get("verified")
+            if isinstance(lowering, dict)
+            and isinstance(lowering.get("verified"), bool)
+            else None
+        )
         baseline_source = (
             jaxbench_root
             / "JAXBench"
@@ -850,6 +993,8 @@ def _rescore_result_rows(
             speedup=float(speedup) if speedup is not None else None,
             timing_stable=timing["stable"],
             headline_speedup_threshold=headline_speedup_threshold,
+            lowering_verified=lowering_verified,
+            require_lowering_evidence=require_lowering_evidence,
         )
         row.update(
             {
@@ -928,6 +1073,9 @@ def audit_evaluation(
         headline_speedup_threshold=bundle.eval_policy["timing"][
             "headline_speedup_threshold"
         ],
+        require_lowering_evidence=bundle.eval_policy["authenticity"][
+            "require_empirical_tpu_lowering"
+        ],
     )
     corrected_summary = _oracle_summary(
         bundle=bundle,
@@ -993,12 +1141,167 @@ def audit_evaluation(
     return audit
 
 
+def audit_lowering_evidence(
+    *,
+    bundle: ContractBundle,
+    repo_root: Path,
+    jaxbench_root: Path,
+    sample_run: Path,
+    evaluation_run: Path,
+    sample_id: str,
+    calibration_root: Path,
+    candidate_root: Path,
+    output: Path,
+    model_id: str,
+    arm: str,
+    prompt_context: PromptContext,
+) -> dict[str, Any]:
+    if _git_tracked_dirty(repo_root):
+        raise EvaluationError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
+    sample_manifest_path = sample_run / "manifest.json"
+    sample_rows_path = sample_run / "samples.jsonl"
+    if not sample_manifest_path.is_file() or not sample_rows_path.is_file():
+        raise EvaluationError(f"SAMPLE_RUN_INCOMPLETE: {sample_run}")
+    sample_manifest = json.loads(sample_manifest_path.read_text(encoding="utf-8"))
+    sample_fingerprint = sample_manifest.get("fingerprint")
+    if (
+        sample_manifest.get("status") != "sampled"
+        or not isinstance(sample_fingerprint, dict)
+        or sample_fingerprint.get("arm") != arm
+        or sample_fingerprint.get("prompt_context") != prompt_context.value
+    ):
+        raise EvaluationError("LOWERING_AUDIT_SAMPLE_LINEAGE_INVALID")
+    expected_model = (
+        bundle.experiment["base_model"]
+        if arm == "A"
+        else sample_fingerprint.get("model_path")
+    )
+    if model_id != expected_model:
+        raise EvaluationError("LOWERING_AUDIT_MODEL_MISMATCH")
+    matching_samples = [
+        row
+        for row in load_jsonl(sample_rows_path)
+        if row.get("sample_id") == sample_id
+    ]
+    if len(matching_samples) != 1:
+        raise EvaluationError(f"SAMPLE_ID_NOT_FOUND: {sample_id}")
+    sample = matching_samples[0]
+    workload = sample.get("workload")
+    seed = sample.get("seed")
+    kernel_path = sample.get("kernel_path")
+    if (
+        not isinstance(workload, str)
+        or not isinstance(seed, int)
+        or isinstance(seed, bool)
+        or not isinstance(kernel_path, str)
+    ):
+        raise EvaluationError(f"SAMPLE_ROW_INVALID: {sample_id}")
+    kernel = (sample_run / kernel_path).resolve()
+    if not kernel.is_relative_to(sample_run.resolve()) or not kernel.is_file():
+        raise EvaluationError(f"SAMPLE_KERNEL_MISSING: {sample_id}")
+    candidate = SampleCandidate(
+        sample_id=sample_id,
+        workload=workload,
+        seed=seed,
+        kernel=kernel,
+        sample=sample,
+    )
+    rows = load_jsonl(evaluation_run / "tpu_results.jsonl")
+    matching_rows = [row for row in rows if row.get("sample_id") == sample_id]
+    if len(matching_rows) != 1:
+        raise EvaluationError(f"RESULT_SAMPLE_ID_NOT_FOUND: {sample_id}")
+    row = matching_rows[0]
+    kernel_sha256 = _sha256_file(candidate.kernel)
+    if (
+        row.get("kernel_sha256") != kernel_sha256
+        or row.get("compiled") is not True
+        or row.get("correct") is not True
+    ):
+        raise EvaluationError(f"LOWERING_AUDIT_ROW_INELIGIBLE: {sample_id}")
+    inspection = inspect_pallas_source(
+        candidate.kernel.read_text(encoding="utf-8")
+    )
+    if not inspection.authentic:
+        raise EvaluationError(
+            f"LOWERING_AUDIT_STATIC_REJECTION: {sample_id}: {inspection.reasons}"
+        )
+    try:
+        verdict = validate_candidate_evidence(
+            calibration_root=calibration_root,
+            candidate_root=candidate_root,
+            expected_kernel_sha256=kernel_sha256,
+            expected_runtime=bundle.eval_policy["runtime"],
+        )
+    except LoweringEvidenceError as exc:
+        raise EvaluationError(str(exc)) from exc
+    if not verdict.verified:
+        raise EvaluationError(
+            f"LOWERING_EVIDENCE_NOT_VERIFIED: {sample_id}: {verdict.reasons}"
+        )
+    manifest_path = evaluation_run / "manifest.json"
+    summary_path = evaluation_run / "summary.json"
+    required_paths = (
+        sample_run / "manifest.json",
+        manifest_path,
+        evaluation_run / "tpu_results.jsonl",
+        summary_path,
+    )
+    if not all(path.is_file() for path in required_paths):
+        raise EvaluationError(f"EVALUATION_RUN_INCOMPLETE: {evaluation_run}")
+    evaluation_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    fingerprint = evaluation_manifest.get("fingerprint")
+    if (
+        evaluation_manifest.get("status") != "complete"
+        or not isinstance(fingerprint, dict)
+        or fingerprint.get("sample_fingerprint_sha256")
+        != sample_fingerprint.get("sha256")
+        or fingerprint.get("kernel_sha256", {}).get(sample_id) != kernel_sha256
+    ):
+        raise EvaluationError("LOWERING_AUDIT_EVALUATION_LINEAGE_INVALID")
+    audit = {
+        "schema_version": 1,
+        "kind": "pallas_lowering_evidence_audit",
+        "checked_at": _utc_now(),
+        "source_contract_sha256": fingerprint.get("contract_sha256"),
+        "auditor_contract_sha256": bundle.sha256,
+        "sample_id": sample_id,
+        "workload": candidate.workload,
+        "seed": candidate.seed,
+        "kernel_sha256": kernel_sha256,
+        "static_inspection": asdict(inspection),
+        "lowering_evidence": asdict(verdict),
+        "raw_observation": {
+            "compiled": row["compiled"],
+            "correct": row["correct"],
+            "speedup": row.get("speedup"),
+            "timing_stable": row.get("timing", {}).get("stable"),
+        },
+        "auditor": {
+            "opjax_revision": git_revision(repo_root),
+            "jaxbench_revision": verify_source_checkout(
+                bundle,
+                "jaxbench",
+                jaxbench_root,
+            ),
+        },
+        "source_artifacts": {
+            "sample_manifest_sha256": _sha256_file(required_paths[0]),
+            "evaluation_manifest_sha256": _sha256_file(required_paths[1]),
+            "tpu_results_sha256": _sha256_file(required_paths[2]),
+            "evaluation_summary_sha256": _sha256_file(required_paths[3]),
+        },
+    }
+    _write_json(output, audit)
+    return audit
+
+
 def evaluate_kernels(
     *,
     bundle: ContractBundle,
     repo_root: Path,
     jaxbench_root: Path,
     sample_run: Path,
+    lowering_calibration: Path,
     out_dir: Path,
     model_id: str,
     arm: str,
@@ -1017,6 +1320,16 @@ def evaluate_kernels(
         prompt_context=prompt_context,
     )
     candidates = validated_sample.candidates
+    try:
+        validate_calibration(
+            lowering_calibration,
+            expected_runtime=bundle.eval_policy["runtime"],
+        )
+    except LoweringEvidenceError as exc:
+        raise EvaluationError(str(exc)) from exc
+    lowering_calibration_sha256 = _sha256_file(
+        lowering_calibration / "calibration.json"
+    )
     runtime_hardware = None if dry_run else probe_runtime_hardware()
     if runtime_hardware is not None:
         _assert_tpu_runtime(runtime_hardware, bundle.experiment["target"])
@@ -1030,11 +1343,17 @@ def evaluate_kernels(
         prompt_context=prompt_context,
         runtime_hardware=runtime_hardware,
         sample_fingerprint_sha256=validated_sample.fingerprint_sha256,
+        lowering_calibration_sha256=lowering_calibration_sha256,
     )
     if not dry_run and fingerprint["opjax_tracked_dirty"]:
         raise EvaluationError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
     if not dry_run and fingerprint["jaxbench_tracked_dirty"]:
         raise EvaluationError(f"JAXBENCH_TRACKED_DIRTY: {jaxbench_root}")
+    if not dry_run:
+        _assert_evaluation_runtime(
+            fingerprint,
+            bundle.eval_policy["runtime"],
+        )
     if dry_run:
         return {
             "ok": True,
@@ -1077,6 +1396,8 @@ def evaluate_kernels(
             jaxbench_root=jaxbench_root,
             candidate=candidate,
             prompt_context=prompt_context,
+            lowering_calibration=lowering_calibration,
+            lowering_evidence_root=out_dir / "lowering",
             timeout_seconds=timeout_seconds,
         )
         rows.append(row)

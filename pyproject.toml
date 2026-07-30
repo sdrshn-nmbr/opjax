@@ -5,7 +5,7 @@ description = "Operator-from-Scratch in JAX: GUI-agent training playground."
 requires-python = ">=3.12,<3.14"
 dependencies = [
     "anthropic==0.97.0",
-    "chex==0.1.91",
+    "chex==0.1.90",
     "dialog",
     "gemma",
     "huggingface-hub==0.36.2",

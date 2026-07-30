@@ -10,6 +10,7 @@ import pytest
 from opjax.pallas.evaluation import (
     EvaluationError,
     SampleCandidate,
+    _assert_evaluation_runtime,
     _assert_tpu_runtime,
     _evaluate_workload,
     _load_or_create_manifest,
@@ -166,6 +167,31 @@ def test_runtime_hardware_must_match_declared_tpu_generation() -> None:
                 },
                 {"hardware": "v5e"},
             )
+
+
+def test_evaluation_runtime_must_match_frozen_packages() -> None:
+    expected = {
+        "python": "3.10.12",
+        "chex": "0.1.90",
+        "jax": "0.6.2",
+        "jaxlib": "0.6.2",
+        "libtpu": "0.0.17",
+    }
+    fingerprint = {
+        "python": "3.10.12",
+        "packages": {
+            "chex": "0.1.90",
+            "jax": "0.6.2",
+            "jaxlib": "0.6.2",
+            "libtpu": "0.0.17",
+        },
+    }
+
+    _assert_evaluation_runtime(fingerprint, expected)
+
+    fingerprint["packages"]["jax"] = "0.10.0"
+    with pytest.raises(EvaluationError, match="EVALUATION_RUNTIME_MISMATCH"):
+        _assert_evaluation_runtime(fingerprint, expected)
 
 
 @pytest.mark.parametrize(
@@ -476,6 +502,8 @@ def test_static_rejection_does_not_launch_jaxbench(
         jaxbench_root=tmp_path / "jaxbench",
         candidate=candidate,
         prompt_context=PromptContext.SPEC,
+        lowering_calibration=tmp_path / "calibration",
+        lowering_evidence_root=tmp_path / "lowering",
         timeout_seconds=1,
     )
 

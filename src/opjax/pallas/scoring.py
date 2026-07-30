@@ -63,6 +63,7 @@ class KernelVerdict:
     verbatim_file_copy: bool = False
     speedup: float | None = None
     timing_stable: bool | None = None
+    lowering_verified: bool | None = None
     copied: bool = False
     credited: bool = False
     pallas_credited: bool = False
@@ -425,6 +426,8 @@ def judge(
     timing_stable: bool | None = None,
     copy_threshold: float = COPY_SIMILARITY_THRESHOLD,
     headline_speedup_threshold: float = DEFAULT_HEADLINE_SPEEDUP,
+    lowering_verified: bool | None = None,
+    require_lowering_evidence: bool = False,
 ) -> KernelVerdict:
     context = PromptContext(prompt_context)
     inspection = inspect_pallas_source(candidate_src)
@@ -445,9 +448,26 @@ def judge(
     reasons.extend(inspection.reasons)
     if timing_stable is False:
         reasons.append("TIMING_UNSTABLE")
+    if (
+        require_lowering_evidence
+        and compiled
+        and correct
+        and inspection.authentic
+        and lowering_verified is not True
+    ):
+        reasons.append(
+            "LOWERING_EVIDENCE_FAILED"
+            if lowering_verified is False
+            else "LOWERING_EVIDENCE_MISSING"
+        )
 
     credited = context.scorable and correct and not copied
-    pallas_credited = credited and compiled and inspection.authentic
+    pallas_credited = (
+        credited
+        and compiled
+        and inspection.authentic
+        and (not require_lowering_evidence or lowering_verified is True)
+    )
     headline = (
         pallas_credited
         and timing_stable is True
@@ -464,6 +484,7 @@ def judge(
         verbatim_file_copy=verbatim,
         speedup=speedup,
         timing_stable=timing_stable,
+        lowering_verified=lowering_verified,
         copied=copied,
         credited=credited,
         pallas_credited=pallas_credited,

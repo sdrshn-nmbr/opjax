@@ -7,7 +7,18 @@
   ],
   "authenticity": {
     "require_reachable_pallas_call": true,
-    "reject_plain_jax_fallback": true
+    "reject_plain_jax_fallback": true,
+    "reject_interpret_mode": true,
+    "require_empirical_tpu_lowering": true,
+    "profile_repetitions": 3,
+    "compiler_marker": "tpu_custom_call"
+  },
+  "runtime": {
+    "python": "3.10.12",
+    "chex": "0.1.90",
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17"
   },
   "correctness": {
     "require_full_shapes": true,

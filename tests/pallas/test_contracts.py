@@ -91,3 +91,21 @@ def test_sampling_seeds_must_be_unique_and_retry_disjoint(tmp_path: Path) -> Non
 
     with pytest.raises(ContractError, match="RETRY_SEED_STRIDE_INVALID"):
         load_contracts(root)
+
+
+def test_evaluation_runtime_and_lowering_probe_are_binding(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "eval-policy.json"
+    policy = json.loads(path.read_text(encoding="utf-8"))
+    policy["authenticity"]["require_empirical_tpu_lowering"] = False
+    path.write_text(json.dumps(policy), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="LOWERING_EVIDENCE_POLICY_INVALID"):
+        load_contracts(root)
+
+    policy["authenticity"]["require_empirical_tpu_lowering"] = True
+    policy["runtime"]["jax"] = "0.10.0"
+    path.write_text(json.dumps(policy), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="EVALUATION_RUNTIME_INVALID"):
+        load_contracts(root)

@@ -256,6 +256,43 @@ def test_correct_fast_stable_pallas_is_headline_success() -> None:
     assert verdict.headline_credited is True
 
 
+def test_required_lowering_evidence_fails_closed_when_missing() -> None:
+    verdict = judge(
+        workload="square",
+        candidate_src=AUTHENTIC,
+        baseline_src=BASELINE,
+        compiled=True,
+        correct=True,
+        prompt_context="spec",
+        speedup=1.2,
+        timing_stable=True,
+        require_lowering_evidence=True,
+    )
+
+    assert verdict.pallas_credited is False
+    assert verdict.headline_credited is False
+    assert "LOWERING_EVIDENCE_MISSING" in verdict.no_credit_reasons
+
+
+def test_verified_lowering_evidence_unlocks_pallas_credit() -> None:
+    verdict = judge(
+        workload="square",
+        candidate_src=AUTHENTIC,
+        baseline_src=BASELINE,
+        compiled=True,
+        correct=True,
+        prompt_context="spec",
+        speedup=1.2,
+        timing_stable=True,
+        lowering_verified=True,
+        require_lowering_evidence=True,
+    )
+
+    assert verdict.pallas_credited is True
+    assert verdict.headline_credited is True
+    assert verdict.lowering_verified is True
+
+
 def test_incorrect_fast_kernel_gets_no_credit() -> None:
     verdict = _judge(AUTHENTIC, correct=False, speedup=5, stable=True)
 
