@@ -642,8 +642,8 @@ def _oracle_metrics(
         for candidate in candidates
     )
     n_authentic_emissions = sum(
-        candidate.sample.get("inspection", {}).get("authentic") is True
-        for candidate in candidates
+        row.get("inspection", {}).get("authentic") is True
+        for row in rows
     )
     n_compiled = sum(row.get("compiled") is True for row in rows)
     n_correct = sum(row.get("correct") is True for row in rows)
@@ -778,6 +778,219 @@ def _oracle_summary(
         "by_workload": by_workload,
         "generalization_claim_ready": False,
     }
+
+
+def _rescore_result_rows(
+    *,
+    candidates: tuple[SampleCandidate, ...],
+    rows: list[dict[str, Any]],
+    jaxbench_root: Path,
+    prompt_context: PromptContext,
+    headline_speedup_threshold: float,
+) -> list[dict[str, Any]]:
+    rows_by_id = {row.get("sample_id"): row for row in rows}
+    if len(rows_by_id) != len(rows):
+        raise EvaluationError("RESULT_SAMPLE_ID_DUPLICATE")
+    expected_ids = {candidate.sample_id for candidate in candidates}
+    if set(rows_by_id) != expected_ids:
+        raise EvaluationError("RESULT_SAMPLE_SET_MISMATCH")
+
+    rescored: list[dict[str, Any]] = []
+    for candidate in candidates:
+        row = dict(rows_by_id[candidate.sample_id])
+        if (
+            row.get("workload") != candidate.workload
+            or row.get("seed") != candidate.seed
+            or row.get("prompt_context") != prompt_context.value
+        ):
+            raise EvaluationError(
+                f"RESULT_LINEAGE_MISMATCH: {candidate.sample_id}"
+            )
+        if row.get("kernel_sha256") != _sha256_file(candidate.kernel):
+            raise EvaluationError(
+                f"RESULT_KERNEL_HASH_MISMATCH: {candidate.sample_id}"
+            )
+        compiled = row.get("compiled")
+        correct = row.get("correct")
+        timing = row.get("timing")
+        if not isinstance(compiled, bool) or not isinstance(correct, bool):
+            raise EvaluationError(
+                f"RESULT_CREDIT_INPUT_INVALID: {candidate.sample_id}"
+            )
+        if not isinstance(timing, dict) or not isinstance(timing.get("stable"), bool):
+            raise EvaluationError(
+                f"RESULT_TIMING_INPUT_INVALID: {candidate.sample_id}"
+            )
+        speedup = row.get("speedup")
+        if (
+            speedup is not None
+            and (
+                not isinstance(speedup, (int, float))
+                or isinstance(speedup, bool)
+            )
+        ):
+            raise EvaluationError(
+                f"RESULT_SPEEDUP_INVALID: {candidate.sample_id}"
+            )
+        source = candidate.kernel.read_text(encoding="utf-8")
+        baseline_source = (
+            jaxbench_root
+            / "JAXBench"
+            / "benchmark"
+            / candidate.workload
+            / "baseline.py"
+        ).read_text(encoding="utf-8")
+        verdict = judge(
+            workload=candidate.workload,
+            candidate_src=source,
+            baseline_src=baseline_source,
+            compiled=compiled,
+            correct=correct,
+            prompt_context=prompt_context,
+            speedup=float(speedup) if speedup is not None else None,
+            timing_stable=timing["stable"],
+            headline_speedup_threshold=headline_speedup_threshold,
+        )
+        row.update(
+            {
+                "inspection": asdict(verdict.inspection),
+                "similarity_to_baseline": verdict.similarity,
+                "copied": verdict.copied,
+                "credited": verdict.credited,
+                "pallas_credited": verdict.pallas_credited,
+                "headline_credited": verdict.headline_credited,
+                "diagnostic_reward": diagnostic_reward(verdict),
+                "no_credit_reasons": list(verdict.no_credit_reasons),
+            }
+        )
+        rescored.append(row)
+    return rescored
+
+
+def audit_evaluation(
+    *,
+    bundle: ContractBundle,
+    repo_root: Path,
+    jaxbench_root: Path,
+    sample_run: Path,
+    evaluation_run: Path,
+    model_id: str,
+    arm: str,
+    prompt_context: PromptContext,
+) -> dict[str, Any]:
+    verify_source_checkout(bundle, "jaxbench", jaxbench_root)
+    _assert_public_workloads_match(bundle, jaxbench_root)
+    if _git_tracked_dirty(repo_root):
+        raise EvaluationError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
+    if _git_tracked_dirty(jaxbench_root):
+        raise EvaluationError(f"JAXBENCH_TRACKED_DIRTY: {jaxbench_root}")
+    validated_sample = validate_sample_run(
+        bundle=bundle,
+        sample_run=sample_run,
+        model_id=model_id,
+        arm=arm,
+        prompt_context=prompt_context,
+    )
+
+    manifest_path = evaluation_run / "manifest.json"
+    results_path = evaluation_run / "tpu_results.jsonl"
+    summary_path = evaluation_run / "summary.json"
+    if not all(path.is_file() for path in (manifest_path, results_path, summary_path)):
+        raise EvaluationError(f"EVALUATION_RUN_INCOMPLETE: {evaluation_run}")
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    prior_summary = json.loads(summary_path.read_text(encoding="utf-8"))
+    fingerprint = manifest.get("fingerprint")
+    if manifest.get("status") != "complete" or not isinstance(fingerprint, dict):
+        raise EvaluationError(f"EVALUATION_RUN_NOT_COMPLETE: {evaluation_run}")
+    if not isinstance(prior_summary, dict):
+        raise EvaluationError(f"EVALUATION_SUMMARY_INVALID: {summary_path}")
+    required_fingerprint = {
+        "contract_sha256": bundle.sha256,
+        "jaxbench_revision": source_by_id(bundle, "jaxbench")["revision"],
+        "model_id": model_id,
+        "arm": arm,
+        "prompt_context": prompt_context.value,
+        "sample_fingerprint_sha256": validated_sample.fingerprint_sha256,
+    }
+    for key, expected in required_fingerprint.items():
+        if fingerprint.get(key) != expected:
+            raise EvaluationError(
+                "EVALUATION_FINGERPRINT_MISMATCH: "
+                f"{key}: expected={expected!r} observed={fingerprint.get(key)!r}"
+            )
+
+    rows = load_jsonl(results_path)
+    rescored_rows = _rescore_result_rows(
+        candidates=validated_sample.candidates,
+        rows=rows,
+        jaxbench_root=jaxbench_root,
+        prompt_context=prompt_context,
+        headline_speedup_threshold=bundle.eval_policy["timing"][
+            "headline_speedup_threshold"
+        ],
+    )
+    corrected_summary = _oracle_summary(
+        bundle=bundle,
+        candidates=validated_sample.candidates,
+        rows=rescored_rows,
+    )
+    prior_rows = {row["sample_id"]: row for row in rows}
+    changed_samples = [
+        {
+            "sample_id": row["sample_id"],
+            "prior_authentic": prior_rows[row["sample_id"]]
+            .get("inspection", {})
+            .get("authentic"),
+            "corrected_authentic": row["inspection"]["authentic"],
+            "prior_pallas_credited": prior_rows[row["sample_id"]].get(
+                "pallas_credited"
+            ),
+            "corrected_pallas_credited": row["pallas_credited"],
+            "reasons": row["no_credit_reasons"],
+        }
+        for row in rescored_rows
+        if (
+            prior_rows[row["sample_id"]].get("inspection", {}).get("authentic")
+            != row.get("inspection", {}).get("authentic")
+            or prior_rows[row["sample_id"]].get("pallas_credited")
+            != row.get("pallas_credited")
+            or prior_rows[row["sample_id"]].get("headline_credited")
+            != row.get("headline_credited")
+        )
+    ]
+    audit = {
+        "schema_version": 1,
+        "kind": "evaluation_credit_audit",
+        "contract_sha256": bundle.sha256,
+        "auditor": {
+            "opjax_revision": git_revision(repo_root),
+            "opjax_tracked_dirty": False,
+            "jaxbench_revision": source_by_id(bundle, "jaxbench")["revision"],
+            "chex": _package_version("chex"),
+            "jax": _package_version("jax"),
+        },
+        "source_artifacts": {
+            "sample_manifest_sha256": _sha256_file(sample_run / "manifest.json"),
+            "evaluation_manifest_sha256": _sha256_file(manifest_path),
+            "tpu_results_sha256": _sha256_file(results_path),
+            "prior_summary_sha256": _sha256_file(summary_path),
+        },
+        "prior_credit": {
+            "n_authentic_emissions": prior_summary.get(
+                "n_authentic_emissions"
+            ),
+            "n_pallas_credited": sum(
+                row.get("pallas_credited") is True for row in rows
+            ),
+            "n_headline_credited": sum(
+                row.get("headline_credited") is True for row in rows
+            ),
+        },
+        "corrected_summary": corrected_summary,
+        "changed_samples": changed_samples,
+    }
+    _write_json(evaluation_run / "credit_audit.json", audit)
+    return audit
 
 
 def evaluate_kernels(

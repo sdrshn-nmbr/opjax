@@ -87,6 +87,43 @@ def workload(x):
     return output
 """
 
+INTERPRETED = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    return pl.pallas_call(kernel, out_shape=shape, interpret=True)(x)
+"""
+
+EXPLICIT_LOWERING = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    return pl.pallas_call(kernel, out_shape=shape, interpret=False)(x)
+"""
+
+DYNAMIC_INTERPRET = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x, interpret):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    return pl.pallas_call(kernel, out_shape=shape, interpret=interpret)(x)
+"""
+
+EXPANDED_KEYWORDS = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    options = {"interpret": True}
+    return pl.pallas_call(kernel, out_shape=shape, **options)(x)
+"""
+
 
 def _judge(
     source: str,
@@ -114,6 +151,8 @@ def test_reachable_helper_pallas_is_authentic() -> None:
 
     assert inspection.authentic is True
     assert inspection.reachable_pallas_calls == 1
+    assert inspection.reachable_lowered_pallas_calls == 1
+    assert inspection.reachable_interpret_pallas_calls == 0
     assert inspection.reachable_functions == ("_kernel", "_launch", "workload")
 
 
@@ -154,6 +193,34 @@ def test_assigned_pallas_result_is_not_misclassified_as_fallback() -> None:
 
     assert inspection.authentic is True
     assert inspection.has_plain_jax_fallback is False
+
+
+@pytest.mark.parametrize(
+    "source",
+    [INTERPRETED, DYNAMIC_INTERPRET, EXPANDED_KEYWORDS],
+)
+def test_interpret_mode_cannot_receive_authentic_pallas_credit(
+    source: str,
+) -> None:
+    inspection = inspect_pallas_source(source)
+    verdict = _judge(source, speedup=10, stable=True)
+
+    assert inspection.authentic is False
+    assert inspection.reachable_pallas_calls == 1
+    assert inspection.reachable_lowered_pallas_calls == 0
+    assert inspection.reachable_interpret_pallas_calls == 1
+    assert "PALLAS_INTERPRET_MODE" in inspection.reasons
+    assert verdict.correct is True
+    assert verdict.pallas_credited is False
+    assert verdict.headline_credited is False
+
+
+def test_explicit_false_interpret_mode_is_normal_lowering() -> None:
+    inspection = inspect_pallas_source(EXPLICIT_LOWERING)
+
+    assert inspection.authentic is True
+    assert inspection.reachable_lowered_pallas_calls == 1
+    assert inspection.reachable_interpret_pallas_calls == 0
 
 
 def test_reference_visible_context_is_never_scorable() -> None:

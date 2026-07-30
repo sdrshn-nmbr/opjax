@@ -35,6 +35,8 @@ class PallasInspection:
     has_workload: bool
     reachable_functions: tuple[str, ...] = ()
     reachable_pallas_calls: int = 0
+    reachable_lowered_pallas_calls: int = 0
+    reachable_interpret_pallas_calls: int = 0
     unreachable_pallas_calls: int = 0
     has_plain_jax_fallback: bool = False
     authentic: bool = False
@@ -127,6 +129,18 @@ def _is_pallas_call(name: str | None, direct_aliases: set[str], module_aliases: 
     if name in direct_aliases:
         return True
     return any(name == f"{alias}.pallas_call" for alias in module_aliases)
+
+
+def _may_use_interpret_mode(call: ast.Call) -> bool:
+    for keyword in call.keywords:
+        if keyword.arg is None:
+            return True
+        if keyword.arg == "interpret":
+            return not (
+                isinstance(keyword.value, ast.Constant)
+                and keyword.value.value is False
+            )
+    return False
 
 
 def _expression_reaches_pallas(
@@ -272,6 +286,7 @@ def inspect_pallas_source(source: str) -> PallasInspection:
 
     graph: dict[str, set[str]] = {name: set() for name in functions}
     pallas_calls: dict[str, int] = {name: 0 for name in functions}
+    interpret_pallas_calls: dict[str, int] = {name: 0 for name in functions}
     all_pallas_calls: dict[str, int] = {
         name: sum(
             1
@@ -289,6 +304,8 @@ def inspect_pallas_source(source: str) -> PallasInspection:
                     graph[name].add(called)
                 if _is_pallas_call(called, direct_aliases, module_aliases):
                     pallas_calls[name] += 1
+                    if _may_use_interpret_mode(node):
+                        interpret_pallas_calls[name] += 1
                     if node.args and isinstance(node.args[0], ast.Name):
                         kernel_name = node.args[0].id
                         if kernel_name in functions:
@@ -315,6 +332,10 @@ def inspect_pallas_source(source: str) -> PallasInspection:
                 changed = True
 
     reachable_count = sum(pallas_calls[name] for name in reachable)
+    reachable_interpret_count = sum(
+        interpret_pallas_calls[name] for name in reachable
+    )
+    reachable_lowered_count = reachable_count - reachable_interpret_count
     total_count = sum(all_pallas_calls.values())
     has_fallback = reachable_count > 0 and any(
         _has_non_pallas_return(
@@ -330,14 +351,22 @@ def inspect_pallas_source(source: str) -> PallasInspection:
         reasons.append("PALLAS_PATH_UNREACHABLE")
     if has_fallback:
         reasons.append("PLAIN_JAX_FALLBACK")
+    if reachable_interpret_count:
+        reasons.append("PALLAS_INTERPRET_MODE")
     return PallasInspection(
         parses=True,
         has_workload=True,
         reachable_functions=tuple(sorted(reachable)),
         reachable_pallas_calls=reachable_count,
+        reachable_lowered_pallas_calls=reachable_lowered_count,
+        reachable_interpret_pallas_calls=reachable_interpret_count,
         unreachable_pallas_calls=total_count - reachable_count,
         has_plain_jax_fallback=has_fallback,
-        authentic=reachable_count > 0 and not has_fallback,
+        authentic=(
+            reachable_lowered_count > 0
+            and reachable_interpret_count == 0
+            and not has_fallback
+        ),
         reasons=tuple(reasons),
     )
 

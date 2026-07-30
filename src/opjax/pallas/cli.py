@@ -12,6 +12,7 @@ from opjax.pallas.contracts import ContractError, contract_report, load_contract
 from opjax.pallas.evaluation import (
     EvaluationError,
     assert_checkout_ready,
+    audit_evaluation,
     evaluate_kernels,
 )
 from opjax.pallas.sampling import SamplingError, sample_kernels
@@ -69,6 +70,19 @@ def build_parser() -> argparse.ArgumentParser:
     evaluate.add_argument("--resume", action="store_true")
     evaluate.add_argument("--dry-run", action="store_true")
     evaluate.add_argument("--timeout-seconds", type=float, default=900)
+
+    audit = commands.add_parser("audit-evaluation")
+    audit.add_argument("--repo-root", type=Path, default=Path("."))
+    audit.add_argument("--jaxbench-root", type=Path, required=True)
+    audit.add_argument("--sample-run", type=Path, required=True)
+    audit.add_argument("--evaluation-run", type=Path, required=True)
+    audit.add_argument("--model-id", required=True)
+    audit.add_argument("--arm", choices=["A", "B", "C", "D"], required=True)
+    audit.add_argument(
+        "--prompt-context",
+        choices=["spec", "baseline"],
+        default="spec",
+    )
     return parser
 
 
@@ -125,6 +139,19 @@ def main(argv: list[str] | None = None) -> int:
                 resume=args.resume,
                 dry_run=args.dry_run,
                 timeout_seconds=args.timeout_seconds,
+            )
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "audit-evaluation":
+            result = audit_evaluation(
+                bundle=bundle,
+                repo_root=args.repo_root,
+                jaxbench_root=args.jaxbench_root,
+                sample_run=args.sample_run,
+                evaluation_run=args.evaluation_run,
+                model_id=args.model_id,
+                arm=args.arm,
+                prompt_context=PromptContext(args.prompt_context),
             )
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0

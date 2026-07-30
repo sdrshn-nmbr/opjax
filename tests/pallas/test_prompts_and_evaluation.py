@@ -15,6 +15,7 @@ from opjax.pallas.evaluation import (
     _load_or_create_manifest,
     _oracle_summary,
     _parse_json_output,
+    _rescore_result_rows,
     _result_compiled,
     probe_runtime_hardware,
     validate_sample_run,
@@ -322,6 +323,75 @@ def test_compilation_is_separate_from_correctness() -> None:
     assert _result_compiled({"status": "incorrect"}) is True
     assert _result_compiled({"status": "compile_error"}) is False
     assert _result_compiled({"status": "runtime_error"}) is False
+
+
+def test_rescore_removes_interpret_mode_pallas_credit(tmp_path: Path) -> None:
+    baseline_dir = (
+        tmp_path
+        / "jaxbench"
+        / "JAXBench"
+        / "benchmark"
+        / "1p_Flash_Attention"
+    )
+    baseline_dir.mkdir(parents=True)
+    (baseline_dir / "baseline.py").write_text(BASELINE, encoding="utf-8")
+    interpreted = """\
+import jax
+from jax.experimental import pallas as pl
+
+def workload(x):
+    shape = jax.ShapeDtypeStruct(x.shape, x.dtype)
+    return pl.pallas_call(kernel, out_shape=shape, interpret=True)(x)
+"""
+    lowered = interpreted.replace(", interpret=True", "")
+    candidates: list[SampleCandidate] = []
+    rows: list[dict[str, object]] = []
+    for seed, source in enumerate((interpreted, lowered)):
+        kernel = tmp_path / f"{seed}.py"
+        kernel.write_text(source, encoding="utf-8")
+        sample_id = f"1p_Flash_Attention::seed={seed}"
+        candidates.append(
+            SampleCandidate(
+                sample_id=sample_id,
+                workload="1p_Flash_Attention",
+                seed=seed,
+                kernel=kernel,
+                sample={"status": "sampled"},
+            )
+        )
+        rows.append(
+            {
+                "sample_id": sample_id,
+                "workload": "1p_Flash_Attention",
+                "seed": seed,
+                "kernel_sha256": hashlib.sha256(source.encode()).hexdigest(),
+                "compiled": True,
+                "correct": True,
+                "prompt_context": "spec",
+                "inspection": {"authentic": True},
+                "timing": {"stable": True},
+                "speedup": 2.0,
+                "pallas_credited": True,
+                "headline_credited": True,
+            }
+        )
+
+    rescored = _rescore_result_rows(
+        candidates=tuple(candidates),
+        rows=rows,
+        jaxbench_root=tmp_path / "jaxbench",
+        prompt_context=PromptContext.SPEC,
+        headline_speedup_threshold=1.05,
+    )
+
+    assert rescored[0]["correct"] is True
+    assert rescored[0]["inspection"]["authentic"] is False
+    assert rescored[0]["pallas_credited"] is False
+    assert rescored[0]["headline_credited"] is False
+    assert "PALLAS_INTERPRET_MODE" in rescored[0]["no_credit_reasons"]
+    assert rescored[1]["inspection"]["authentic"] is True
+    assert rescored[1]["pallas_credited"] is True
+    assert rescored[1]["headline_credited"] is True
 
 
 def test_oracle_summary_quantifies_seed_variation(tmp_path: Path) -> None:
