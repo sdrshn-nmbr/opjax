@@ -572,6 +572,9 @@ def _apply_policy(
         reasons = list(candidate["rejection_reasons"])
         if candidate["training_policy"] != "allowlisted_paths_only":
             reasons.append("SOURCE_NOT_TRAINABLE")
+            candidate["rejection_reasons"] = sorted(set(reasons))
+            candidate["status"] = "rejected"
+            continue
         exact = candidate["content_sha256"]
         normalized = candidate["normalized_sha256"]
         exact_key = f"{candidate['objective']}:{exact}"
@@ -657,7 +660,11 @@ def _verification_index(
                 expected_kernel_sha256=value.get("kernel_sha256"),
                 expected_runtime=expected_runtime,
             )
-            if asdict(lowering) != value.get("lowering") or not lowering.verified:
+            if (
+                _canonical_sha256(asdict(lowering))
+                != _canonical_sha256(value.get("lowering"))
+                or not lowering.verified
+            ):
                 raise CorpusError(
                     f"VERIFICATION_LOWERING_MISMATCH: {candidate_id}"
                 )
