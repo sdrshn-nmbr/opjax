@@ -10,6 +10,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from opjax.pallas.contracts import ContractError, load_contracts
+from opjax.pallas.corpus import CorpusError, verify_corpus_candidate
 from opjax.pallas.evaluation import (
     EvaluationError,
     audit_lowering_evidence,
@@ -79,6 +80,12 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["spec", "baseline"],
         default="spec",
     )
+    verify_corpus = commands.add_parser("verify-corpus-candidate")
+    verify_corpus.add_argument("--corpus-root", type=Path, required=True)
+    verify_corpus.add_argument("--candidate-id", required=True)
+    verify_corpus.add_argument("--source-checkout", type=Path, required=True)
+    verify_corpus.add_argument("--calibration-root", type=Path, required=True)
+    verify_corpus.add_argument("--out-dir", type=Path, required=True)
     return parser
 
 
@@ -118,7 +125,7 @@ def main(argv: list[str] | None = None) -> int:
                 dry_run=args.dry_run,
                 timeout_seconds=args.timeout_seconds,
             )
-        else:
+        elif args.command == "audit-lowering":
             result = audit_lowering_evidence(
                 bundle=bundle,
                 repo_root=args.repo_root,
@@ -133,10 +140,20 @@ def main(argv: list[str] | None = None) -> int:
                 arm=args.arm,
                 prompt_context=PromptContext(args.prompt_context),
             )
+        else:
+            result = verify_corpus_candidate(
+                bundle=bundle,
+                corpus_root=args.corpus_root,
+                candidate_id=args.candidate_id,
+                source_checkout=args.source_checkout,
+                calibration_root=args.calibration_root,
+                out_dir=args.out_dir,
+            )
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
     except (
         ContractError,
+        CorpusError,
         EvaluationError,
         LoweringEvidenceError,
         OSError,

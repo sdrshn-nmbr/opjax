@@ -5,7 +5,8 @@
     "task_ids": [],
     "family_ids": [],
     "forbidden_source_ids": [
-      "jaxbench"
+      "jaxbench",
+      "pallasbench_unified"
     ]
   },
   "development": {

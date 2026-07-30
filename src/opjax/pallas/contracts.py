@@ -92,13 +92,32 @@ def _validate_sources(value: dict[str, Any]) -> None:
             "SOURCE_REVISION_INVALID",
             source_id,
         )
-        _require(source.get("kind") == "git", "SOURCE_KIND_UNSUPPORTED", source_id)
+        kind = source.get("kind")
+        _require(
+            kind in {"git", "hf_dataset"},
+            "SOURCE_KIND_UNSUPPORTED",
+            source_id,
+        )
         _require(
             source.get("training_policy")
-            in {"forbidden", "allowlisted_paths_only"},
+            in {"forbidden", "allowlisted_paths_only", "discovery_only"},
             "SOURCE_TRAINING_POLICY_INVALID",
             source_id,
         )
+        if kind == "git":
+            paths = source.get("allowlisted_paths")
+            _require(
+                isinstance(paths, list)
+                and all(isinstance(path, str) and path for path in paths),
+                "SOURCE_PATHS_INVALID",
+                source_id,
+            )
+        if source.get("training_policy") == "allowlisted_paths_only":
+            _require(
+                source.get("license") not in {None, "", "unverified"},
+                "SOURCE_LICENSE_UNVERIFIED",
+                source_id,
+            )
     jaxbench = next((s for s in sources if s["id"] == "jaxbench"), None)
     _require(jaxbench is not None, "JAXBENCH_SOURCE_MISSING", "jaxbench")
     _require(
@@ -160,6 +179,22 @@ def _validate_splits(value: dict[str, Any], sources: dict[str, Any]) -> None:
     public = value.get("public_evaluation", {})
     private = value.get("private_evaluation", {})
     source_ids = {source["id"] for source in sources["sources"]}
+    forbidden_source_ids = set(train.get("forbidden_source_ids", []))
+    _require(
+        forbidden_source_ids <= source_ids,
+        "TRAIN_FORBIDDEN_SOURCE_UNKNOWN",
+        repr(sorted(forbidden_source_ids - source_ids)),
+    )
+    required_forbidden = {
+        source["id"]
+        for source in sources["sources"]
+        if source["training_policy"] in {"forbidden", "discovery_only"}
+    }
+    _require(
+        required_forbidden <= forbidden_source_ids,
+        "SOURCE_FORBIDDEN_SPLIT_MISSING",
+        repr(sorted(required_forbidden - forbidden_source_ids)),
+    )
     _require(public.get("source_id") in source_ids, "PUBLIC_SOURCE_UNKNOWN", repr(public))
     _require(
         public.get("source_id") in set(train.get("forbidden_source_ids", [])),

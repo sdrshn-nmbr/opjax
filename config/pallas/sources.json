@@ -32,6 +32,54 @@
       ],
       "training_policy": "forbidden",
       "allowlisted_paths": []
+    },
+    {
+      "id": "pallasbench",
+      "kind": "git",
+      "url": "https://github.com/Tyronita/PallasBench.git",
+      "revision": "30a6ee07fd4923f3877906a94002d994e972d6fe",
+      "license": "Apache-2.0",
+      "roles": [
+        "sft_candidate",
+        "dapt_candidate",
+        "independent_oracle"
+      ],
+      "training_policy": "allowlisted_paths_only",
+      "allowlisted_paths": [
+        "pallasbench/baselines",
+        "pallasbench/kernels",
+        "pallasbench/tasks.py",
+        "pallasbench/provenance.py"
+      ],
+      "sft_task_allowlist": [
+        "L1/add",
+        "L1/matmul",
+        "L1/multiply",
+        "L1/relu",
+        "L1/rmsnorm",
+        "L1/softmax"
+      ]
+    },
+    {
+      "id": "pallasbench_unified",
+      "kind": "hf_dataset",
+      "url": "https://huggingface.co/datasets/EvanOLeary/pallasbench-unified",
+      "revision": "b0c928c21101a96ddee17682d897b8897fa27740",
+      "license": "unverified",
+      "roles": [
+        "discovery"
+      ],
+      "training_policy": "discovery_only",
+      "configs": [
+        {
+          "name": "default",
+          "splits": [
+            "level_1",
+            "level_2",
+            "level_3"
+          ]
+        }
+      ]
     }
   ]
 }

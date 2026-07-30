@@ -39,6 +39,21 @@ def test_public_benchmark_source_is_forbidden_from_training() -> None:
 
     assert jaxbench["training_policy"] == "forbidden"
     assert "jaxbench" in bundle.splits["train"]["forbidden_source_ids"]
+    assert "pallasbench_unified" in bundle.splits["train"]["forbidden_source_ids"]
+
+
+def test_trainable_sources_require_a_verified_license(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "sources.json"
+    sources = json.loads(path.read_text(encoding="utf-8"))
+    pallasbench = next(
+        source for source in sources["sources"] if source["id"] == "pallasbench"
+    )
+    pallasbench["license"] = "unverified"
+    path.write_text(json.dumps(sources), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="SOURCE_LICENSE_UNVERIFIED"):
+        load_contracts(root)
 
 
 def test_split_overlap_fails_closed(tmp_path: Path) -> None:

@@ -11,6 +11,11 @@ from dataclasses import asdict
 from pathlib import Path
 
 from opjax.pallas.contracts import ContractError, contract_report, load_contracts
+from opjax.pallas.corpus import (
+    CorpusError,
+    build_corpus,
+    validate_corpus_release,
+)
 from opjax.pallas.evaluation import (
     EvaluationError,
     assert_checkout_ready,
@@ -126,6 +131,16 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["spec", "baseline"],
         default="spec",
     )
+    build = commands.add_parser("build-corpus")
+    build.add_argument("--repo-root", type=Path, default=Path("."))
+    build.add_argument("--source-checkout", action="append", default=[])
+    build.add_argument("--verification-root", type=Path, action="append", default=[])
+    build.add_argument("--calibration-root", type=Path)
+    build.add_argument("--out-dir", type=Path, required=True)
+    build.add_argument("--skip-hf", action="store_true")
+
+    validate_corpus = commands.add_parser("validate-corpus")
+    validate_corpus.add_argument("--corpus-root", type=Path, required=True)
     return parser
 
 
@@ -234,8 +249,25 @@ def main(argv: list[str] | None = None) -> int:
             )
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
+        if args.command == "build-corpus":
+            result = build_corpus(
+                bundle=bundle,
+                repo_root=args.repo_root,
+                source_checkouts=_parse_source_checkouts(args.source_checkout),
+                out_dir=args.out_dir,
+                verification_roots=args.verification_root,
+                calibration_root=args.calibration_root,
+                include_hf=not args.skip_hf,
+            )
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "validate-corpus":
+            result = validate_corpus_release(args.corpus_root)
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
     except (
         ContractError,
+        CorpusError,
         EvaluationError,
         LoweringEvidenceError,
         SamplingError,
@@ -265,6 +297,20 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def _parse_source_checkouts(values: list[str]) -> dict[str, Path]:
+    parsed: dict[str, Path] = {}
+    for value in values:
+        source_id, separator, raw_path = value.partition("=")
+        if not separator or not source_id or not raw_path:
+            raise ValueError(
+                f"SOURCE_CHECKOUT_INVALID: expected source_id=path observed={value!r}"
+            )
+        if source_id in parsed:
+            raise ValueError(f"SOURCE_CHECKOUT_DUPLICATE: {source_id}")
+        parsed[source_id] = Path(raw_path)
+    return parsed
 
 
 if __name__ == "__main__":

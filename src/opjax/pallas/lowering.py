@@ -411,6 +411,8 @@ def capture_lowering_case(
     out_dir: Path,
     repetitions: int,
     expected_output: Any | None = None,
+    rtol: float = 0,
+    atol: float = 0,
 ) -> dict[str, Any]:
     if repetitions < 1:
         raise LoweringEvidenceError(f"PROFILE_REPETITIONS_INVALID: {repetitions}")
@@ -433,7 +435,12 @@ def capture_lowering_case(
     jax.block_until_ready(output)
     if expected_output is not None:
         try:
-            chex.assert_trees_all_equal(output, expected_output)
+            chex.assert_trees_all_close(
+                output,
+                expected_output,
+                rtol=rtol,
+                atol=atol,
+            )
         except AssertionError as exc:
             raise LoweringEvidenceError(
                 f"CONTROL_CORRECTNESS_FAILED: {label}: {exc}"
