@@ -28,6 +28,11 @@ from opjax.pallas.hub_discovery import (
     discover_hub_datasets,
     validate_hub_discovery_release,
 )
+from opjax.pallas.hub_admission import (
+    HubAdmissionError,
+    build_hub_dapt_admission,
+    validate_hub_dapt_admission,
+)
 from opjax.pallas.hub_curation import (
     HubCurationError,
     curate_hub_rows,
@@ -191,6 +196,21 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate_rows = commands.add_parser("validate-hub-rows")
     validate_rows.add_argument("--row-root", type=Path, required=True)
+
+    admit_hub = commands.add_parser("admit-hub-dapt")
+    admit_hub.add_argument("--repo-root", type=Path, default=Path("."))
+    admit_hub.add_argument("--row-root", type=Path, required=True)
+    admit_hub.add_argument("--base-corpus-root", type=Path, required=True)
+    admit_hub.add_argument(
+        "--admission-config",
+        type=Path,
+        default=DEFAULT_CONFIG_ROOT / "hub-dapt-admission.json",
+    )
+    admit_hub.add_argument("--private-holdout-oracle", type=Path)
+    admit_hub.add_argument("--out-dir", type=Path, required=True)
+
+    validate_admission = commands.add_parser("validate-hub-dapt")
+    validate_admission.add_argument("--admission-root", type=Path, required=True)
     return parser
 
 
@@ -353,12 +373,28 @@ def main(argv: list[str] | None = None) -> int:
             result = validate_hub_row_release(args.row_root)
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
+        if args.command == "admit-hub-dapt":
+            result = build_hub_dapt_admission(
+                repo_root=args.repo_root,
+                row_root=args.row_root,
+                base_corpus_root=args.base_corpus_root,
+                config_path=args.admission_config,
+                out_dir=args.out_dir,
+                private_holdout_oracle=args.private_holdout_oracle,
+            )
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "validate-hub-dapt":
+            result = validate_hub_dapt_admission(args.admission_root)
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
     except (
         ContractError,
         CorpusError,
         EvaluationError,
         HubDiscoveryError,
         HubCurationError,
+        HubAdmissionError,
         LoweringEvidenceError,
         SamplingError,
         OSError,

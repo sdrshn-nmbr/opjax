@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "accepted_hub_row_release_sha256": "b00945a96585d7d8694c88479d4059e10d1b25d3711b49546dad52a5bee54de3",
+  "accepted_base_corpus_release_sha256": "f4494b44c9fa050a9099bb8470190b34730d59d3f7eda7183a55bcd7b423e202",
+  "minimum_lexical_tokens": 20,
+  "near_duplicate_threshold": 0.9,
+  "validation_source_fraction": 0.1,
+  "required_kernel_signals": [
+    "tl.program_id",
+    "tl.load",
+    "tl.store",
+    "tl.make_block_ptr",
+    "tl.dot",
+    "tl.atomic_",
+    "tl.arange",
+    "tl.range",
+    "tl.reduce",
+    "tl.associative_scan",
+    "tl.sum",
+    "tl.max"
+  ]
+}
