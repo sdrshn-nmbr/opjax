@@ -7,7 +7,7 @@ import json
 import sqlite3
 import subprocess
 from collections import Counter
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from itertools import zip_longest
@@ -712,39 +712,61 @@ def discover_hub_datasets(
         invocation_fingerprint=fingerprint,
     )
     hub_api = api or HfApi()
-    try:
-        infos = _iter_dataset_infos(
-            hub_api,
-            search_terms=normalized_searches,
-            limit=limit,
+    enumeration_marker = connection.execute(
+        "SELECT value FROM metadata WHERE key = 'enumeration_complete'"
+    ).fetchone()
+    enumeration_complete = enumeration_marker is not None and enumeration_marker[0] == "true"
+    if not enumeration_complete:
+        enriched_count = int(
+            connection.execute(
+                "SELECT COUNT(*) FROM inventory WHERE enriched = 1"
+            ).fetchone()[0]
         )
-        observed_count = int(
-            connection.execute("SELECT COUNT(*) FROM inventory").fetchone()[0]
-        )
-        for info in infos:
-            row = _basic_inventory_row(info, config)
-            inserted = connection.execute(
-                "INSERT OR IGNORE INTO inventory "
-                "(dataset_id, row_json, detail_eligible, enriched) "
-                "VALUES (?, ?, ?, 0)",
-                (
-                    row["dataset_id"],
-                    json.dumps(row, sort_keys=True),
-                    int(row["score"] >= config.detail_threshold),
-                ),
+        enumeration_complete = enriched_count > 0
+        if enumeration_complete:
+            connection.execute(
+                "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
+                ("enumeration_complete", "true"),
             )
-            if inserted.rowcount == 0:
-                continue
-            observed_count += 1
-            if observed_count % 500 == 0:
-                connection.commit()
-            if (
-                limit is not None
-                and not normalized_searches
-                and observed_count >= limit
-            ):
-                break
-        connection.commit()
+            connection.commit()
+    try:
+        if not enumeration_complete:
+            infos = _iter_dataset_infos(
+                hub_api,
+                search_terms=normalized_searches,
+                limit=limit,
+            )
+            observed_count = int(
+                connection.execute("SELECT COUNT(*) FROM inventory").fetchone()[0]
+            )
+            for info in infos:
+                row = _basic_inventory_row(info, config)
+                inserted = connection.execute(
+                    "INSERT OR IGNORE INTO inventory "
+                    "(dataset_id, row_json, detail_eligible, enriched) "
+                    "VALUES (?, ?, ?, 0)",
+                    (
+                        row["dataset_id"],
+                        json.dumps(row, sort_keys=True),
+                        int(row["score"] >= config.detail_threshold),
+                    ),
+                )
+                if inserted.rowcount == 0:
+                    continue
+                observed_count += 1
+                if observed_count % 500 == 0:
+                    connection.commit()
+                if (
+                    limit is not None
+                    and not normalized_searches
+                    and observed_count >= limit
+                ):
+                    break
+            connection.execute(
+                "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
+                ("enumeration_complete", "true"),
+            )
+            connection.commit()
     except Exception as exc:
         connection.commit()
         if isinstance(exc, HubDiscoveryError):
@@ -778,8 +800,9 @@ def discover_hub_datasets(
             return repo_id, row
 
         with ThreadPoolExecutor(max_workers=detail_workers) as executor:
-            enriched_rows = executor.map(enrich, pending)
-            for index, (repo_id, row) in enumerate(enriched_rows, 1):
+            futures = [executor.submit(enrich, item) for item in pending]
+            for index, future in enumerate(as_completed(futures), 1):
+                repo_id, row = future.result()
                 connection.execute(
                     "UPDATE inventory SET row_json = ?, enriched = 1 "
                     "WHERE dataset_id = ?",

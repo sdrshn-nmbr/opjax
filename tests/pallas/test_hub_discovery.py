@@ -249,6 +249,7 @@ def test_interrupted_detail_enrichment_resumes_from_checkpoint(
             repo_root=Path(__file__).parents[2],
             config_path=CONFIG_PATH,
             out_dir=out,
+            detail_workers=1,
             api=InterruptingApi(datasets),
         )
 
@@ -258,10 +259,12 @@ def test_interrupted_detail_enrichment_resumes_from_checkpoint(
         config_path=CONFIG_PATH,
         out_dir=out,
         resume=True,
+        detail_workers=1,
         api=resumed_api,
     )
 
     assert manifest["status"] == "complete"
+    assert resumed_api.list_calls == []
     assert resumed_api.info_calls == [("b/cuda", REVISION, True)]
 
 
