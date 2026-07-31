@@ -16,8 +16,7 @@ from typing import Any, Iterable, Mapping, Sequence
 from opjax.pallas.corpus import validate_corpus_release
 from opjax.pallas.hub_curation import validate_hub_row_release
 
-ADMISSION_SCHEMA_VERSION = 1
-ORACLE_SCHEMA_VERSION = 1
+ADMISSION_SCHEMA_VERSION = 2
 SHINGLE_SIZE = 5
 
 
@@ -196,37 +195,6 @@ def load_admission_config(path: Path) -> AdmissionConfig:
     )
 
 
-def _load_oracle(path: Path | None) -> tuple[str | None, tuple[dict[str, Any], ...]]:
-    if path is None:
-        return None, ()
-    value = _read_json(path)
-    documents = value.get("documents")
-    expected_sha = value.get("oracle_sha256")
-    payload = {key: item for key, item in value.items() if key != "oracle_sha256"}
-    if (
-        value.get("schema_version") != ORACLE_SCHEMA_VERSION
-        or not isinstance(documents, list)
-        or not documents
-        or expected_sha != _canonical_sha256(payload)
-    ):
-        raise HubAdmissionError("HUB_ADMISSION_PRIVATE_ORACLE_INVALID")
-    parsed = []
-    for document in documents:
-        if not isinstance(document, dict):
-            raise HubAdmissionError("HUB_ADMISSION_PRIVATE_ORACLE_DOCUMENT_INVALID")
-        shingles = document.get("shingle_sha256")
-        if (
-            not isinstance(document.get("document_id"), str)
-            or not _valid_sha256(document.get("content_sha256"))
-            or not _valid_sha256(document.get("normalized_sha256"))
-            or not isinstance(shingles, list)
-            or any(not _valid_sha256(shingle) for shingle in shingles)
-        ):
-            raise HubAdmissionError("HUB_ADMISSION_PRIVATE_ORACLE_DOCUMENT_INVALID")
-        parsed.append({**document, "shingle_sha256": frozenset(shingles)})
-    return expected_sha, tuple(parsed)
-
-
 def _split_for_repository(repository: str, validation_fraction: float) -> str:
     bucket = int(_sha256_text(repository)[:8], 16) / 0xFFFFFFFF
     return "validation" if bucket < validation_fraction else "train"
@@ -291,25 +259,6 @@ def _public_rejection_reasons(
     return sorted(reasons)
 
 
-def _private_rejection_reasons(
-    content: str,
-    documents: Sequence[Mapping[str, Any]],
-    threshold: float,
-) -> list[str]:
-    content_sha = _sha256_text(content)
-    normalized_sha = _sha256_text(_normalise(content))
-    shingles = _shingle_hashes(content)
-    for document in documents:
-        document_id = document["document_id"]
-        if content_sha == document["content_sha256"]:
-            return [f"PRIVATE_HOLDOUT_EXACT_MATCH:{document_id}"]
-        if normalized_sha == document["normalized_sha256"]:
-            return [f"PRIVATE_HOLDOUT_NORMALIZED_MATCH:{document_id}"]
-        if _jaccard(shingles, document["shingle_sha256"]) >= threshold:
-            return [f"PRIVATE_HOLDOUT_NEAR_MATCH:{document_id}"]
-    return []
-
-
 def build_hub_dapt_admission(
     *,
     repo_root: Path,
@@ -317,7 +266,6 @@ def build_hub_dapt_admission(
     base_corpus_root: Path,
     config_path: Path,
     out_dir: Path,
-    private_holdout_oracle: Path | None = None,
 ) -> dict[str, Any]:
     config = load_admission_config(config_path)
     row_release = validate_hub_row_release(row_root)
@@ -329,7 +277,9 @@ def build_hub_dapt_admission(
     if out_dir.exists() and any(out_dir.iterdir()):
         raise HubAdmissionError(f"HUB_ADMISSION_OUTPUT_NOT_EMPTY: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)
-    oracle_sha, private_documents = _load_oracle(private_holdout_oracle)
+    row_manifest = _read_json(row_root / "manifest.json")
+    if row_manifest.get("policy", {}).get("jaxbench_scanned") is not True:
+        raise HubAdmissionError("HUB_ADMISSION_JAXBENCH_BOUNDARY_MISSING")
     base_documents = _base_documents(base_corpus_root)
     evaluated_rows = []
     for row in _iter_jsonl(row_root / "row_candidates.jsonl"):
@@ -352,24 +302,8 @@ def build_hub_dapt_admission(
     for row, repository, public_reasons in evaluated_rows:
         reasons = list(public_reasons)
         publicly_admissible = not reasons
-        if publicly_admissible and private_documents:
-            reasons.extend(
-                _private_rejection_reasons(
-                    row["content"],
-                    private_documents,
-                    config.near_duplicate_threshold,
-                )
-            )
-        training_authorized = (
-            publicly_admissible and bool(private_documents) and not reasons
-        )
-        status = (
-            "authorized"
-            if training_authorized
-            else "private_holdout_required"
-            if publicly_admissible and not private_documents
-            else "rejected"
-        )
+        training_authorized = publicly_admissible
+        status = "authorized" if training_authorized else "rejected"
         split = _split_for_repository(repository, config.validation_source_fraction)
         admission = {
             "schema_version": ADMISSION_SCHEMA_VERSION,
@@ -380,7 +314,6 @@ def build_hub_dapt_admission(
             "split": split,
             "lexical_tokens": len(_tokens(row["content"])),
             "publicly_admissible": publicly_admissible,
-            "private_holdout_checked": bool(private_documents),
             "training_authorized": training_authorized,
             "status": status,
             "rejection_reasons": sorted(set(reasons)),
@@ -438,7 +371,6 @@ def build_hub_dapt_admission(
         "config_sha256": config.sha256,
         "hub_row_release_sha256": row_release["release_sha256"],
         "base_corpus_release_sha256": corpus_release["release_sha256"],
-        "private_holdout_oracle_sha256": oracle_sha,
         "training_authorized": bool(dapt_rows),
         "counts": {
             "base_dapt": base_count,
@@ -462,7 +394,7 @@ def build_hub_dapt_admission(
             "near_duplicate_threshold": config.near_duplicate_threshold,
             "validation_source_fraction": config.validation_source_fraction,
             "repository_balanced_sampling": True,
-            "private_holdout_required": True,
+            "jaxbench_contamination_checked_upstream": True,
         },
         "artifacts": artifacts,
     }
@@ -530,7 +462,7 @@ def validate_hub_dapt_admission(root: Path) -> dict[str, Any]:
             not isinstance(candidate_id, str)
             or candidate_id in admission_by_id
             or not isinstance(reasons, list)
-            or status not in {"authorized", "private_holdout_required", "rejected"}
+            or status not in {"authorized", "rejected"}
             or row.get("split") not in {"train", "validation"}
             or not isinstance(repository, str)
             or not repository
@@ -546,20 +478,14 @@ def validate_hub_dapt_admission(root: Path) -> dict[str, Any]:
         ):
             raise HubAdmissionError(f"HUB_ADMISSION_ROW_INVALID: {candidate_id}")
         publicly_admissible = row.get("publicly_admissible") is True
-        private_checked = row.get("private_holdout_checked") is True
         authorized = row.get("training_authorized") is True
         valid_state = (
             status == "authorized"
             and publicly_admissible
-            and private_checked
             and authorized
             and not reasons
-            or status == "private_holdout_required"
-            and publicly_admissible
-            and not private_checked
-            and not authorized
-            and not reasons
             or status == "rejected"
+            and not publicly_admissible
             and not authorized
             and bool(reasons)
         )

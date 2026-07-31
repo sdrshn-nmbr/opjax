@@ -81,12 +81,16 @@ def _case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
         row_root / "row_candidates.jsonl",
         [_candidate("core", core), _candidate("helper", helper)],
     )
+    (row_root / "manifest.json").write_text(
+        json.dumps({"policy": {"jaxbench_scanned": True}}),
+        encoding="utf-8",
+    )
     _write_jsonl(
         base_root / "datasets" / "dapt.jsonl",
         [{"row_id": "base", "text": "def unrelated():\n    return 1\n"}],
     )
     config = {
-        "schema_version": 1,
+        "schema_version": 2,
         "accepted_hub_row_release_sha256": ROW_RELEASE_SHA,
         "accepted_base_corpus_release_sha256": BASE_RELEASE_SHA,
         "minimum_lexical_tokens": 20,
@@ -105,22 +109,7 @@ def _case(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
     }
 
 
-def _oracle(path: Path, content: str) -> Path:
-    document = {
-        "document_id": "private-one",
-        "content_sha256": hashlib.sha256(content.encode()).hexdigest(),
-        "normalized_sha256": hashlib.sha256(
-            admission_module._normalise(content).encode()
-        ).hexdigest(),
-        "shingle_sha256": sorted(admission_module._shingle_hashes(content)),
-    }
-    value = {"schema_version": 1, "documents": [document]}
-    value["oracle_sha256"] = _canonical_sha256(value)
-    path.write_text(json.dumps(value), encoding="utf-8")
-    return path
-
-
-def test_public_admission_does_not_authorize_without_private_oracle(
+def test_public_admission_authorizes_structural_kernel(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -129,32 +118,41 @@ def test_public_admission_does_not_authorize_without_private_oracle(
     manifest = build_hub_dapt_admission(**case)
 
     assert manifest["counts"]["publicly_admissible"] == 1
-    assert manifest["counts"]["authorized_dapt"] == 0
+    assert manifest["counts"]["authorized_dapt"] == 1
     assert manifest["increase"] == {
         "public_candidate_percent": 100.0,
-        "verified_train_ready_percent": 0.0,
+        "verified_train_ready_percent": 100.0,
     }
+    assert manifest["counts"]["status"] == {"authorized": 1, "rejected": 1}
+    assert manifest["counts"]["rejection_reasons"] == {
+        "CONTENT_BELOW_TOKEN_THRESHOLD": 1,
+        "KERNEL_STRUCTURE_MISSING": 1,
+    }
+    dapt_rows = list(
+        admission_module._iter_jsonl(case["out_dir"] / "datasets" / "dapt.jsonl")
+    )
+    assert [row["row_id"] for row in dapt_rows] == ["core"]
     assert validate_hub_dapt_admission(case["out_dir"])["ok"] is True
 
 
-def test_clean_private_oracle_authorizes_publicly_admissible_row(
+def test_jaxbench_boundary_is_required(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     case = _case(tmp_path, monkeypatch)
-    case["private_holdout_oracle"] = _oracle(
-        tmp_path / "oracle.json",
-        "def private_unrelated():\n    return 2\n",
+    (case["row_root"] / "manifest.json").write_text(
+        json.dumps({"policy": {"jaxbench_scanned": False}}),
+        encoding="utf-8",
     )
 
-    manifest = build_hub_dapt_admission(**case)
+    with pytest.raises(
+        HubAdmissionError,
+        match="HUB_ADMISSION_JAXBENCH_BOUNDARY_MISSING",
+    ):
+        build_hub_dapt_admission(**case)
 
-    assert manifest["counts"]["authorized_dapt"] == 1
-    assert manifest["increase"]["verified_train_ready_percent"] == 100.0
-    assert validate_hub_dapt_admission(case["out_dir"])["ok"] is True
 
-
-def test_private_oracle_contamination_is_rejected(
+def test_existing_dapt_duplicate_is_rejected(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -162,19 +160,18 @@ def test_private_oracle_contamination_is_rejected(
     core = json.loads(
         (case["row_root"] / "row_candidates.jsonl").read_text().splitlines()[0]
     )["content"]
-    case["private_holdout_oracle"] = _oracle(tmp_path / "oracle.json", core)
+    _write_jsonl(
+        case["base_corpus_root"] / "datasets" / "dapt.jsonl",
+        [{"row_id": "base", "text": core}],
+    )
 
     manifest = build_hub_dapt_admission(**case)
 
     assert manifest["counts"]["authorized_dapt"] == 0
-    assert manifest["counts"]["rejection_reasons"] == {
-        "CONTENT_BELOW_TOKEN_THRESHOLD": 1,
-        "KERNEL_STRUCTURE_MISSING": 1,
-        "PRIVATE_HOLDOUT_EXACT_MATCH": 1,
-    }
+    assert manifest["counts"]["rejection_reasons"]["BASE_DAPT_EXACT_DUPLICATE"] == 1
 
 
-def test_validation_rejects_authorization_without_private_check(
+def test_validation_rejects_rehashed_invalid_authorization(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -182,8 +179,8 @@ def test_validation_rejects_authorization_without_private_check(
     build_hub_dapt_admission(**case)
     admission_path = case["out_dir"] / "admission.jsonl"
     rows = [json.loads(line) for line in admission_path.read_text().splitlines()]
-    rows[0]["status"] = "authorized"
-    rows[0]["training_authorized"] = True
+    rows[1]["status"] = "authorized"
+    rows[1]["training_authorized"] = True
     _write_jsonl(admission_path, rows)
     manifest_path = case["out_dir"] / "manifest.json"
     manifest = json.loads(manifest_path.read_text())

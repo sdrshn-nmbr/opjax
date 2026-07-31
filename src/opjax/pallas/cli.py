@@ -206,7 +206,6 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=DEFAULT_CONFIG_ROOT / "hub-dapt-admission.json",
     )
-    admit_hub.add_argument("--private-holdout-oracle", type=Path)
     admit_hub.add_argument("--out-dir", type=Path, required=True)
 
     validate_admission = commands.add_parser("validate-hub-dapt")
@@ -380,7 +379,6 @@ def main(argv: list[str] | None = None) -> int:
                 base_corpus_root=args.base_corpus_root,
                 config_path=args.admission_config,
                 out_dir=args.out_dir,
-                private_holdout_oracle=args.private_holdout_oracle,
             )
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
