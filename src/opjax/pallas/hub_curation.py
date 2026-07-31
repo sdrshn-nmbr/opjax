@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import subprocess
+import warnings
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -322,14 +323,18 @@ def rank_hub_sources(discovery_root: Path) -> list[dict[str, Any]]:
 
 def _normalise_code(source: str) -> str:
     try:
-        return ast.unparse(ast.parse(source))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            return ast.unparse(ast.parse(source))
     except SyntaxError:
         return " ".join(source.split())
 
 
-def _family_id(role: str, content: str) -> str:
+def _family_id(role: str, content: str, hint: Any) -> str:
     try:
-        tree = ast.parse(content)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", SyntaxWarning)
+            tree = ast.parse(content)
     except SyntaxError:
         calls = sorted(
             signal
@@ -344,7 +349,7 @@ def _family_id(role: str, content: str) -> str:
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
             }
         )
-    return f"{role}:{_canonical_sha256({'role': role, 'calls': calls})[:16]}"
+    return f"{role}:{_canonical_sha256({'role': role, 'hint': hint, 'calls': calls})[:16]}"
 
 
 def _shingles(source: str) -> frozenset[str]:
@@ -704,6 +709,11 @@ def curate_hub_rows(
                     evidence = {
                         key: record.get(key) for key in source.get("provenance_fields", [])
                     }
+                    family_hint = record.get("category")
+                    if family_hint is None and source["adapter"] == "repository_files":
+                        family_hint = Path(file["path"]).parent.as_posix()
+                    if family_hint is None:
+                        family_hint = record.get("entry_point")
                     candidate_id = f"hf:{dataset_id}@{source['revision']}:{row_id}"
                     rows.append(
                         {
@@ -729,9 +739,14 @@ def curate_hub_rows(
                             "normalized_sha256": _sha256_text(_normalise_code(content))
                             if isinstance(content, str)
                             else None,
-                            "family_id": _family_id(source["role"], content)
+                            "family_id": _family_id(
+                                source["role"],
+                                content,
+                                family_hint,
+                            )
                             if isinstance(content, str)
                             else None,
+                            "family_hint": family_hint,
                             "provenance": evidence,
                             "discovery_release_sha256": discovery["release_sha256"],
                             "rejection_reasons": _row_reasons(
