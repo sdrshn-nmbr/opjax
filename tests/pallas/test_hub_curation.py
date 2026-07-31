@@ -79,7 +79,9 @@ def _git_repository(root: Path, files: dict[str, str]) -> str:
     ).strip()
 
 
-def _bundle(tmp_path: Path, forbidden: str = "def heldout(x):\n    return x + 1\n") -> tuple[ContractBundle, Path]:
+def _bundle(
+    tmp_path: Path, forbidden: str = "def heldout(x):\n    return x + 1\n"
+) -> tuple[ContractBundle, Path]:
     checkout = tmp_path / "jaxbench"
     revision = _git_repository(checkout, {"benchmarks/heldout.py": forbidden})
     bundle = ContractBundle(
@@ -137,7 +139,9 @@ def _case(
     bundle, jaxbench_root = _bundle(tmp_path, forbidden)
     source_path = tmp_path / "rows.json"
     source_path.write_text(
-        raw_source if raw_source is not None else json.dumps(rows or [_valid_row("one")]),
+        raw_source
+        if raw_source is not None
+        else json.dumps(rows or [_valid_row("one")]),
         encoding="utf-8",
     )
     source = {
@@ -219,7 +223,25 @@ def _rows(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
-def test_config_rejects_ambiguous_license(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def _rehash_release(root: Path) -> None:
+    manifest_path = root / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    for relative in manifest["artifacts"]:
+        manifest["artifacts"][relative] = _sha256(root / relative)
+    payload = {
+        key: value
+        for key, value in manifest.items()
+        if key not in {"created_at", "release_sha256"}
+    }
+    manifest["release_sha256"] = hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    manifest_path.write_text(json.dumps(manifest, sort_keys=True), encoding="utf-8")
+
+
+def test_config_rejects_ambiguous_license(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     case = _case(
         tmp_path,
         monkeypatch,
@@ -227,6 +249,20 @@ def test_config_rejects_ambiguous_license(tmp_path: Path, monkeypatch: pytest.Mo
     )
 
     with pytest.raises(HubCurationError, match="HUB_ROW_LICENSE_AMBIGUOUS"):
+        load_hub_curation_config(case["config_path"])
+
+
+def test_config_rejects_benchmark_scope_exception(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = _case(
+        tmp_path,
+        monkeypatch,
+        source_overrides={"benchmark_scope": "implementation_paths_only"},
+    )
+
+    with pytest.raises(HubCurationError, match="HUB_ROW_BENCHMARK_SCOPE_INVALID"):
         load_hub_curation_config(case["config_path"])
 
 
@@ -342,6 +378,41 @@ def test_pallasbench_tag_is_benchmark_contamination(
     assert "BENCHMARK_CONTAMINATION" in row["rejection_reasons"]
 
 
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("repository", "example/tritonbench"),
+        ("file_path", "benchmarks/kernel.py"),
+    ],
+)
+def test_row_provenance_benchmark_contamination_is_rejected(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    value: str,
+) -> None:
+    row = _valid_row("one")
+    row["file_path"] = "src/kernel.py"
+    row[field] = value
+    case = _case(
+        tmp_path,
+        monkeypatch,
+        rows=[row],
+        source_overrides={
+            "required_fields": ["id", "code", "repository", "file_path", "commit_hash"],
+            "provenance_fields": ["repository", "file_path", "commit_hash"],
+        },
+    )
+
+    curate_hub_rows(**case)
+
+    rows = _rows(case["out_dir"] / "row_candidates.jsonl")
+    assert rows[0]["status"] == "rejected"
+    assert rows[0]["rejection_reasons"] == [
+        f"BENCHMARK_CONTAMINATION:ROW_PROVENANCE:{field}"
+    ]
+
+
 def test_jaxbench_exact_and_near_contamination_are_rejected(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -357,7 +428,10 @@ def test_jaxbench_exact_and_near_contamination_are_rejected(
 
     curate_hub_rows(**case)
 
-    rows = {row["source_row_id"]: row for row in _rows(case["out_dir"] / "row_candidates.jsonl")}
+    rows = {
+        row["source_row_id"]: row
+        for row in _rows(case["out_dir"] / "row_candidates.jsonl")
+    }
     assert any(
         reason.startswith("JAXBENCH_EXACT_CONTAMINATION:")
         for reason in rows["exact"]["rejection_reasons"]
@@ -386,7 +460,10 @@ def test_exact_and_near_duplicate_rows_are_rejected_deterministically(
 
     curate_hub_rows(**case)
 
-    rows = {row["source_row_id"]: row for row in _rows(case["out_dir"] / "row_candidates.jsonl")}
+    rows = {
+        row["source_row_id"]: row
+        for row in _rows(case["out_dir"] / "row_candidates.jsonl")
+    }
     assert rows["a"]["status"] == "curated_candidate"
     assert rows["b"]["rejection_reasons"] == [
         f"EXACT_DUPLICATE:{rows['a']['candidate_id']}"
@@ -421,7 +498,9 @@ def test_source_failure_detail_survives_release_validation(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     case = _case(tmp_path, monkeypatch)
-    case["api"] = FakeApi(failure=RuntimeError("REMOTE_DATASET_UNAVAILABLE: retry exhausted"))
+    case["api"] = FakeApi(
+        failure=RuntimeError("REMOTE_DATASET_UNAVAILABLE: retry exhausted")
+    )
 
     manifest = curate_hub_rows(**case)
 
@@ -441,8 +520,36 @@ def test_release_validation_rejects_artifact_tampering(
 ) -> None:
     case = _case(tmp_path, monkeypatch)
     curate_hub_rows(**case)
-    with (case["out_dir"] / "row_candidates.jsonl").open("a", encoding="utf-8") as handle:
+    with (case["out_dir"] / "row_candidates.jsonl").open(
+        "a", encoding="utf-8"
+    ) as handle:
         handle.write("{}\n")
 
     with pytest.raises(HubCurationError, match="HUB_ROW_ARTIFACT_HASH_MISMATCH"):
+        validate_hub_row_release(case["out_dir"])
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "error"),
+    [
+        ("source_revision", "f" * 40, "HUB_ROW_SOURCE_BINDING_INVALID"),
+        ("provenance", {}, "HUB_ROW_PROVENANCE_INVALID"),
+    ],
+)
+def test_release_validation_rejects_rehashed_semantic_tampering(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+    value: Any,
+    error: str,
+) -> None:
+    case = _case(tmp_path, monkeypatch)
+    curate_hub_rows(**case)
+    path = case["out_dir"] / "row_candidates.jsonl"
+    rows = _rows(path)
+    rows[0][field] = value
+    _write_jsonl(path, rows)
+    _rehash_release(case["out_dir"])
+
+    with pytest.raises(HubCurationError, match=error):
         validate_hub_row_release(case["out_dir"])

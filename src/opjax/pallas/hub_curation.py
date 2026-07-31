@@ -47,6 +47,10 @@ BENCHMARK_TAGS = frozenset(
         "pallasbench",
     }
 )
+BENCHMARK_PATH_PATTERN = re.compile(
+    r"(?:^|[-_/])(?:eval|evaluation|[a-z0-9]*bench(?:marks?)?|tests?)(?:$|[-_/])",
+    re.IGNORECASE,
+)
 VALID_ROLES = frozenset({"pallas_code", "cross_kernel_code", "agent_trace"})
 VALID_OBJECTIVES = frozenset({"dapt_candidate", "repair_candidate"})
 VALID_ADAPTERS = frozenset(
@@ -131,9 +135,7 @@ def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
                     f"HUB_ROW_JSON_INVALID: {path}:{line_number}: {exc}"
                 ) from exc
             if not isinstance(value, dict):
-                raise HubCurationError(
-                    f"HUB_ROW_NOT_OBJECT: {path}:{line_number}"
-                )
+                raise HubCurationError(f"HUB_ROW_NOT_OBJECT: {path}:{line_number}")
             yield value
 
 
@@ -143,6 +145,10 @@ def _valid_revision(value: Any) -> bool:
         and len(value) == 40
         and all(character in "0123456789abcdef" for character in value)
     )
+
+
+def _valid_sha256(value: Any) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value) is not None
 
 
 def _repository_revision(path: Path) -> str:
@@ -206,13 +212,13 @@ def load_hub_curation_config(path: Path) -> HubCurationConfig:
             raise HubCurationError(f"HUB_ROW_OBJECTIVE_INVALID: {dataset_id}")
         if source.get("adapter") not in VALID_ADAPTERS:
             raise HubCurationError(f"HUB_ROW_ADAPTER_INVALID: {dataset_id}")
-        benchmark_scope = source.get("benchmark_scope")
-        if benchmark_scope not in {None, "implementation_paths_only"}:
-            raise HubCurationError(f"HUB_ROW_BENCHMARK_SCOPE_INVALID: {dataset_id}")
-        if benchmark_scope == "implementation_paths_only" and source["adapter"] != "repository_files":
+        if source.get("benchmark_scope") is not None:
             raise HubCurationError(f"HUB_ROW_BENCHMARK_SCOPE_INVALID: {dataset_id}")
         license_id = source.get("license")
-        if not isinstance(license_id, str) or license_id.casefold() not in PERMISSIVE_LICENSES:
+        if (
+            not isinstance(license_id, str)
+            or license_id.casefold() not in PERMISSIVE_LICENSES
+        ):
             raise HubCurationError(f"HUB_ROW_LICENSE_AMBIGUOUS: {dataset_id}")
         max_rows = source.get("max_rows")
         if not isinstance(max_rows, int) or isinstance(max_rows, bool) or max_rows <= 0:
@@ -282,8 +288,14 @@ def rank_hub_sources(discovery_root: Path) -> list[dict[str, Any]]:
         provenance_score = 2 if _valid_revision(row.get("source_revision")) else 0
         format_score = _format_score(row.get("files", []))
         kernel_score = min(4, int(decision.get("score", 0)) // 6)
-        accessibility_score = 2 if not row.get("inspection_failures") and not row.get("gated") else 0
-        contamination_penalty = 20 if benchmark_signals or decision.get("training_policy") == "forbidden" else 0
+        accessibility_score = (
+            2 if not row.get("inspection_failures") and not row.get("gated") else 0
+        )
+        contamination_penalty = (
+            20
+            if benchmark_signals or decision.get("training_policy") == "forbidden"
+            else 0
+        )
         total = (
             license_score
             + provenance_score
@@ -349,7 +361,9 @@ def _family_id(role: str, content: str, hint: Any) -> str:
                 if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
             }
         )
-    return f"{role}:{_canonical_sha256({'role': role, 'hint': hint, 'calls': calls})[:16]}"
+    return (
+        f"{role}:{_canonical_sha256({'role': role, 'hint': hint, 'calls': calls})[:16]}"
+    )
 
 
 def _shingles(source: str) -> frozenset[str]:
@@ -483,12 +497,19 @@ def _row_reasons(
     reasons: set[str] = set()
     if source.get("benchmark_source") or benchmark_signals:
         reasons.add("BENCHMARK_CONTAMINATION")
+    for field in source.get("provenance_fields", []):
+        value = record.get(field)
+        if isinstance(value, str) and BENCHMARK_PATH_PATTERN.search(value):
+            reasons.add(f"BENCHMARK_CONTAMINATION:ROW_PROVENANCE:{field}")
     required = source.get("required_fields", [])
     if not isinstance(record, dict) or any(field not in record for field in required):
         reasons.add("SCHEMA_INVALID")
     if content is None or not content.strip():
         reasons.add("CONTENT_MISSING")
-    elif not any(signal.casefold() in content.casefold() for signal in source.get("required_kernel_signals", [])):
+    elif not any(
+        signal.casefold() in content.casefold()
+        for signal in source.get("required_kernel_signals", [])
+    ):
         reasons.add("KERNEL_DENSITY_BELOW_THRESHOLD")
     provenance_fields = source.get("provenance_fields", [])
     if source["adapter"] != "repository_files" and (
@@ -506,14 +527,17 @@ def _row_reasons(
             reasons.add("ROW_LICENSE_AMBIGUOUS")
         else:
             allowed = {
-                str(value).casefold() for value in source.get("allowed_row_licenses", [])
+                str(value).casefold()
+                for value in source.get("allowed_row_licenses", [])
             }
             observed = {str(value).casefold() for value in licenses}
             if not observed <= allowed:
                 reasons.add("ROW_LICENSE_AMBIGUOUS")
     if source["objective"] == "repair_candidate":
         reasons.add("REPAIR_EXECUTION_EVIDENCE_MISSING")
-    reasons.update(str(reason) for reason in source.get("source_quarantine_reasons", []))
+    reasons.update(
+        str(reason) for reason in source.get("source_quarantine_reasons", [])
+    )
     return sorted(reasons)
 
 
@@ -587,9 +611,15 @@ def _validate_source_binding(
     decision: Mapping[str, Any],
 ) -> None:
     dataset_id = source["dataset_id"]
-    if inventory.get("source_revision") != source["revision"] or decision.get("source_revision") != source["revision"]:
+    if (
+        inventory.get("source_revision") != source["revision"]
+        or decision.get("source_revision") != source["revision"]
+    ):
         raise HubCurationError(f"HUB_ROW_SOURCE_REVISION_MISMATCH: {dataset_id}")
-    if str(inventory.get("license", "")).casefold() != str(source["license"]).casefold():
+    if (
+        str(inventory.get("license", "")).casefold()
+        != str(source["license"]).casefold()
+    ):
         raise HubCurationError(f"HUB_ROW_SOURCE_LICENSE_MISMATCH: {dataset_id}")
     if decision.get("direct_training_authorized") is not False:
         raise HubCurationError(f"HUB_ROW_DISCOVERY_ROLE_LEAKAGE: {dataset_id}")
@@ -648,18 +678,17 @@ def curate_hub_rows(
         _validate_source_binding(source, discovered, decision)
         observed_benchmark_signals = _source_benchmark_signals(discovered)
         if (
-            any(signal.startswith("dataset_id:") for signal in observed_benchmark_signals)
+            any(
+                signal.startswith("dataset_id:")
+                for signal in observed_benchmark_signals
+            )
             and not source.get("benchmark_source")
             and source.get("benchmark_scope") != "implementation_paths_only"
         ):
             raise HubCurationError(
                 f"HUB_ROW_BENCHMARK_CLASSIFICATION_REQUIRED: {dataset_id}"
             )
-        benchmark_signals = (
-            []
-            if source.get("benchmark_scope") == "implementation_paths_only"
-            else observed_benchmark_signals
-        )
+        benchmark_signals = observed_benchmark_signals
         source_result = {
             "schema_version": HUB_CURATION_ARTIFACT_SCHEMA_VERSION,
             "dataset_id": dataset_id,
@@ -693,7 +722,11 @@ def curate_hub_rows(
                 file_sha = _sha256_file(local_path)
                 if source["adapter"] == "repository_files":
                     records: Iterable[dict[str, Any]] = [
-                        {"content": local_path.read_text(encoding="utf-8", errors="replace")}
+                        {
+                            "content": local_path.read_text(
+                                encoding="utf-8", errors="replace"
+                            )
+                        }
                     ]
                 else:
                     records = _read_source_records(local_path, source["adapter"])
@@ -707,7 +740,8 @@ def curate_hub_rows(
                     row_id = _row_identity(record, source, file["path"], index)
                     content = _record_content(record, source)
                     evidence = {
-                        key: record.get(key) for key in source.get("provenance_fields", [])
+                        key: record.get(key)
+                        for key in source.get("provenance_fields", [])
                     }
                     family_hint = record.get("category")
                     if family_hint is None and source["adapter"] == "repository_files":
@@ -787,9 +821,7 @@ def curate_hub_rows(
         )
     }
     status_counts = Counter(row["status"] for row in curated)
-    role_counts = Counter(
-        (row["role"], row["status"]) for row in curated
-    )
+    role_counts = Counter((row["role"], row["status"]) for row in curated)
     reason_counts = Counter(
         reason.split(":", 1)[0]
         for row in curated
@@ -833,7 +865,9 @@ def curate_hub_rows(
         "artifacts": artifacts,
     }
     release_payload = {
-        key: value for key, value in manifest.items() if key not in {"created_at", "release_sha256"}
+        key: value
+        for key, value in manifest.items()
+        if key not in {"created_at", "release_sha256"}
     }
     manifest["release_sha256"] = _canonical_sha256(release_payload)
     _write_json(out_dir / "manifest.json", manifest)
@@ -850,7 +884,9 @@ def validate_hub_row_release(root: Path) -> dict[str, Any]:
     ):
         raise HubCurationError("HUB_ROW_MANIFEST_INVALID")
     release_payload = {
-        key: value for key, value in manifest.items() if key not in {"created_at", "release_sha256"}
+        key: value
+        for key, value in manifest.items()
+        if key not in {"created_at", "release_sha256"}
     }
     if manifest.get("release_sha256") != _canonical_sha256(release_payload):
         raise HubCurationError("HUB_ROW_MANIFEST_HASH_MISMATCH")
@@ -867,8 +903,56 @@ def validate_hub_row_release(root: Path) -> dict[str, Any]:
             raise HubCurationError(f"HUB_ROW_ARTIFACT_MISSING: {relative}")
         if _sha256_file(path) != expected:
             raise HubCurationError(f"HUB_ROW_ARTIFACT_HASH_MISMATCH: {relative}")
+    invocation = manifest.get("invocation")
+    if not isinstance(invocation, dict) or manifest.get(
+        "invocation_sha256"
+    ) != _canonical_sha256(invocation):
+        raise HubCurationError("HUB_ROW_INVOCATION_HASH_MISMATCH")
+    discovery_sha = invocation.get("discovery_release_sha256")
+    if not _valid_sha256(discovery_sha):
+        raise HubCurationError("HUB_ROW_DISCOVERY_RELEASE_INVALID")
+
+    source_bindings: dict[str, dict[str, Any]] = {}
+    previous_dataset_id: str | None = None
+    for source in _iter_jsonl(root / "source_results.jsonl"):
+        dataset_id = source.get("dataset_id")
+        if not isinstance(dataset_id, str) or (
+            previous_dataset_id is not None and dataset_id <= previous_dataset_id
+        ):
+            raise HubCurationError("HUB_ROW_SOURCE_ORDER_INVALID")
+        previous_dataset_id = dataset_id
+        if (
+            source.get("schema_version") != HUB_CURATION_ARTIFACT_SCHEMA_VERSION
+            or not _valid_revision(source.get("source_revision"))
+            or str(source.get("license", "")).casefold() not in PERMISSIVE_LICENSES
+            or source.get("role") not in VALID_ROLES
+            or source.get("objective") not in VALID_OBJECTIVES
+            or source.get("adapter") not in VALID_ADAPTERS
+            or source.get("training_authorized") is not False
+            or source.get("status") not in {"complete", "failed"}
+        ):
+            raise HubCurationError(f"HUB_ROW_SOURCE_RESULT_INVALID: {dataset_id}")
+        source_counts = source.get("counts")
+        if (
+            not isinstance(source_counts, dict)
+            or set(source_counts) != {"gross", "curated_candidate", "rejected"}
+            or any(
+                not isinstance(value, int) or value < 0
+                for value in source_counts.values()
+            )
+            or source_counts["gross"]
+            != source_counts["curated_candidate"] + source_counts["rejected"]
+        ):
+            raise HubCurationError(f"HUB_ROW_SOURCE_COUNTS_INVALID: {dataset_id}")
+        source_bindings[dataset_id] = source
+
     previous_id: str | None = None
     counts: Counter[str] = Counter()
+    role_counts: Counter[tuple[str, str]] = Counter()
+    reason_counts: Counter[str] = Counter()
+    observed_source_counts: dict[str, Counter[str]] = {
+        dataset_id: Counter() for dataset_id in source_bindings
+    }
     for row in _iter_jsonl(root / "row_candidates.jsonl"):
         candidate_id = row.get("candidate_id")
         if not isinstance(candidate_id, str) or (
@@ -876,29 +960,112 @@ def validate_hub_row_release(root: Path) -> dict[str, Any]:
         ):
             raise HubCurationError("HUB_ROW_ORDER_INVALID")
         previous_id = candidate_id
+        dataset_id = row.get("dataset_id")
+        source = (
+            source_bindings.get(dataset_id) if isinstance(dataset_id, str) else None
+        )
+        if source is None:
+            raise HubCurationError(f"HUB_ROW_SOURCE_BINDING_MISSING: {candidate_id}")
+        source_revision = source["source_revision"]
+        if (
+            not candidate_id.startswith(f"hf:{dataset_id}@{source_revision}:")
+            or row.get("source_revision") != source_revision
+            or str(row.get("license", "")).casefold()
+            != str(source["license"]).casefold()
+            or row.get("role") != source["role"]
+            or row.get("objective") != source["objective"]
+            or row.get("source_family") != source["source_family"]
+            or row.get("discovery_release_sha256") != discovery_sha
+            or not _valid_sha256(row.get("source_file_sha256"))
+            or not isinstance(row.get("source_path"), str)
+            or not isinstance(row.get("source_row_id"), str)
+        ):
+            raise HubCurationError(f"HUB_ROW_SOURCE_BINDING_INVALID: {candidate_id}")
         if row.get("evidence_level") != "row_candidate":
             raise HubCurationError(f"HUB_ROW_EVIDENCE_LEVEL_INVALID: {candidate_id}")
         if row.get("training_authorized") is not False:
             raise HubCurationError(f"HUB_ROW_TRAINING_ROLE_LEAKAGE: {candidate_id}")
-        if row.get("role") not in VALID_ROLES or row.get("objective") not in VALID_OBJECTIVES:
+        if (
+            row.get("role") not in VALID_ROLES
+            or row.get("objective") not in VALID_OBJECTIVES
+        ):
             raise HubCurationError(f"HUB_ROW_OBJECTIVE_ROLE_INVALID: {candidate_id}")
         status = row.get("status")
         reasons = row.get("rejection_reasons")
-        if status not in {"curated_candidate", "rejected"} or not isinstance(reasons, list):
+        if status not in {"curated_candidate", "rejected"} or not isinstance(
+            reasons, list
+        ):
             raise HubCurationError(f"HUB_ROW_STATUS_INVALID: {candidate_id}")
         if (status == "curated_candidate") == bool(reasons):
             raise HubCurationError(f"HUB_ROW_REJECTION_INVALID: {candidate_id}")
         if row.get("role") == "pallas_code" and status == "curated_candidate":
             raise HubCurationError(f"HUB_ROW_PALLAS_PROMOTION_INVALID: {candidate_id}")
-        if any(reason.startswith("BENCHMARK_CONTAMINATION") for reason in reasons) and status != "rejected":
+        if (
+            any(reason.startswith("BENCHMARK_CONTAMINATION") for reason in reasons)
+            and status != "rejected"
+        ):
             raise HubCurationError(f"HUB_ROW_BENCHMARK_LEAKAGE: {candidate_id}")
         content = row.get("content")
-        if isinstance(content, str) and row.get("content_sha256") != _sha256_text(content):
+        if isinstance(content, str) and row.get("content_sha256") != _sha256_text(
+            content
+        ):
             raise HubCurationError(f"HUB_ROW_CONTENT_HASH_MISMATCH: {candidate_id}")
+        if isinstance(content, str) and row.get("normalized_sha256") != _sha256_text(
+            _normalise_code(content)
+        ):
+            raise HubCurationError(f"HUB_ROW_NORMALIZED_HASH_MISMATCH: {candidate_id}")
+        provenance = row.get("provenance")
+        if not isinstance(provenance, dict) or (
+            status == "curated_candidate"
+            and source["adapter"] != "repository_files"
+            and (
+                not provenance
+                or any(value in {None, ""} for value in provenance.values())
+            )
+        ):
+            raise HubCurationError(f"HUB_ROW_PROVENANCE_INVALID: {candidate_id}")
         counts[status] += 1
+        role_counts[(row["role"], status)] += 1
+        reason_counts.update(reason.split(":", 1)[0] for reason in reasons)
+        observed_source_counts[dataset_id]["gross"] += 1
+        observed_source_counts[dataset_id][status] += 1
     if dict(sorted(counts.items())) != manifest.get("counts", {}).get("status"):
         raise HubCurationError("HUB_ROW_COUNT_MISMATCH")
-    if manifest.get("policy", {}).get("direct_training_authorized") is not False:
+    manifest_counts = manifest.get("counts", {})
+    expected_roles = {
+        f"{role}:{status}": count
+        for (role, status), count in sorted(role_counts.items())
+    }
+    if manifest_counts.get("roles") != expected_roles:
+        raise HubCurationError("HUB_ROW_ROLE_COUNT_MISMATCH")
+    if manifest_counts.get("rejection_reasons") != dict(sorted(reason_counts.items())):
+        raise HubCurationError("HUB_ROW_REASON_COUNT_MISMATCH")
+    expected_source_yields = {
+        dataset_id: dict(observed_source_counts[dataset_id])
+        for dataset_id in sorted(source_bindings)
+    }
+    for dataset_id, source in source_bindings.items():
+        expected_source_yields[dataset_id] = {
+            key: observed_source_counts[dataset_id].get(key, 0)
+            for key in ("gross", "curated_candidate", "rejected")
+        }
+        if source["counts"] != expected_source_yields[dataset_id]:
+            raise HubCurationError(f"HUB_ROW_SOURCE_COUNT_MISMATCH: {dataset_id}")
+    if manifest_counts.get("source_yields") != expected_source_yields:
+        raise HubCurationError("HUB_ROW_SOURCE_YIELD_MISMATCH")
+    if manifest_counts.get("gross_rows") != sum(counts.values()):
+        raise HubCurationError("HUB_ROW_GROSS_COUNT_MISMATCH")
+    policy = manifest.get("policy", {})
+    if any(
+        policy.get(key) is not False
+        for key in (
+            "direct_training_authorized",
+            "positive_pallas_sft_authorized",
+            "third_party_benchmark_training_authorized",
+            "private_holdout_material_accessed",
+            "private_holdout_clean_claim",
+        )
+    ):
         raise HubCurationError("HUB_ROW_MANIFEST_TRAINING_ROLE_LEAKAGE")
     return {
         "ok": True,

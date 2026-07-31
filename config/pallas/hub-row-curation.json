@@ -77,8 +77,7 @@
       "path_excludes": ["*/bench*.cu", "*/test*.cu", "*/debug*.cu"],
       "required_kernel_signals": ["__global__", "cuda"],
       "max_rows": 200,
-      "benchmark_source": false,
-      "benchmark_scope": "implementation_paths_only"
+      "benchmark_source": false
     }
   ]
 }
