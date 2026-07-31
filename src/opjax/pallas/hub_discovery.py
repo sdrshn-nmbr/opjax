@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sqlite3
 import subprocess
+import time
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
@@ -15,6 +17,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from huggingface_hub import HfApi, hf_hub_download
+from huggingface_hub.errors import HfHubHTTPError
 
 HUB_DISCOVERY_CONFIG_SCHEMA_VERSION = 1
 HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION = 2
@@ -22,6 +25,7 @@ HUB_DISCOVERY_GENERATOR_VERSION = 2
 KERNEL_SIGNAL_FAMILIES = frozenset(
     {"pallas", "triton", "cuda", "cutlass", "cute", "benchmark"}
 )
+MAX_RATE_LIMIT_RETRIES = 20
 
 
 class HubDiscoveryError(RuntimeError):
@@ -207,6 +211,36 @@ def _valid_revision(value: Any) -> bool:
     )
 
 
+def _rate_limit_delay(error: HfHubHTTPError) -> float | None:
+    response = error.response
+    if response is None or response.status_code != 429:
+        return None
+    retry_after = response.headers.get("Retry-After")
+    if retry_after and retry_after.isdigit():
+        return min(60.0, float(retry_after) + 1.0)
+    rate_limit = response.headers.get("RateLimit", "")
+    match = re.search(r"(?:^|;)t=(\d+)(?:;|$)", rate_limit)
+    if match:
+        return min(60.0, float(match.group(1)) + 1.0)
+    return 30.0
+
+
+def _call_with_rate_limit_retry(call: Callable[[], Any]) -> Any:
+    for attempt in range(MAX_RATE_LIMIT_RETRIES + 1):
+        try:
+            return call()
+        except HfHubHTTPError as exc:
+            delay = _rate_limit_delay(exc)
+            if delay is None:
+                raise
+            if attempt == MAX_RATE_LIMIT_RETRIES:
+                raise HubDiscoveryError(
+                    "HUB_RATE_LIMIT_RETRIES_EXHAUSTED"
+                ) from exc
+            time.sleep(delay)
+    raise AssertionError("unreachable")
+
+
 def _description(info: Any) -> str:
     value = getattr(info, "description", None)
     return value if isinstance(value, str) else ""
@@ -360,10 +394,12 @@ def _enrich_inventory_row(
     if not _valid_revision(revision):
         return row
     try:
-        detail = api.dataset_info(
-            row["dataset_id"],
-            revision=revision,
-            files_metadata=True,
+        detail = _call_with_rate_limit_retry(
+            lambda: api.dataset_info(
+                row["dataset_id"],
+                revision=revision,
+                files_metadata=True,
+            )
         )
     except Exception as exc:
         row["inspection_failures"].append(
@@ -418,11 +454,13 @@ def _enrich_inventory_row(
     for file in _eligible_text_files(row["files"], config):
         try:
             local_path = Path(
-                downloader(
-                    repo_id=row["dataset_id"],
-                    filename=file["path"],
-                    repo_type="dataset",
-                    revision=revision,
+                _call_with_rate_limit_retry(
+                    lambda: downloader(
+                        repo_id=row["dataset_id"],
+                        filename=file["path"],
+                        repo_type="dataset",
+                        revision=revision,
+                    )
                 )
             )
             content = local_path.read_text(encoding="utf-8")
@@ -752,37 +790,53 @@ def discover_hub_datasets(
             connection.commit()
     try:
         if not enumeration_complete:
-            infos = _iter_dataset_infos(
-                hub_api,
-                search_terms=normalized_searches,
-                limit=limit,
-            )
             observed_count = int(
                 connection.execute("SELECT COUNT(*) FROM inventory").fetchone()[0]
             )
-            for info in infos:
-                row = _basic_inventory_row(info, config)
-                inserted = connection.execute(
-                    "INSERT OR IGNORE INTO inventory "
-                    "(dataset_id, row_json, detail_eligible, enriched) "
-                    "VALUES (?, ?, ?, 0)",
-                    (
-                        row["dataset_id"],
-                        json.dumps(row, sort_keys=True),
-                        int(_detail_eligible(row, config)),
-                    ),
-                )
-                if inserted.rowcount == 0:
-                    continue
-                observed_count += 1
-                if observed_count % 500 == 0:
+            enumeration_attempt = 0
+            while True:
+                try:
+                    infos = _iter_dataset_infos(
+                        hub_api,
+                        search_terms=normalized_searches,
+                        limit=limit,
+                    )
+                    for info in infos:
+                        row = _basic_inventory_row(info, config)
+                        inserted = connection.execute(
+                            "INSERT OR IGNORE INTO inventory "
+                            "(dataset_id, row_json, detail_eligible, enriched) "
+                            "VALUES (?, ?, ?, 0)",
+                            (
+                                row["dataset_id"],
+                                json.dumps(row, sort_keys=True),
+                                int(_detail_eligible(row, config)),
+                            ),
+                        )
+                        if inserted.rowcount == 0:
+                            continue
+                        observed_count += 1
+                        if observed_count % 500 == 0:
+                            connection.commit()
+                        if (
+                            limit is not None
+                            and not normalized_searches
+                            and observed_count >= limit
+                        ):
+                            break
+                except HfHubHTTPError as exc:
+                    delay = _rate_limit_delay(exc)
+                    if delay is None:
+                        raise
+                    enumeration_attempt += 1
+                    if enumeration_attempt > MAX_RATE_LIMIT_RETRIES:
+                        raise HubDiscoveryError(
+                            "HUB_RATE_LIMIT_RETRIES_EXHAUSTED"
+                        ) from exc
                     connection.commit()
-                if (
-                    limit is not None
-                    and not normalized_searches
-                    and observed_count >= limit
-                ):
-                    break
+                    time.sleep(delay)
+                    continue
+                break
             connection.execute(
                 "INSERT OR REPLACE INTO metadata (key, value) VALUES (?, ?)",
                 ("enumeration_complete", "true"),

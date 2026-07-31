@@ -5,7 +5,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from huggingface_hub.errors import HfHubHTTPError
+from requests import Response
 
+import opjax.pallas.hub_discovery as hub_discovery_module
 from opjax.pallas.hub_discovery import (
     HubDiscoveryError,
     discover_hub_datasets,
@@ -77,6 +80,13 @@ def _downloader(files: dict[tuple[str, str], Path]):
 
 def _load_rows(path: Path) -> list[dict[str, object]]:
     return [json.loads(line) for line in path.read_text().splitlines()]
+
+
+def _rate_limit_error(reset_seconds: int = 1) -> HfHubHTTPError:
+    response = Response()
+    response.status_code = 429
+    response.headers["RateLimit"] = f'"api";r=0;t={reset_seconds}'
+    return HfHubHTTPError("rate limited", response=response)
 
 
 def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
@@ -309,3 +319,34 @@ def test_release_validation_detects_tampering(tmp_path: Path) -> None:
 
     with pytest.raises(HubDiscoveryError, match="HUB_ARTIFACT_HASH_MISMATCH"):
         validate_hub_discovery_release(out)
+
+
+def test_enumeration_retries_hub_rate_limit(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    datasets = [
+        _dataset("example/cuda", description="CUDA kernels", tags=["license:mit"])
+    ]
+
+    class RateLimitedApi(FakeApi):
+        def list_datasets(self, **kwargs: object) -> list[SimpleNamespace]:
+            if not self.list_calls:
+                self.list_calls.append(kwargs)
+                raise _rate_limit_error()
+            return super().list_datasets(**kwargs)
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(hub_discovery_module.time, "sleep", sleeps.append)
+    api = RateLimitedApi(datasets)
+
+    manifest = discover_hub_datasets(
+        repo_root=Path(__file__).parents[2],
+        config_path=CONFIG_PATH,
+        out_dir=tmp_path / "release",
+        api=api,
+    )
+
+    assert manifest["counts"]["inventory"] == 1
+    assert len(api.list_calls) == 2
+    assert sleeps == [2.0]
