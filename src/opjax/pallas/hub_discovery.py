@@ -991,6 +991,8 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
         previous_id = dataset_id
         if decision.get("dataset_id") != dataset_id:
             raise HubDiscoveryError("HUB_INVENTORY_DECISION_MISMATCH")
+        if decision.get("source_revision") != inventory.get("source_revision"):
+            raise HubDiscoveryError("HUB_SOURCE_REVISION_MISMATCH")
         inventory_count += 1
         failures = inventory.get("inspection_failures")
         if not isinstance(failures, list):
@@ -1016,11 +1018,15 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
         if policy not in {"discovery_only", "forbidden", "rejected"}:
             raise HubDiscoveryError("HUB_TRAINING_POLICY_INVALID")
         if decision.get("status") == "candidate":
+            if not _valid_revision(decision.get("source_revision")):
+                raise HubDiscoveryError("HUB_CANDIDATE_REVISION_UNPINNED")
             candidate = next(candidates, missing)
             if candidate is missing or not isinstance(candidate, dict):
                 raise HubDiscoveryError("HUB_CANDIDATE_DECISION_MISMATCH")
             if candidate.get("dataset_id") != dataset_id:
                 raise HubDiscoveryError("HUB_CANDIDATE_DECISION_MISMATCH")
+            if candidate.get("source_revision") != decision.get("source_revision"):
+                raise HubDiscoveryError("HUB_SOURCE_REVISION_MISMATCH")
             candidate_count += 1
     if next(candidates, missing) is not missing:
         raise HubDiscoveryError("HUB_CANDIDATE_DECISION_MISMATCH")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -80,6 +81,11 @@ def _downloader(files: dict[tuple[str, str], Path]):
 
 def _load_rows(path: Path) -> list[dict[str, object]]:
     return [json.loads(line) for line in path.read_text().splitlines()]
+
+
+def _canonical_sha256(value: object) -> str:
+    payload = json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(payload).hexdigest()
 
 
 def _rate_limit_error(reset_seconds: int = 1) -> HfHubHTTPError:
@@ -350,3 +356,45 @@ def test_enumeration_retries_hub_rate_limit(
     assert manifest["counts"]["inventory"] == 1
     assert len(api.list_calls) == 2
     assert sleeps == [2.0]
+
+
+def test_release_validation_rejects_role_leakage_after_rehash(
+    tmp_path: Path,
+) -> None:
+    out = tmp_path / "release"
+    discover_hub_datasets(
+        repo_root=Path(__file__).parents[2],
+        config_path=CONFIG_PATH,
+        out_dir=out,
+        api=FakeApi(
+            [_dataset("example/cuda", description="CUDA kernels", tags=["license:mit"])]
+        ),
+    )
+    decisions = _load_rows(out / "decisions.jsonl")
+    decisions[0]["direct_training_authorized"] = True
+    (out / "decisions.jsonl").write_text(
+        "".join(json.dumps(row, sort_keys=True) + "\n" for row in decisions)
+    )
+    manifest = json.loads((out / "manifest.json").read_text())
+    manifest["artifacts"]["decisions.jsonl"] = hashlib.sha256(
+        (out / "decisions.jsonl").read_bytes()
+    ).hexdigest()
+    manifest["release_sha256"] = _canonical_sha256(
+        {
+            "generator_version": manifest["generator_version"],
+            "generator_sha256": manifest["generator_sha256"],
+            "opjax_revision": manifest["opjax_revision"],
+            "config_sha256": manifest["config_sha256"],
+            "invocation_fingerprint": manifest["invocation_fingerprint"],
+            "registry_snapshot_atomic": manifest["registry_snapshot_atomic"],
+            "source_revisions_pinned_individually": manifest[
+                "source_revisions_pinned_individually"
+            ],
+            "counts": manifest["counts"],
+            "artifacts": manifest["artifacts"],
+        }
+    )
+    (out / "manifest.json").write_text(json.dumps(manifest))
+
+    with pytest.raises(HubDiscoveryError, match="HUB_DIRECT_TRAINING_AUTHORIZED"):
+        validate_hub_discovery_release(out)
