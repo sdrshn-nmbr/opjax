@@ -28,6 +28,12 @@ from opjax.pallas.hub_discovery import (
     discover_hub_datasets,
     validate_hub_discovery_release,
 )
+from opjax.pallas.hub_curation import (
+    HubCurationError,
+    curate_hub_rows,
+    rank_hub_sources,
+    validate_hub_row_release,
+)
 from opjax.pallas.lowering import (
     LoweringEvidenceError,
     calibrate_lowering,
@@ -166,6 +172,25 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate_hub = commands.add_parser("validate-hub-discovery")
     validate_hub.add_argument("--discovery-root", type=Path, required=True)
+
+    rank_hub = commands.add_parser("rank-hub-sources")
+    rank_hub.add_argument("--discovery-root", type=Path, required=True)
+    rank_hub.add_argument("--limit", type=int, default=25)
+
+    curate_hub = commands.add_parser("curate-hub-rows")
+    curate_hub.add_argument("--repo-root", type=Path, default=Path("."))
+    curate_hub.add_argument("--discovery-root", type=Path, required=True)
+    curate_hub.add_argument(
+        "--curation-config",
+        type=Path,
+        default=DEFAULT_CONFIG_ROOT / "hub-row-curation.json",
+    )
+    curate_hub.add_argument("--jaxbench-root", type=Path, required=True)
+    curate_hub.add_argument("--out-dir", type=Path, required=True)
+    curate_hub.add_argument("--resume", action="store_true")
+
+    validate_rows = commands.add_parser("validate-hub-rows")
+    validate_rows.add_argument("--row-root", type=Path, required=True)
     return parser
 
 
@@ -306,11 +331,34 @@ def main(argv: list[str] | None = None) -> int:
             result = validate_hub_discovery_release(args.discovery_root)
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
+        if args.command == "rank-hub-sources":
+            if args.limit <= 0:
+                raise ValueError("limit must be positive")
+            result = rank_hub_sources(args.discovery_root)[: args.limit]
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "curate-hub-rows":
+            result = curate_hub_rows(
+                bundle=bundle,
+                repo_root=args.repo_root,
+                discovery_root=args.discovery_root,
+                config_path=args.curation_config,
+                jaxbench_root=args.jaxbench_root,
+                out_dir=args.out_dir,
+                resume=args.resume,
+            )
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "validate-hub-rows":
+            result = validate_hub_row_release(args.row_root)
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
     except (
         ContractError,
         CorpusError,
         EvaluationError,
         HubDiscoveryError,
+        HubCurationError,
         LoweringEvidenceError,
         SamplingError,
         OSError,

@@ -3146,6 +3146,7 @@ dependencies = [
     { name = "modal" },
     { name = "orbax-checkpoint" },
     { name = "pillow" },
+    { name = "pyarrow" },
     { name = "qwix" },
     { name = "wandb" },
 ]
@@ -3173,6 +3174,7 @@ requires-dist = [
     { name = "modal", specifier = "==1.4.2" },
     { name = "orbax-checkpoint", specifier = "==0.11.39" },
     { name = "pillow", specifier = "==12.2.0" },
+    { name = "pyarrow", specifier = "==24.0.0" },
     { name = "qwix", specifier = ">=0.1.6" },
     { name = "wandb", specifier = "==0.26.1" },
 ]
