@@ -162,7 +162,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum results per search, or total results for full enumeration",
     )
     discover_hub.add_argument("--resume", action="store_true")
-    discover_hub.add_argument("--detail-workers", type=int, default=16)
+    discover_hub.add_argument("--detail-workers", type=int, default=4)
 
     validate_hub = commands.add_parser("validate-hub-discovery")
     validate_hub.add_argument("--discovery-root", type=Path, required=True)

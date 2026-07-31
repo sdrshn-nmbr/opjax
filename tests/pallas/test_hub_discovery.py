@@ -101,6 +101,11 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
                 description="Agent trajectories solving KernelBench CUDA tasks",
                 tags=["license:mit"],
             ),
+            _dataset(
+                "example/generic-trajectories",
+                description="Agent trajectory data with no kernel content",
+                tags=["license:mit"],
+            ),
         ],
         files={
             "example/triton-kernels": [
@@ -125,7 +130,7 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
         ),
     )
 
-    assert manifest["counts"]["inventory"] == 3
+    assert manifest["counts"]["inventory"] == 4
     decisions = {
         row["dataset_id"]: row for row in _load_rows(out / "decisions.jsonl")
     }
@@ -138,6 +143,10 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
     assert benchmark["training_policy"] == "forbidden"
     assert benchmark["candidate_objectives"] == []
     assert "BENCHMARK_CONTAMINATION" in benchmark["risk_flags"]
+    assert decisions["example/generic-trajectories"]["status"] == "rejected"
+    assert all(
+        call[0] != "example/generic-trajectories" for call in api.info_calls
+    )
 
 
 def test_discovery_is_deterministic_and_pins_detail_requests(tmp_path: Path) -> None:

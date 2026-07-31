@@ -16,8 +16,12 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 
 from huggingface_hub import HfApi, hf_hub_download
 
-HUB_DISCOVERY_SCHEMA_VERSION = 1
-HUB_DISCOVERY_GENERATOR_VERSION = 1
+HUB_DISCOVERY_CONFIG_SCHEMA_VERSION = 1
+HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION = 2
+HUB_DISCOVERY_GENERATOR_VERSION = 2
+KERNEL_SIGNAL_FAMILIES = frozenset(
+    {"pallas", "triton", "cuda", "cutlass", "cute", "benchmark"}
+)
 
 
 class HubDiscoveryError(RuntimeError):
@@ -114,7 +118,7 @@ def _require_int(value: Any, *, name: str, minimum: int) -> int:
 
 def load_hub_discovery_config(path: Path) -> HubDiscoveryConfig:
     value = _read_json(path)
-    if value.get("schema_version") != HUB_DISCOVERY_SCHEMA_VERSION:
+    if value.get("schema_version") != HUB_DISCOVERY_CONFIG_SCHEMA_VERSION:
         raise HubDiscoveryError(f"HUB_CONFIG_SCHEMA_UNSUPPORTED: {path}")
     raw_signals = value.get("signals")
     if not isinstance(raw_signals, list) or not raw_signals:
@@ -283,7 +287,7 @@ def _basic_inventory_row(info: Any, config: HubDiscoveryConfig) -> dict[str, Any
         if getattr(info, attribute, False):
             risk_flags.append(code)
     return {
-        "schema_version": HUB_DISCOVERY_SCHEMA_VERSION,
+        "schema_version": HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION,
         "dataset_id": repo_id,
         "source_revision": revision,
         "license": license_id,
@@ -506,7 +510,7 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
         else "rejected"
     )
     return {
-        "schema_version": HUB_DISCOVERY_SCHEMA_VERSION,
+        "schema_version": HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION,
         "evidence_level": "source_discovery",
         "direct_training_authorized": False,
         "dataset_id": row["dataset_id"],
@@ -523,6 +527,13 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
             for match in row["metadata_matches"] + row.get("content_matches", [])
         ),
     }
+
+
+def _detail_eligible(row: dict[str, Any], config: HubDiscoveryConfig) -> bool:
+    return row["score"] >= config.detail_threshold and any(
+        row["family_scores"].get(family, 0) > 0
+        for family in KERNEL_SIGNAL_FAMILIES
+    )
 
 
 def _iter_dataset_infos(
@@ -657,6 +668,16 @@ def _materialize_release(
                 "SELECT row_json FROM inventory"
             )
         ),
+        "detail_eligible": int(
+            connection.execute(
+                "SELECT COUNT(*) FROM inventory WHERE detail_eligible = 1"
+            ).fetchone()[0]
+        ),
+        "detail_enriched": int(
+            connection.execute(
+                "SELECT COUNT(*) FROM inventory WHERE enriched = 1"
+            ).fetchone()[0]
+        ),
     }
     counts["categories"] = dict(sorted(category_counts.items()))
     artifact_sha256 = {
@@ -673,7 +694,7 @@ def discover_hub_datasets(
     search_terms: Sequence[str] = (),
     limit: int | None = None,
     resume: bool = False,
-    detail_workers: int = 16,
+    detail_workers: int = 4,
     api: Any | None = None,
     downloader: Callable[..., str] = hf_hub_download,
 ) -> dict[str, Any]:
@@ -748,7 +769,7 @@ def discover_hub_datasets(
                     (
                         row["dataset_id"],
                         json.dumps(row, sort_keys=True),
-                        int(row["score"] >= config.detail_threshold),
+                        int(_detail_eligible(row, config)),
                     ),
                 )
                 if inserted.rowcount == 0:
@@ -821,7 +842,7 @@ def discover_hub_datasets(
         candidate_threshold=config.candidate_threshold,
     )
     manifest = {
-        "schema_version": HUB_DISCOVERY_SCHEMA_VERSION,
+        "schema_version": HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION,
         "kind": "pallas_hub_discovery",
         "status": "complete",
         "generator_version": HUB_DISCOVERY_GENERATOR_VERSION,
@@ -835,6 +856,8 @@ def discover_hub_datasets(
             if not normalized_searches and limit is None
             else "bounded"
         ),
+        "registry_snapshot_atomic": False,
+        "source_revisions_pinned_individually": True,
         "limit": limit,
         "started_at": started_at,
         "completed_at": _utc_now(),
@@ -848,6 +871,10 @@ def discover_hub_datasets(
             "opjax_revision": manifest["opjax_revision"],
             "config_sha256": manifest["config_sha256"],
             "invocation_fingerprint": manifest["invocation_fingerprint"],
+            "registry_snapshot_atomic": manifest["registry_snapshot_atomic"],
+            "source_revisions_pinned_individually": manifest[
+                "source_revisions_pinned_individually"
+            ],
             "counts": manifest["counts"],
             "artifacts": manifest["artifacts"],
         }
@@ -861,11 +888,16 @@ def discover_hub_datasets(
 def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
     manifest = _read_json(root / "manifest.json")
     if (
-        manifest.get("schema_version") != HUB_DISCOVERY_SCHEMA_VERSION
+        manifest.get("schema_version") != HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION
         or manifest.get("kind") != "pallas_hub_discovery"
         or manifest.get("status") != "complete"
     ):
         raise HubDiscoveryError("HUB_MANIFEST_INVALID")
+    if (
+        manifest.get("registry_snapshot_atomic") is not False
+        or manifest.get("source_revisions_pinned_individually") is not True
+    ):
+        raise HubDiscoveryError("HUB_SNAPSHOT_BOUNDARY_INVALID")
     artifacts = manifest.get("artifacts")
     if not isinstance(artifacts, dict) or set(artifacts) != {
         "source_inventory.jsonl",
@@ -946,6 +978,8 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
         or expected_counts.get("inspection_failures") != inspection_failures
         or expected_counts.get("categories")
         != dict(sorted(category_counts.items()))
+        or expected_counts.get("detail_eligible")
+        < expected_counts.get("detail_enriched", 0)
     ):
         raise HubDiscoveryError("HUB_MANIFEST_COUNT_MISMATCH")
     expected_release = _canonical_sha256(
@@ -955,6 +989,10 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
             "opjax_revision": manifest.get("opjax_revision"),
             "config_sha256": manifest.get("config_sha256"),
             "invocation_fingerprint": manifest.get("invocation_fingerprint"),
+            "registry_snapshot_atomic": manifest.get("registry_snapshot_atomic"),
+            "source_revisions_pinned_individually": manifest.get(
+                "source_revisions_pinned_individually"
+            ),
             "counts": manifest.get("counts"),
             "artifacts": manifest.get("artifacts"),
         }
