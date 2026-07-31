@@ -331,13 +331,7 @@ def build_hub_dapt_admission(
     out_dir.mkdir(parents=True, exist_ok=True)
     oracle_sha, private_documents = _load_oracle(private_holdout_oracle)
     base_documents = _base_documents(base_corpus_root)
-    source_counts = Counter(
-        row["provenance"]["repo_name"]
-        for row in _iter_jsonl(row_root / "row_candidates.jsonl")
-        if row.get("status") == "curated_candidate"
-    )
-    admissions = []
-    dapt_rows = []
+    evaluated_rows = []
     for row in _iter_jsonl(row_root / "row_candidates.jsonl"):
         if row.get("status") != "curated_candidate":
             continue
@@ -346,7 +340,17 @@ def build_hub_dapt_admission(
             raise HubAdmissionError(
                 f"HUB_ADMISSION_REPOSITORY_MISSING: {row.get('candidate_id')}"
             )
-        reasons = _public_rejection_reasons(row, config, base_documents)
+        public_reasons = _public_rejection_reasons(row, config, base_documents)
+        evaluated_rows.append((row, repository, public_reasons))
+    source_counts = Counter(
+        repository
+        for _, repository, public_reasons in evaluated_rows
+        if not public_reasons
+    )
+    admissions = []
+    dapt_rows = []
+    for row, repository, public_reasons in evaluated_rows:
+        reasons = list(public_reasons)
         publicly_admissible = not reasons
         if publicly_admissible and private_documents:
             reasons.extend(
@@ -380,7 +384,9 @@ def build_hub_dapt_admission(
             "training_authorized": training_authorized,
             "status": status,
             "rejection_reasons": sorted(set(reasons)),
-            "sampling_weight": 1.0 / source_counts[repository],
+            "sampling_weight": (
+                1.0 / source_counts[repository] if publicly_admissible else 0.0
+            ),
         }
         admissions.append(admission)
         if training_authorized:
@@ -506,7 +512,11 @@ def validate_hub_dapt_admission(root: Path) -> dict[str, Any]:
         row.get("candidate_id") for row in admissions
     ):
         raise HubAdmissionError("HUB_ADMISSION_ORDER_INVALID")
-    repositories = Counter(row.get("repository") for row in admissions)
+    repositories = Counter(
+        row.get("repository")
+        for row in admissions
+        if row.get("publicly_admissible") is True
+    )
     admission_by_id: dict[str, dict[str, Any]] = {}
     status_counts: Counter[str] = Counter()
     reason_counts: Counter[str] = Counter()
@@ -527,7 +537,12 @@ def validate_hub_dapt_admission(root: Path) -> dict[str, Any]:
             or not isinstance(row.get("lexical_tokens"), int)
             or row["lexical_tokens"] <= 0
             or not _valid_sha256(row.get("content_sha256"))
-            or row.get("sampling_weight") != 1.0 / repositories[repository]
+            or row.get("sampling_weight")
+            != (
+                1.0 / repositories[repository]
+                if row.get("publicly_admissible") is True
+                else 0.0
+            )
         ):
             raise HubAdmissionError(f"HUB_ADMISSION_ROW_INVALID: {candidate_id}")
         publicly_admissible = row.get("publicly_admissible") is True
