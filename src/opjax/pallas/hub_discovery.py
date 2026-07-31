@@ -7,6 +7,7 @@ import json
 import sqlite3
 import subprocess
 from collections import Counter
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from itertools import zip_longest
@@ -672,6 +673,7 @@ def discover_hub_datasets(
     search_terms: Sequence[str] = (),
     limit: int | None = None,
     resume: bool = False,
+    detail_workers: int = 16,
     api: Any | None = None,
     downloader: Callable[..., str] = hf_hub_download,
 ) -> dict[str, Any]:
@@ -679,6 +681,12 @@ def discover_hub_datasets(
         not isinstance(limit, int) or isinstance(limit, bool) or limit <= 0
     ):
         raise HubDiscoveryError(f"HUB_LIMIT_INVALID: {limit!r}")
+    if (
+        not isinstance(detail_workers, int)
+        or isinstance(detail_workers, bool)
+        or detail_workers <= 0
+    ):
+        raise HubDiscoveryError(f"HUB_DETAIL_WORKERS_INVALID: {detail_workers!r}")
     config = load_hub_discovery_config(config_path)
     normalized_searches = tuple(sorted(set(search_terms)))
     fingerprint = _invocation_fingerprint(
@@ -751,11 +759,15 @@ def discover_hub_datasets(
         connection.close()
         raise
     try:
-        pending = connection.execute(
-            "SELECT dataset_id, row_json FROM inventory "
-            "WHERE detail_eligible = 1 AND enriched = 0 ORDER BY dataset_id"
+        pending = list(
+            connection.execute(
+                "SELECT dataset_id, row_json FROM inventory "
+                "WHERE detail_eligible = 1 AND enriched = 0 ORDER BY dataset_id"
+            )
         )
-        for repo_id, row_json in pending:
+
+        def enrich(item: tuple[str, str]) -> tuple[str, dict[str, Any]]:
+            repo_id, row_json = item
             row = json.loads(row_json)
             row = _enrich_inventory_row(
                 row,
@@ -763,11 +775,19 @@ def discover_hub_datasets(
                 config=config,
                 downloader=downloader,
             )
-            connection.execute(
-                "UPDATE inventory SET row_json = ?, enriched = 1 WHERE dataset_id = ?",
-                (json.dumps(row, sort_keys=True), repo_id),
-            )
-            connection.commit()
+            return repo_id, row
+
+        with ThreadPoolExecutor(max_workers=detail_workers) as executor:
+            enriched_rows = executor.map(enrich, pending)
+            for index, (repo_id, row) in enumerate(enriched_rows, 1):
+                connection.execute(
+                    "UPDATE inventory SET row_json = ?, enriched = 1 "
+                    "WHERE dataset_id = ?",
+                    (json.dumps(row, sort_keys=True), repo_id),
+                )
+                if index % 25 == 0:
+                    connection.commit()
+        connection.commit()
     except BaseException:
         connection.commit()
         connection.close()

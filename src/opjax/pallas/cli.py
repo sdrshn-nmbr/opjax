@@ -162,6 +162,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum results per search, or total results for full enumeration",
     )
     discover_hub.add_argument("--resume", action="store_true")
+    discover_hub.add_argument("--detail-workers", type=int, default=16)
 
     validate_hub = commands.add_parser("validate-hub-discovery")
     validate_hub.add_argument("--discovery-root", type=Path, required=True)
@@ -297,6 +298,7 @@ def main(argv: list[str] | None = None) -> int:
                 search_terms=args.search,
                 limit=args.limit,
                 resume=args.resume,
+                detail_workers=args.detail_workers,
             )
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
