@@ -23,6 +23,11 @@ from opjax.pallas.evaluation import (
     audit_lowering_evidence,
     evaluate_kernels,
 )
+from opjax.pallas.hub_discovery import (
+    HubDiscoveryError,
+    discover_hub_datasets,
+    validate_hub_discovery_release,
+)
 from opjax.pallas.lowering import (
     LoweringEvidenceError,
     calibrate_lowering,
@@ -141,6 +146,25 @@ def build_parser() -> argparse.ArgumentParser:
 
     validate_corpus = commands.add_parser("validate-corpus")
     validate_corpus.add_argument("--corpus-root", type=Path, required=True)
+
+    discover_hub = commands.add_parser("discover-hub")
+    discover_hub.add_argument("--repo-root", type=Path, default=Path("."))
+    discover_hub.add_argument(
+        "--hub-config",
+        type=Path,
+        default=DEFAULT_CONFIG_ROOT / "hub-discovery.json",
+    )
+    discover_hub.add_argument("--out-dir", type=Path, required=True)
+    discover_hub.add_argument("--search", action="append", default=[])
+    discover_hub.add_argument(
+        "--limit",
+        type=int,
+        help="Maximum results per search, or total results for full enumeration",
+    )
+    discover_hub.add_argument("--resume", action="store_true")
+
+    validate_hub = commands.add_parser("validate-hub-discovery")
+    validate_hub.add_argument("--discovery-root", type=Path, required=True)
     return parser
 
 
@@ -265,10 +289,26 @@ def main(argv: list[str] | None = None) -> int:
             result = validate_corpus_release(args.corpus_root)
             print(json.dumps(result, indent=2, sort_keys=True))
             return 0
+        if args.command == "discover-hub":
+            result = discover_hub_datasets(
+                repo_root=args.repo_root,
+                config_path=args.hub_config,
+                out_dir=args.out_dir,
+                search_terms=args.search,
+                limit=args.limit,
+                resume=args.resume,
+            )
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
+        if args.command == "validate-hub-discovery":
+            result = validate_hub_discovery_release(args.discovery_root)
+            print(json.dumps(result, indent=2, sort_keys=True))
+            return 0
     except (
         ContractError,
         CorpusError,
         EvaluationError,
+        HubDiscoveryError,
         LoweringEvidenceError,
         SamplingError,
         OSError,
