@@ -6,6 +6,7 @@
     "family_ids": [],
     "forbidden_source_ids": [
       "jaxbench",
+      "pallasbench",
       "pallasbench_unified"
     ]
   },

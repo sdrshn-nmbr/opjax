@@ -59,7 +59,7 @@ def _fixture_contracts(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
             {
                 "docs/pallas/example.py": (
                     "from jax.experimental import pallas as pl\n"
-                    "def example(x):\n"
+                    "def example(x, y):\n"
                     "    return pl.pallas_call\n"
                 ),
                 "jax/_src/pallas/core.py": "PALLAS = 'BlockSpec'\n",
@@ -131,9 +131,32 @@ def _fixture_contracts(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
     for source in sources["sources"]:
         if source["id"] in revisions:
             source["revision"] = revisions[source["id"]]
-        if source["id"] == "pallasbench":
-            source["sft_task_allowlist"] = ["L1/relu"]
     sources_path.write_text(json.dumps(sources), encoding="utf-8")
+    candidates_path = config / "sft-candidates.json"
+    candidates = json.loads(candidates_path.read_text(encoding="utf-8"))
+    candidates["groups"] = [
+        {
+            "id": "binary_elementwise",
+            "source_id": "jax",
+            "source_path": "docs/pallas/example.py",
+            "source_function": "example",
+            "kernel_kind": "binary",
+            "variants": [
+                {"id": "add", "operation": "add", "shape": [256, 256]},
+                {
+                    "id": "multiply",
+                    "operation": "multiply",
+                    "shape": [256, 256],
+                },
+                {
+                    "id": "subtract",
+                    "operation": "subtract",
+                    "shape": [256, 256],
+                },
+            ],
+        }
+    ]
+    candidates_path.write_text(json.dumps(candidates), encoding="utf-8")
     return config, {
         "jax": jax,
         "jaxbench": jaxbench,
@@ -164,10 +187,16 @@ def test_build_corpus_keeps_sft_pending_until_tpu_verification(
         json.loads(line)
         for line in (out_dir / "candidates.jsonl").read_text().splitlines()
     ]
+    assert not any(
+        row["source_id"] == "pallasbench" and row["objective"] in {"dapt", "sft"}
+        for row in candidates
+    )
     sft = next(row for row in candidates if row["objective"] == "sft")
     assert sft["static_inspection"]["authentic"] is True
     assert sft["rejection_reasons"] == []
-    assert "def jax_relu(x):" in sft["metadata"]["oracle_source"]
+    assert sft["metadata"]["derivation_policy"] == "audited_semantic_reduction"
+    assert sft["metadata"]["source_function"] == "example"
+    assert sum(row["status"] == "rejected" for row in candidates) >= 2
     assert validate_corpus_release(out_dir)["ok"] is True
 
 

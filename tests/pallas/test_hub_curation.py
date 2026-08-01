@@ -90,6 +90,7 @@ def _bundle(
         experiment={},
         splits={},
         eval_policy={},
+        sft_candidates={},
         sha256="c" * 64,
     )
     return bundle, checkout

@@ -25,6 +25,19 @@
     "max_tokens": 8192,
     "max_retries": 2
   },
+  "sft_readiness": {
+    "minimum_verified_rows": 32,
+    "minimum_family_count": 8,
+    "minimum_source_count": 2,
+    "minimum_rows_per_family": 3,
+    "maximum_source_fraction": 0.75,
+    "maximum_family_fraction": 0.25,
+    "required_correctness_seeds": [0, 1, 2],
+    "require_full_declared_shapes": true,
+    "require_normal_tpu_lowering": true,
+    "require_profile_evidence": true,
+    "require_zero_holdout_contamination": true
+  },
   "arms": {
     "A": {
       "start": "thinkingmachines/Inkling",

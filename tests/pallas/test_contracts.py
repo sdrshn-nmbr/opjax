@@ -39,6 +39,7 @@ def test_public_benchmark_source_is_forbidden_from_training() -> None:
 
     assert jaxbench["training_policy"] == "forbidden"
     assert "jaxbench" in bundle.splits["train"]["forbidden_source_ids"]
+    assert "pallasbench" in bundle.splits["train"]["forbidden_source_ids"]
     assert "pallasbench_unified" in bundle.splits["train"]["forbidden_source_ids"]
 
 
@@ -46,13 +47,37 @@ def test_trainable_sources_require_a_verified_license(tmp_path: Path) -> None:
     root = _copy_contracts(tmp_path)
     path = root / "sources.json"
     sources = json.loads(path.read_text(encoding="utf-8"))
-    pallasbench = next(
-        source for source in sources["sources"] if source["id"] == "pallasbench"
-    )
-    pallasbench["license"] = "unverified"
+    jax = next(source for source in sources["sources"] if source["id"] == "jax")
+    jax["license"] = "unverified"
     path.write_text(json.dumps(sources), encoding="utf-8")
 
     with pytest.raises(ContractError, match="SOURCE_LICENSE_UNVERIFIED"):
+        load_contracts(root)
+
+
+def test_pallasbench_cannot_be_made_trainable(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "sources.json"
+    sources = json.loads(path.read_text(encoding="utf-8"))
+    pallasbench = next(
+        source for source in sources["sources"] if source["id"] == "pallasbench"
+    )
+    pallasbench["training_policy"] = "allowlisted_paths_only"
+    pallasbench["allowlisted_paths"] = ["pallasbench/kernels"]
+    path.write_text(json.dumps(sources), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="PALLASBENCH_TRAINING_FORBIDDEN"):
+        load_contracts(root)
+
+
+def test_sft_readiness_minimums_cannot_be_weakened(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "experiment.json"
+    experiment = json.loads(path.read_text(encoding="utf-8"))
+    experiment["sft_readiness"]["minimum_verified_rows"] = 2
+    path.write_text(json.dumps(experiment), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="SFT_READINESS_MINIMUM_INVALID"):
         load_contracts(root)
 
 
@@ -82,7 +107,9 @@ def test_jaxbench_cannot_be_made_trainable(tmp_path: Path) -> None:
     root = _copy_contracts(tmp_path)
     path = root / "sources.json"
     sources = json.loads(path.read_text(encoding="utf-8"))
-    jaxbench = next(source for source in sources["sources"] if source["id"] == "jaxbench")
+    jaxbench = next(
+        source for source in sources["sources"] if source["id"] == "jaxbench"
+    )
     jaxbench["training_policy"] = "allowlisted_paths_only"
     path.write_text(json.dumps(sources), encoding="utf-8")
 

@@ -167,8 +167,7 @@ def _family_id(category: str, source: str) -> str:
             {
                 node.func.attr
                 for node in ast.walk(tree)
-                if isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Attribute)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
             }
         )
     signature = {"category": category, "calls": calls}
@@ -200,9 +199,7 @@ def _iter_allowlisted_files(
         elif root.is_dir():
             paths = sorted(path for path in root.rglob("*") if path.is_file())
         else:
-            raise CorpusError(
-                f"SOURCE_ALLOWLIST_PATH_MISSING: {source['id']}:{prefix}"
-            )
+            raise CorpusError(f"SOURCE_ALLOWLIST_PATH_MISSING: {source['id']}:{prefix}")
         for path in paths:
             if path.suffix in TEXT_SUFFIXES:
                 yield path
@@ -248,10 +245,10 @@ def _hf_json(url: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
     return value
 
 
-def _inventory_hf_source(source: dict[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    dataset_id = source["url"].removeprefix(
-        "https://huggingface.co/datasets/"
-    )
+def _inventory_hf_source(
+    source: dict[str, Any],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    dataset_id = source["url"].removeprefix("https://huggingface.co/datasets/")
     metadata = _hf_json(f"https://huggingface.co/api/datasets/{dataset_id}")
     if metadata.get("sha") != source["revision"]:
         raise CorpusError(
@@ -302,9 +299,7 @@ def _inventory_hf_source(source: dict[str, Any]) -> tuple[list[dict[str, Any]], 
                             "content_sha256": _sha256_text(code),
                             "bytes": len(code.encode()),
                             "discovery_reasons": sorted(
-                                signal
-                                for signal in PALLAS_SIGNALS
-                                if signal in code
+                                signal for signal in PALLAS_SIGNALS if signal in code
                             ),
                         }
                     )
@@ -331,94 +326,6 @@ def _inventory_hf_source(source: dict[str, Any]) -> tuple[list[dict[str, Any]], 
     return inventory, candidates
 
 
-def _literal_assignment(tree: ast.Module, name: str) -> Any:
-    for node in tree.body:
-        if (
-            isinstance(node, (ast.Assign, ast.AnnAssign))
-            and any(
-                isinstance(target, ast.Name) and target.id == name
-                for target in (
-                    node.targets if isinstance(node, ast.Assign) else [node.target]
-                )
-            )
-            and node.value is not None
-        ):
-            return ast.literal_eval(node.value)
-    raise CorpusError(f"SOURCE_ASSIGNMENT_MISSING: {name}")
-
-
-def _attribute_name(node: ast.AST) -> str:
-    parts: list[str] = []
-    while isinstance(node, ast.Attribute):
-        parts.append(node.attr)
-        node = node.value
-    if not isinstance(node, ast.Name):
-        raise CorpusError("TASK_ATTRIBUTE_INVALID")
-    parts.append(node.id)
-    return ".".join(reversed(parts))
-
-
-def _registry_tasks(checkout: Path) -> list[dict[str, Any]]:
-    registry_path = checkout / "pallasbench" / "tasks.py"
-    tree = ast.parse(registry_path.read_text(encoding="utf-8"))
-    registry: ast.List | None = None
-    for node in tree.body:
-        if (
-            isinstance(node, ast.AnnAssign)
-            and isinstance(node.target, ast.Name)
-            and node.target.id == "TASK_REGISTRY"
-            and isinstance(node.value, ast.List)
-        ):
-            registry = node.value
-            break
-    if registry is None:
-        raise CorpusError("PALLASBENCH_REGISTRY_MISSING")
-    tasks = []
-    for node in registry.elts:
-        if not isinstance(node, ast.Dict):
-            raise CorpusError("PALLASBENCH_TASK_INVALID")
-        fields = {
-            ast.literal_eval(key): value
-            for key, value in zip(node.keys, node.values, strict=True)
-            if key is not None
-        }
-        task_name = ast.literal_eval(fields["name"])
-        module_name, pallas_fn = _attribute_name(fields["pallas_fn"]).split(".", 1)
-        _, baseline_fn = _attribute_name(fields["baseline_fn"]).split(".", 1)
-        matches = sorted(
-            (checkout / "pallasbench" / "kernels").rglob(f"{module_name}.py")
-        )
-        if len(matches) != 1:
-            raise CorpusError(
-                f"PALLASBENCH_KERNEL_PATH_INVALID: {task_name}: {matches}"
-            )
-        module_path = matches[0]
-        module_tree = ast.parse(module_path.read_text(encoding="utf-8"))
-        tasks.append(
-            {
-                "task_name": task_name,
-                "level": ast.literal_eval(fields["level"]),
-                "category": ast.literal_eval(fields["category"]),
-                "candidate_path": _safe_relative(checkout, module_path),
-                "candidate_function": pallas_fn,
-                "baseline_path": "pallasbench/baselines/jax_baseline.py",
-                "baseline_function": baseline_fn,
-                "input_shapes": _literal_assignment(module_tree, "input_shapes"),
-                "input_dtypes": (
-                    ast.literal_eval(fields["input_dtypes"])
-                    if "input_dtypes" in fields
-                    else None
-                ),
-                "input_ranges": (
-                    ast.literal_eval(fields["input_ranges"])
-                    if "input_ranges" in fields
-                    else None
-                ),
-            }
-        )
-    return tasks
-
-
 def _candidate_row(
     *,
     source: dict[str, Any],
@@ -431,7 +338,11 @@ def _candidate_row(
 ) -> dict[str, Any]:
     normalized = _normalise_python(content)
     identity = (
-        f"{source['id']}:{path}" if path is not None else f"{source['id']}:{row_id}"
+        f"{source['id']}:{path}:{row_id}"
+        if path is not None and row_id is not None
+        else f"{source['id']}:{path}"
+        if path is not None
+        else f"{source['id']}:{row_id}"
     )
     candidate_id = f"{identity}:{objective}"
     return {
@@ -455,66 +366,273 @@ def _candidate_row(
     }
 
 
-def _pallasbench_candidates(
+def _binary_expression(operation: str) -> str:
+    expressions = {
+        "add": "x_ref[...] + y_ref[...]",
+        "multiply": "x_ref[...] * y_ref[...]",
+        "subtract": "x_ref[...] - y_ref[...]",
+        "maximum": "jnp.maximum(x_ref[...], y_ref[...])",
+    }
+    try:
+        return expressions[operation]
+    except KeyError as exc:
+        raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}") from exc
+
+
+def _unary_expression(operation: str) -> str:
+    expressions = {
+        "relu": "jnp.maximum(x_ref[...], 0.0)",
+        "tanh": "jnp.tanh(x_ref[...])",
+        "sigmoid": "jax.nn.sigmoid(x_ref[...])",
+        "square": "jnp.square(x_ref[...])",
+    }
+    try:
+        return expressions[operation]
+    except KeyError as exc:
+        raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}") from exc
+
+
+def _render_sft_solution(group: dict[str, Any], variant: dict[str, Any]) -> str:
+    kind = group["kernel_kind"]
+    operation = variant["operation"]
+    shape = variant["shape"]
+    header = (
+        "import jax\n"
+        "import jax.numpy as jnp\n"
+        "from jax.experimental import pallas as pl\n\n"
+    )
+    if kind in {"binary", "unary", "gated"}:
+        if len(shape) != 2 or any(size % 128 for size in shape):
+            raise CorpusError(f"SFT_POINTWISE_SHAPE_INVALID: {variant['id']}")
+        if kind == "binary":
+            expression = _binary_expression(operation)
+            arguments = "x_ref, y_ref, o_ref"
+            call_arguments = "x, y"
+            in_specs = "(spec, spec)"
+        elif kind == "unary":
+            expression = _unary_expression(operation)
+            arguments = "x_ref, o_ref"
+            call_arguments = "x"
+            in_specs = "(spec,)"
+        else:
+            expressions = {
+                "silu_gate": "jax.nn.silu(x_ref[...]) * gate_ref[...]",
+                "gelu_gate": "jax.nn.gelu(x_ref[...]) * gate_ref[...]",
+            }
+            try:
+                expression = expressions[operation]
+            except KeyError as exc:
+                raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}") from exc
+            arguments = "x_ref, gate_ref, o_ref"
+            call_arguments = "x, gate"
+            in_specs = "(spec, spec)"
+        workload_args = (
+            "x, y" if kind == "binary" else ("x" if kind == "unary" else "x, gate")
+        )
+        return (
+            header
+            + f"""SHAPE = {tuple(shape)!r}
+
+def _kernel({arguments}):
+    o_ref[...] = {expression}
+
+def workload({workload_args}):
+    spec = pl.BlockSpec((128, 128), lambda i, j: (i, j))
+    return pl.pallas_call(
+        _kernel,
+        out_shape=jax.ShapeDtypeStruct(SHAPE, x.dtype),
+        grid=(SHAPE[0] // 128, SHAPE[1] // 128),
+        in_specs={in_specs},
+        out_specs=spec,
+    )({call_arguments})
+"""
+        )
+    if kind in {"normalization", "softmax", "reduction"}:
+        if len(shape) != 2 or shape[0] % 8 or shape[1] % 128:
+            raise CorpusError(f"SFT_ROW_SHAPE_INVALID: {variant['id']}")
+        if kind == "normalization":
+            if operation == "rmsnorm":
+                body = (
+                    "    values = x_ref[...].astype(jnp.float32)\n"
+                    "    mean_square = jnp.mean(jnp.square(values), axis=-1, keepdims=True)\n"
+                    "    o_ref[...] = values * jax.lax.rsqrt(mean_square + 1e-5)"
+                )
+            elif operation == "layernorm":
+                body = (
+                    "    values = x_ref[...].astype(jnp.float32)\n"
+                    "    mean = jnp.mean(values, axis=-1, keepdims=True)\n"
+                    "    variance = jnp.mean(jnp.square(values - mean), axis=-1, keepdims=True)\n"
+                    "    o_ref[...] = (values - mean) * jax.lax.rsqrt(variance + 1e-5)"
+                )
+            else:
+                raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
+        elif kind == "softmax":
+            body = (
+                "    values = x_ref[...].astype(jnp.float32)\n"
+                "    maximum = jnp.max(values, axis=-1, keepdims=True)\n"
+                "    numerator = jnp.exp(values - maximum)\n"
+                "    o_ref[...] = numerator / jnp.sum(numerator, axis=-1, keepdims=True)"
+            )
+        else:
+            reducer = {"sum": "jnp.sum", "max": "jnp.max"}.get(operation)
+            if reducer is None:
+                raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
+            body = (
+                f"    reduced = {reducer}(x_ref[...], axis=-1, keepdims=True)\n"
+                "    o_ref[...] = jnp.broadcast_to(reduced, x_ref.shape)"
+            )
+        return (
+            header
+            + f"""SHAPE = {tuple(shape)!r}
+
+def _kernel(x_ref, o_ref):
+{body}
+
+def workload(x):
+    spec = pl.BlockSpec((8, SHAPE[1]), lambda i: (i, 0))
+    return pl.pallas_call(
+        _kernel,
+        out_shape=jax.ShapeDtypeStruct(SHAPE, jnp.float32),
+        grid=(SHAPE[0] // 8,),
+        in_specs=(spec,),
+        out_specs=spec,
+    )(x)
+"""
+        )
+    if kind == "transpose":
+        if len(shape) != 2 or any(size % 128 for size in shape):
+            raise CorpusError(f"SFT_TRANSPOSE_SHAPE_INVALID: {variant['id']}")
+        return (
+            header
+            + f"""SHAPE = {tuple(shape)!r}
+
+def _kernel(x_ref, o_ref):
+    o_ref[...] = jnp.transpose(x_ref[...])
+
+def workload(x):
+    in_spec = pl.BlockSpec((128, 128), lambda i, j: (i, j))
+    out_spec = pl.BlockSpec((128, 128), lambda i, j: (j, i))
+    return pl.pallas_call(
+        _kernel,
+        out_shape=jax.ShapeDtypeStruct((SHAPE[1], SHAPE[0]), x.dtype),
+        grid=(SHAPE[0] // 128, SHAPE[1] // 128),
+        in_specs=(in_spec,),
+        out_specs=out_spec,
+    )(x)
+"""
+        )
+    if kind == "matmul":
+        if len(shape) != 3 or any(size % 128 for size in shape):
+            raise CorpusError(f"SFT_MATMUL_SHAPE_INVALID: {variant['id']}")
+        m, k, n = shape
+        return (
+            header
+            + f"""M, K, N = {m}, {k}, {n}
+
+def _kernel(x_ref, y_ref, o_ref):
+    o_ref[...] = jnp.dot(
+        x_ref[...], y_ref[...], preferred_element_type=jnp.float32
+    )
+
+def workload(x, y):
+    x_spec = pl.BlockSpec((128, K), lambda i, j: (i, 0))
+    y_spec = pl.BlockSpec((K, 128), lambda i, j: (0, j))
+    out_spec = pl.BlockSpec((128, 128), lambda i, j: (i, j))
+    return pl.pallas_call(
+        _kernel,
+        out_shape=jax.ShapeDtypeStruct((M, N), jnp.float32),
+        grid=(M // 128, N // 128),
+        in_specs=(x_spec, y_spec),
+        out_specs=out_spec,
+    )(x, y)
+"""
+        )
+    raise CorpusError(f"SFT_KERNEL_KIND_UNSUPPORTED: {kind}")
+
+
+def _source_function_exists(source: str, function_name: str) -> bool:
+    return any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == function_name
+        for node in ast.walk(ast.parse(source))
+    )
+
+
+def _curated_sft_candidates(
+    bundle: ContractBundle,
     source: dict[str, Any],
     checkout: Path,
 ) -> list[dict[str, Any]]:
-    allowlist = set(source.get("sft_task_allowlist", []))
     candidates = []
-    for task in _registry_tasks(checkout):
-        if task["task_name"] not in allowlist:
+    for group in bundle.sft_candidates["groups"]:
+        if group["source_id"] != source["id"]:
             continue
-        path = task["candidate_path"]
+        path = group["source_path"]
         if not _allowlisted(source, path):
             raise CorpusError(f"SOURCE_PATH_NOT_ALLOWLISTED: {source['id']}:{path}")
-        content = (checkout / path).read_text(encoding="utf-8")
-        tree = ast.parse(content)
-        candidate_function = task["candidate_function"]
-        for node in tree.body:
-            if (
-                isinstance(node, ast.Assign)
-                and any(
-                    isinstance(target, ast.Name)
-                    and target.id == candidate_function
-                    for target in node.targets
-                )
-                and isinstance(node.value, ast.Name)
-            ):
-                candidate_function = node.value.id
-                break
-        task["candidate_function"] = candidate_function
-        baseline_source = (
-            checkout / task["baseline_path"]
-        ).read_text(encoding="utf-8")
-        baseline_tree = ast.parse(baseline_source)
-        task["oracle_source"] = next(
-            ast.get_source_segment(baseline_source, node)
-            for node in baseline_tree.body
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-            and node.name == task["baseline_function"]
-        )
-        inspection_source = (
-            f"{content}\n\ndef workload(*args):\n"
-            f"    return {candidate_function}(*args)\n"
-        )
-        inspection = inspect_pallas_source(inspection_source)
-        candidate = _candidate_row(
-            source=source,
-            path=path,
-            row_id=None,
-            content=content,
-            objective="sft",
-            family_category=task["category"],
-            metadata=task,
-        )
-        candidate["static_inspection"] = asdict(inspection)
-        if not inspection.parses:
-            candidate["rejection_reasons"].append("SYNTAX_INVALID")
-        if inspection.reachable_interpret_pallas_calls:
-            candidate["rejection_reasons"].append("PALLAS_INTERPRET_MODE")
-        if not inspection.authentic:
-            candidate["rejection_reasons"].extend(inspection.reasons)
-        candidates.append(candidate)
+        source_path = checkout / path
+        upstream_source = source_path.read_text(encoding="utf-8")
+        if not _source_function_exists(upstream_source, group["source_function"]):
+            raise CorpusError(
+                f"SOURCE_FUNCTION_MISSING: {source['id']}:{path}:"
+                f"{group['source_function']}"
+            )
+        upstream_sha256 = _sha256_file(source_path)
+        for variant in group["variants"]:
+            content = _render_sft_solution(group, variant)
+            shape = variant["shape"]
+            kind = group["kernel_kind"]
+            input_shapes = (
+                [[shape[0], shape[1]], [shape[1], shape[2]]]
+                if kind == "matmul"
+                else [shape, shape]
+                if kind in {"binary", "gated"}
+                else [shape]
+            )
+            input_dtypes = (
+                ["bfloat16", "bfloat16"]
+                if kind == "matmul"
+                else ["float32"] * len(input_shapes)
+            )
+            metadata = {
+                "task_name": variant["id"],
+                "candidate_function": "workload",
+                "kernel_kind": kind,
+                "operation": variant["operation"],
+                "input_shapes": input_shapes,
+                "input_dtypes": input_dtypes,
+                "input_ranges": [[-1.0, 1.0]] * len(input_shapes),
+                "source_function": group["source_function"],
+                "source_file_sha256": upstream_sha256,
+                "derivation_policy": bundle.sft_candidates["derivation_policy"],
+                "specification": (
+                    f"Compute {variant['operation']} for full-shape inputs "
+                    f"{input_shapes} with output semantics defined independently "
+                    "by the operation name."
+                ),
+                "correctness_tolerance": {
+                    "rtol": 0.02 if kind == "matmul" else 0.001,
+                    "atol": 0.02 if kind == "matmul" else 0.001,
+                },
+            }
+            candidate = _candidate_row(
+                source=source,
+                path=path,
+                row_id=variant["id"],
+                content=content,
+                objective="sft",
+                family_category=group["id"],
+                metadata=metadata,
+            )
+            inspection = inspect_pallas_source(content)
+            candidate["static_inspection"] = asdict(inspection)
+            if not inspection.parses:
+                candidate["rejection_reasons"].append("SYNTAX_INVALID")
+            if inspection.reachable_interpret_pallas_calls:
+                candidate["rejection_reasons"].append("PALLAS_INTERPRET_MODE")
+            if not inspection.authentic:
+                candidate["rejection_reasons"].extend(inspection.reasons)
+            candidates.append(candidate)
     return candidates
 
 
@@ -553,7 +671,9 @@ def _forbidden_documents(
         if checkout is None:
             raise CorpusError(f"SOURCE_CHECKOUT_REQUIRED: {source['id']}")
         verify_source_checkout(bundle, source["id"], checkout)
-        for path in sorted(candidate for candidate in checkout.rglob("*") if candidate.is_file()):
+        for path in sorted(
+            candidate for candidate in checkout.rglob("*") if candidate.is_file()
+        ):
             if path.suffix not in TEXT_SUFFIXES:
                 continue
             try:
@@ -592,9 +712,7 @@ def _apply_policy(
         if exact_key in seen_exact:
             reasons.append(f"EXACT_DUPLICATE:{seen_exact[exact_key]}")
         elif normalized_key in seen_normalized:
-            reasons.append(
-                f"NORMALIZED_DUPLICATE:{seen_normalized[normalized_key]}"
-            )
+            reasons.append(f"NORMALIZED_DUPLICATE:{seen_normalized[normalized_key]}")
         candidate_shingles = _shingles(candidate["content"])
         near_matches = [
             (other_id, _jaccard(candidate_shingles, other_shingles))
@@ -611,9 +729,7 @@ def _apply_policy(
                 break
             similarity = _jaccard(candidate_shingles, document_shingles)
             if similarity >= NEAR_DUPLICATE_THRESHOLD:
-                reasons.append(
-                    f"HOLDOUT_NEAR_MATCH:{document_id}:{similarity:.6f}"
-                )
+                reasons.append(f"HOLDOUT_NEAR_MATCH:{document_id}:{similarity:.6f}")
                 break
         candidate["rejection_reasons"] = sorted(set(reasons))
         candidate["status"] = (
@@ -650,14 +766,10 @@ def _verification_index(
                 raise CorpusError(f"VERIFICATION_DUPLICATE: {candidate_id}")
             expected_hash = value.get("verification_sha256")
             unhashed = {
-                key: item
-                for key, item in value.items()
-                if key != "verification_sha256"
+                key: item for key, item in value.items() if key != "verification_sha256"
             }
             if expected_hash != _canonical_sha256(unhashed):
-                raise CorpusError(
-                    f"VERIFICATION_HASH_MISMATCH: {candidate_id}"
-                )
+                raise CorpusError(f"VERIFICATION_HASH_MISMATCH: {candidate_id}")
             if value.get("verified") is False:
                 value["_artifact_path"] = str(path.resolve())
                 records[candidate_id] = value
@@ -675,9 +787,7 @@ def _verification_index(
                 != _canonical_sha256(value.get("lowering"))
                 or not lowering.verified
             ):
-                raise CorpusError(
-                    f"VERIFICATION_LOWERING_MISMATCH: {candidate_id}"
-                )
+                raise CorpusError(f"VERIFICATION_LOWERING_MISMATCH: {candidate_id}")
             value["_artifact_path"] = str(path.resolve())
             records[candidate_id] = value
     return records
@@ -746,12 +856,11 @@ def _sft_row(candidate: dict[str, Any], verification: dict[str, Any]) -> dict[st
     metadata = candidate["metadata"]
     prompt = (
         "Implement an authentic normal-lowering JAX Pallas kernel for the "
-        f"{metadata['task_name']} operation. The callable must accept inputs "
+        f"{metadata['task_name']} operation. {metadata['specification']} "
+        "The callable must accept inputs "
         f"with shapes {metadata['input_shapes']} and dtypes "
         f"{metadata.get('input_dtypes') or ['float32'] * len(metadata['input_shapes'])}. "
-        "It must match this independent JAX semantic oracle at the full "
-        "declared shapes:\n\n"
-        f"```python\n{metadata['oracle_source']}\n```\n\n"
+        "It must match the independent semantic oracle at the full declared shapes. "
         "Do not use interpret mode or a plain-JAX fallback."
     )
     return {
@@ -763,14 +872,15 @@ def _sft_row(candidate: dict[str, Any], verification: dict[str, Any]) -> dict[st
             {"role": "assistant", "content": candidate["content"]},
         ],
         "family_id": candidate["family_id"],
+        "family_category": candidate["family_category"],
         "verification": {
             "verification_sha256": verification["verification_sha256"],
             "calibration_sha256": verification["lowering"]["calibration_sha256"],
-            "candidate_evidence_sha256": verification["lowering"][
-                "candidate_sha256"
-            ],
+            "candidate_evidence_sha256": verification["lowering"]["candidate_sha256"],
             "kernel_sha256": verification["kernel_sha256"],
             "correctness_seeds": verification["correctness_seeds"],
+            "full_declared_shapes": verification["full_declared_shapes"],
+            "input_spec_sha256": verification["input_spec_sha256"],
             "target": verification["runtime"],
             "evidence_relative_path": verification["evidence_relative_path"],
         },
@@ -783,7 +893,61 @@ def _sft_row(candidate: dict[str, Any], verification: dict[str, Any]) -> dict[st
                 "license",
                 "content_sha256",
             )
+        }
+        | {
+            "source_function": metadata["source_function"],
+            "source_file_sha256": metadata["source_file_sha256"],
+            "derivation_policy": metadata["derivation_policy"],
         },
+    }
+
+
+def _sft_readiness(
+    sft_rows: Sequence[dict[str, Any]],
+    *,
+    policy: dict[str, Any],
+    holdout_contamination: int,
+) -> dict[str, Any]:
+    source_counts = Counter(row["provenance"]["source_id"] for row in sft_rows)
+    family_counts = Counter(row["family_category"] for row in sft_rows)
+    row_count = len(sft_rows)
+    maximum_source_fraction = (
+        max(source_counts.values(), default=0) / row_count if row_count else 0.0
+    )
+    maximum_family_fraction = (
+        max(family_counts.values(), default=0) / row_count if row_count else 0.0
+    )
+    reasons = []
+    if row_count < policy["minimum_verified_rows"]:
+        reasons.append("VERIFIED_ROWS_INSUFFICIENT")
+    if len(family_counts) < policy["minimum_family_count"]:
+        reasons.append("FAMILY_DIVERSITY_INSUFFICIENT")
+    if len(source_counts) < policy["minimum_source_count"]:
+        reasons.append("SOURCE_DIVERSITY_INSUFFICIENT")
+    if any(
+        count < policy["minimum_rows_per_family"] for count in family_counts.values()
+    ):
+        reasons.append("FAMILY_DEPTH_INSUFFICIENT")
+    if maximum_source_fraction > policy["maximum_source_fraction"]:
+        reasons.append("SOURCE_CONCENTRATION_EXCEEDED")
+    if maximum_family_fraction > policy["maximum_family_fraction"]:
+        reasons.append("FAMILY_CONCENTRATION_EXCEEDED")
+    if holdout_contamination:
+        reasons.append("HOLDOUT_CONTAMINATION_PRESENT")
+    return {
+        "arm_b_authorized": not reasons,
+        "reasons": reasons,
+        "observed": {
+            "verified_rows": row_count,
+            "family_count": len(family_counts),
+            "source_count": len(source_counts),
+            "source_counts": dict(sorted(source_counts.items())),
+            "family_counts": dict(sorted(family_counts.items())),
+            "maximum_source_fraction": maximum_source_fraction,
+            "maximum_family_fraction": maximum_family_fraction,
+            "holdout_contamination": holdout_contamination,
+        },
+        "required": policy,
     }
 
 
@@ -811,8 +975,7 @@ def build_corpus(
             inventory.extend(_inventory_git_source(source, checkout))
             if source["training_policy"] == "allowlisted_paths_only":
                 candidates.extend(_dapt_candidates(source, checkout))
-            if source["id"] == "pallasbench":
-                candidates.extend(_pallasbench_candidates(source, checkout))
+                candidates.extend(_curated_sft_candidates(bundle, source, checkout))
         elif include_hf:
             hf_inventory, hf_candidates = _inventory_hf_source(source)
             inventory.extend(hf_inventory)
@@ -857,9 +1020,7 @@ def build_corpus(
         candidate["status"] = "verified"
         candidate["verification_sha256"] = verification["verification_sha256"]
         evidence_relative_path = (
-            Path("evidence")
-            / "candidates"
-            / _sha256_text(candidate_id)[:16]
+            Path("evidence") / "candidates" / _sha256_text(candidate_id)[:16]
         )
         shutil.copytree(
             Path(verification["_artifact_path"]).parent,
@@ -878,8 +1039,17 @@ def build_corpus(
     ]
     repair_rows: list[dict[str, Any]] = []
     corpus_rows = [*dapt_rows, *sft_rows, *repair_rows]
-    _write_jsonl(out_dir / "source_inventory.jsonl", sorted(inventory, key=lambda row: (row["source_id"], str(row["path"]), str(row["row_id"]))))
-    _write_jsonl(out_dir / "candidates.jsonl", sorted(candidates, key=lambda row: row["candidate_id"]))
+    _write_jsonl(
+        out_dir / "source_inventory.jsonl",
+        sorted(
+            inventory,
+            key=lambda row: (row["source_id"], str(row["path"]), str(row["row_id"])),
+        ),
+    )
+    _write_jsonl(
+        out_dir / "candidates.jsonl",
+        sorted(candidates, key=lambda row: row["candidate_id"]),
+    )
     _write_jsonl(out_dir / "verification.jsonl", verification_rows)
     _write_jsonl(out_dir / "corpus.jsonl", corpus_rows)
     _write_jsonl(out_dir / "datasets" / "dapt.jsonl", dapt_rows)
@@ -901,10 +1071,18 @@ def build_corpus(
             if path.is_file()
         )
     artifacts = {
-        relative: _sha256_file(out_dir / relative)
-        for relative in artifact_relatives
+        relative: _sha256_file(out_dir / relative) for relative in artifact_relatives
     }
     status_counts = Counter(row["status"] for row in candidates)
+    holdout_contamination = sum(
+        any(reason.startswith("HOLDOUT_") for reason in row["rejection_reasons"])
+        for row in candidates
+    )
+    readiness = _sft_readiness(
+        sft_rows,
+        policy=bundle.experiment["sft_readiness"],
+        holdout_contamination=holdout_contamination,
+    )
     manifest = {
         "schema_version": 1,
         "kind": "pallas_corpus_release",
@@ -929,11 +1107,9 @@ def build_corpus(
             "sft": len(sft_rows),
             "repair": len(repair_rows),
             "families": len({row["family_id"] for row in corpus_rows}),
-            "holdout_contamination": sum(
-                any(reason.startswith("HOLDOUT_") for reason in row["rejection_reasons"])
-                for row in candidates
-            ),
+            "holdout_contamination": holdout_contamination,
         },
+        "sft_readiness": readiness,
         "artifacts": artifacts,
     }
     manifest["release_sha256"] = _canonical_sha256(manifest)
@@ -951,7 +1127,9 @@ def validate_corpus_release(root: Path) -> dict[str, Any]:
     if manifest.get("kind") != "pallas_corpus_release":
         raise CorpusError("CORPUS_MANIFEST_INVALID")
     expected_release_sha = manifest.get("release_sha256")
-    unhashed = {key: value for key, value in manifest.items() if key != "release_sha256"}
+    unhashed = {
+        key: value for key, value in manifest.items() if key != "release_sha256"
+    }
     if expected_release_sha != _canonical_sha256(unhashed):
         raise CorpusError("CORPUS_MANIFEST_HASH_MISMATCH")
     for relative, expected in manifest.get("artifacts", {}).items():
@@ -974,15 +1152,15 @@ def validate_corpus_release(root: Path) -> dict[str, Any]:
             or not isinstance(verification.get("calibration_sha256"), str)
             or not isinstance(verification.get("candidate_evidence_sha256"), str)
             or len(verification["correctness_seeds"]) < 3
+            or verification.get("full_declared_shapes") is not True
+            or not isinstance(verification.get("input_spec_sha256"), str)
             or any(
                 reason.startswith("HOLDOUT_")
                 for reason in candidate.get("rejection_reasons", [])
             )
         ):
             raise CorpusError(f"SFT_EVIDENCE_INVALID: {row.get('row_id')}")
-        evidence_root = (
-            root / verification["evidence_relative_path"]
-        ).resolve()
+        evidence_root = (root / verification["evidence_relative_path"]).resolve()
         if not evidence_root.is_relative_to(root.resolve()):
             raise CorpusError(f"SFT_EVIDENCE_PATH_INVALID: {row.get('row_id')}")
         lowering = validate_candidate_evidence(
@@ -992,10 +1170,8 @@ def validate_corpus_release(root: Path) -> dict[str, Any]:
         )
         if (
             not lowering.verified
-            or lowering.calibration_sha256
-            != verification["calibration_sha256"]
-            or lowering.candidate_sha256
-            != verification["candidate_evidence_sha256"]
+            or lowering.calibration_sha256 != verification["calibration_sha256"]
+            or lowering.candidate_sha256 != verification["candidate_evidence_sha256"]
         ):
             raise CorpusError(f"SFT_LOWERING_INVALID: {row.get('row_id')}")
     return {
@@ -1068,6 +1244,53 @@ def _assert_tpu_available() -> None:
         raise CorpusError(f"TPU_REQUIRED: {exc}") from exc
 
 
+def _semantic_oracle(operation: str, *inputs: jax.Array) -> jax.Array:
+    x = inputs[0]
+    if operation == "add":
+        return x + inputs[1]
+    if operation == "multiply":
+        return x * inputs[1]
+    if operation == "subtract":
+        return x - inputs[1]
+    if operation == "maximum":
+        return jnp.maximum(x, inputs[1])
+    if operation == "relu":
+        return jnp.maximum(x, 0.0)
+    if operation == "tanh":
+        return jnp.tanh(x)
+    if operation == "sigmoid":
+        return jax.nn.sigmoid(x)
+    if operation == "square":
+        return jnp.square(x)
+    if operation == "rmsnorm":
+        values = x.astype(jnp.float32)
+        return values * jax.lax.rsqrt(
+            jnp.mean(jnp.square(values), axis=-1, keepdims=True) + 1e-5
+        )
+    if operation == "layernorm":
+        values = x.astype(jnp.float32)
+        mean = jnp.mean(values, axis=-1, keepdims=True)
+        variance = jnp.mean(jnp.square(values - mean), axis=-1, keepdims=True)
+        return (values - mean) * jax.lax.rsqrt(variance + 1e-5)
+    if operation == "softmax":
+        return jax.nn.softmax(x.astype(jnp.float32), axis=-1)
+    if operation == "transpose":
+        return jnp.transpose(x)
+    if operation == "matmul":
+        return jnp.matmul(x, inputs[1], preferred_element_type=jnp.float32)
+    if operation == "silu_gate":
+        return jax.nn.silu(x) * inputs[1]
+    if operation == "gelu_gate":
+        return jax.nn.gelu(x) * inputs[1]
+    if operation == "sum":
+        reduced = jnp.sum(x, axis=-1, keepdims=True)
+        return jnp.broadcast_to(reduced, x.shape)
+    if operation == "max":
+        reduced = jnp.max(x, axis=-1, keepdims=True)
+        return jnp.broadcast_to(reduced, x.shape)
+    raise CorpusError(f"ORACLE_OPERATION_UNSUPPORTED: {operation}")
+
+
 def verify_corpus_candidate(
     *,
     bundle: ContractBundle,
@@ -1080,8 +1303,6 @@ def verify_corpus_candidate(
     if out_dir.exists() and any(out_dir.iterdir()):
         raise CorpusError(f"VERIFICATION_OUTPUT_NOT_EMPTY: {out_dir}")
     out_dir.mkdir(parents=True, exist_ok=True)
-    source = source_by_id(bundle, "pallasbench")
-    verify_source_checkout(bundle, "pallasbench", source_checkout)
     candidates = {
         row["candidate_id"]: row
         for row in _read_jsonl(corpus_root / "candidates.jsonl")
@@ -1089,9 +1310,10 @@ def verify_corpus_candidate(
     candidate = candidates.get(candidate_id)
     if candidate is None:
         raise CorpusError(f"CANDIDATE_UNKNOWN: {candidate_id}")
+    source = source_by_id(bundle, candidate["source_id"])
+    verify_source_checkout(bundle, source["id"], source_checkout)
     if (
-        candidate["source_id"] != source["id"]
-        or candidate["objective"] != "sft"
+        candidate["objective"] != "sft"
         or candidate["status"] != "verification_required"
         or candidate["rejection_reasons"]
     ):
@@ -1102,51 +1324,45 @@ def verify_corpus_candidate(
     )["runtime"]
     _assert_tpu_available()
     source_path = source_checkout / candidate["source_path"]
-    if _sha256_file(source_path) != candidate["content_sha256"]:
+    if _sha256_file(source_path) != candidate["metadata"]["source_file_sha256"]:
         raise CorpusError(f"CANDIDATE_SOURCE_HASH_MISMATCH: {candidate_id}")
-    sys.path.insert(0, str(source_checkout))
-    try:
-        candidate_module = _load_module(
-            source_path,
-            f"opjax_corpus_candidate_{_sha256_text(candidate_id)[:12]}",
-        )
-        baseline_module = _load_module(
-            source_checkout / candidate["metadata"]["baseline_path"],
-            f"opjax_corpus_baseline_{_sha256_text(candidate_id)[:12]}",
-        )
-    finally:
-        sys.path.remove(str(source_checkout))
+    derived_module_path = out_dir / "derived_solution.py"
+    derived_module_path.write_text(candidate["content"], encoding="utf-8")
+    candidate_module = _load_module(
+        derived_module_path,
+        f"opjax_corpus_candidate_{_sha256_text(candidate_id)[:12]}",
+    )
     candidate_function = getattr(
         candidate_module,
         candidate["metadata"]["candidate_function"],
         None,
     )
-    baseline_function = getattr(
-        baseline_module,
-        candidate["metadata"]["baseline_function"],
-        None,
-    )
-    if not callable(candidate_function) or not callable(baseline_function):
+    if not callable(candidate_function):
         raise CorpusError(f"CANDIDATE_CALLABLE_MISSING: {candidate_id}")
     correctness_seeds = []
     capture_inputs: tuple[jax.Array, ...] | None = None
     capture_expected: Any = None
-    for seed in (0, 1, 2):
+    tolerance = candidate["metadata"]["correctness_tolerance"]
+    for seed in bundle.experiment["sft_readiness"]["required_correctness_seeds"]:
         inputs = _generate_inputs(
             candidate["metadata"]["input_shapes"],
             candidate["metadata"].get("input_dtypes"),
             candidate["metadata"].get("input_ranges"),
             seed,
         )
-        expected = jax.jit(baseline_function)(*inputs)
+        expected = jax.jit(
+            lambda *values: _semantic_oracle(
+                candidate["metadata"]["operation"], *values
+            )
+        )(*inputs)
         observed = jax.jit(candidate_function)(*inputs)
         jax.block_until_ready((expected, observed))
         try:
             chex.assert_trees_all_close(
                 observed,
                 expected,
-                rtol=1e-3,
-                atol=1e-3,
+                rtol=tolerance["rtol"],
+                atol=tolerance["atol"],
             )
         except AssertionError as exc:
             raise CorpusError(
@@ -1165,8 +1381,8 @@ def verify_corpus_candidate(
         out_dir=out_dir,
         repetitions=bundle.eval_policy["authenticity"]["profile_repetitions"],
         expected_output=capture_expected,
-        rtol=1e-3,
-        atol=1e-3,
+        rtol=tolerance["rtol"],
+        atol=tolerance["atol"],
     )
     candidate_summary = {
         "schema_version": 1,
@@ -1199,7 +1415,15 @@ def verify_corpus_candidate(
         "source_revision": source["revision"],
         "kernel_sha256": candidate["content_sha256"],
         "correctness_seeds": correctness_seeds,
-        "correctness_tolerance": {"rtol": 1e-3, "atol": 1e-3},
+        "correctness_tolerance": tolerance,
+        "full_declared_shapes": True,
+        "input_spec_sha256": _canonical_sha256(
+            {
+                "shapes": candidate["metadata"]["input_shapes"],
+                "dtypes": candidate["metadata"]["input_dtypes"],
+                "ranges": candidate["metadata"]["input_ranges"],
+            }
+        ),
         "lowering": asdict(lowering),
         "runtime": runtime,
         "verified": True,

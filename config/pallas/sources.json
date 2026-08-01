@@ -73,25 +73,12 @@
       "revision": "30a6ee07fd4923f3877906a94002d994e972d6fe",
       "license": "Apache-2.0",
       "roles": [
-        "sft_candidate",
-        "dapt_candidate",
-        "independent_oracle"
+        "benchmark",
+        "candidate_mining",
+        "repair_mining"
       ],
-      "training_policy": "allowlisted_paths_only",
-      "allowlisted_paths": [
-        "pallasbench/baselines",
-        "pallasbench/kernels",
-        "pallasbench/tasks.py",
-        "pallasbench/provenance.py"
-      ],
-      "sft_task_allowlist": [
-        "L1/add",
-        "L1/matmul",
-        "L1/multiply",
-        "L1/relu",
-        "L1/rmsnorm",
-        "L1/softmax"
-      ]
+      "training_policy": "forbidden",
+      "allowlisted_paths": []
     },
     {
       "id": "pallasbench_unified",

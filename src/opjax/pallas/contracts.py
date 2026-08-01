@@ -9,7 +9,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-CONFIG_NAMES = ("sources.json", "experiment.json", "splits.json", "eval-policy.json")
+CONFIG_NAMES = (
+    "sources.json",
+    "experiment.json",
+    "splits.json",
+    "eval-policy.json",
+    "sft-candidates.json",
+)
 EXPECTED_ARMS = {
     "A": [],
     "B": ["pallas_sft"],
@@ -29,6 +35,7 @@ class ContractBundle:
     experiment: dict[str, Any]
     splits: dict[str, Any]
     eval_policy: dict[str, Any]
+    sft_candidates: dict[str, Any]
     sha256: str
 
 
@@ -59,19 +66,88 @@ def _require(condition: bool, code: str, detail: str) -> None:
 def load_contracts(root: Path) -> ContractBundle:
     root = root.resolve()
     loaded = [_load_object(root / name) for name in CONFIG_NAMES]
-    sources, experiment, splits, eval_policy = loaded
+    sources, experiment, splits, eval_policy, sft_candidates = loaded
     _validate_sources(sources)
     _validate_experiment(experiment)
     _validate_splits(splits, sources)
     _validate_eval_policy(eval_policy, experiment)
+    _validate_sft_candidates(sft_candidates, sources)
     return ContractBundle(
         root=root,
         sources=sources,
         experiment=experiment,
         splits=splits,
         eval_policy=eval_policy,
+        sft_candidates=sft_candidates,
         sha256=_canonical_sha256(loaded),
     )
+
+
+def _validate_sft_candidates(
+    value: dict[str, Any],
+    sources: dict[str, Any],
+) -> None:
+    _require(
+        value.get("derivation_policy") == "audited_semantic_reduction",
+        "SFT_DERIVATION_POLICY_INVALID",
+        repr(value.get("derivation_policy")),
+    )
+    groups = value.get("groups")
+    _require(isinstance(groups, list) and groups, "SFT_GROUPS_EMPTY", "groups")
+    trainable_sources = {
+        source["id"]
+        for source in sources["sources"]
+        if source["training_policy"] == "allowlisted_paths_only"
+    }
+    group_ids: set[str] = set()
+    variant_ids: set[str] = set()
+    for group in groups:
+        _require(isinstance(group, dict), "SFT_GROUP_INVALID", repr(group))
+        group_id = group.get("id")
+        _require(
+            isinstance(group_id, str) and group_id not in group_ids,
+            "SFT_GROUP_ID_INVALID",
+            repr(group_id),
+        )
+        group_ids.add(group_id)
+        _require(
+            group.get("source_id") in trainable_sources,
+            "SFT_SOURCE_NOT_TRAINABLE",
+            repr(group.get("source_id")),
+        )
+        for name in ("source_path", "source_function", "kernel_kind"):
+            _require(
+                isinstance(group.get(name), str) and group[name],
+                "SFT_GROUP_FIELD_INVALID",
+                f"{group_id}:{name}",
+            )
+        variants = group.get("variants")
+        _require(
+            isinstance(variants, list) and len(variants) >= 3,
+            "SFT_VARIANTS_INSUFFICIENT",
+            group_id,
+        )
+        for variant in variants:
+            variant_id = variant.get("id") if isinstance(variant, dict) else None
+            _require(
+                isinstance(variant_id, str) and variant_id not in variant_ids,
+                "SFT_VARIANT_ID_INVALID",
+                repr(variant_id),
+            )
+            variant_ids.add(variant_id)
+            shape = variant.get("shape")
+            _require(
+                isinstance(shape, list)
+                and shape
+                and all(isinstance(size, int) and size > 0 for size in shape),
+                "SFT_VARIANT_SHAPE_INVALID",
+                variant_id,
+            )
+            _require(
+                isinstance(variant.get("operation"), str) and variant["operation"],
+                "SFT_VARIANT_OPERATION_INVALID",
+                variant_id,
+            )
 
 
 def _validate_sources(value: dict[str, Any]) -> None:
@@ -81,7 +157,11 @@ def _validate_sources(value: dict[str, Any]) -> None:
     for source in sources:
         _require(isinstance(source, dict), "SOURCE_INVALID", repr(source))
         source_id = source.get("id")
-        _require(isinstance(source_id, str) and source_id, "SOURCE_ID_INVALID", repr(source_id))
+        _require(
+            isinstance(source_id, str) and source_id,
+            "SOURCE_ID_INVALID",
+            repr(source_id),
+        )
         _require(source_id not in ids, "SOURCE_ID_DUPLICATE", source_id)
         ids.add(source_id)
         revision = source.get("revision")
@@ -125,15 +205,30 @@ def _validate_sources(value: dict[str, Any]) -> None:
         "JAXBENCH_TRAINING_FORBIDDEN",
         "jaxbench must never train",
     )
+    pallasbench = next((s for s in sources if s["id"] == "pallasbench"), None)
+    _require(pallasbench is not None, "PALLASBENCH_SOURCE_MISSING", "pallasbench")
+    _require(
+        pallasbench["training_policy"] == "forbidden",
+        "PALLASBENCH_TRAINING_FORBIDDEN",
+        "PallasBench is benchmark mining evidence and must never train",
+    )
 
 
 def _validate_experiment(value: dict[str, Any]) -> None:
-    _require(value.get("base_model") == "thinkingmachines/Inkling", "BASE_MODEL_INVALID", "base")
+    _require(
+        value.get("base_model") == "thinkingmachines/Inkling",
+        "BASE_MODEL_INVALID",
+        "base",
+    )
     target = value.get("target", {})
     _require(target.get("accelerator") == "tpu", "TARGET_INVALID", "accelerator")
     _require(target.get("hardware") == "v5e", "TARGET_INVALID", "hardware")
     prompt = value.get("prompt", {})
-    _require(prompt.get("scored_context") == "spec", "SCORED_CONTEXT_INVALID", "spec required")
+    _require(
+        prompt.get("scored_context") == "spec",
+        "SCORED_CONTEXT_INVALID",
+        "spec required",
+    )
     _require(
         prompt.get("diagnostic_context") == "baseline",
         "DIAGNOSTIC_CONTEXT_INVALID",
@@ -151,8 +246,7 @@ def _validate_experiment(value: dict[str, Any]) -> None:
     )
     retry_seed_stride = sampling.get("retry_seed_stride")
     _require(
-        isinstance(retry_seed_stride, int)
-        and retry_seed_stride > max(seeds),
+        isinstance(retry_seed_stride, int) and retry_seed_stride > max(seeds),
         "RETRY_SEED_STRIDE_INVALID",
         repr(retry_seed_stride),
     )
@@ -162,6 +256,50 @@ def _validate_experiment(value: dict[str, Any]) -> None:
         "SAMPLING_CONCURRENCY_INVALID",
         repr(sampling.get("max_concurrency")),
     )
+    readiness = value.get("sft_readiness", {})
+    integer_minima = {
+        "minimum_verified_rows": 32,
+        "minimum_family_count": 8,
+        "minimum_source_count": 2,
+        "minimum_rows_per_family": 3,
+    }
+    for name, lower_bound in integer_minima.items():
+        observed = readiness.get(name)
+        _require(
+            isinstance(observed, int)
+            and not isinstance(observed, bool)
+            and observed >= lower_bound,
+            "SFT_READINESS_MINIMUM_INVALID",
+            f"{name}={observed!r}",
+        )
+    for name, upper_bound in (
+        ("maximum_source_fraction", 0.75),
+        ("maximum_family_fraction", 0.25),
+    ):
+        observed = readiness.get(name)
+        _require(
+            isinstance(observed, (int, float))
+            and not isinstance(observed, bool)
+            and 0 < observed <= upper_bound,
+            "SFT_READINESS_CONCENTRATION_INVALID",
+            f"{name}={observed!r}",
+        )
+    _require(
+        readiness.get("required_correctness_seeds") == [0, 1, 2],
+        "SFT_READINESS_SEEDS_INVALID",
+        repr(readiness.get("required_correctness_seeds")),
+    )
+    for name in (
+        "require_full_declared_shapes",
+        "require_normal_tpu_lowering",
+        "require_profile_evidence",
+        "require_zero_holdout_contamination",
+    ):
+        _require(
+            readiness.get(name) is True,
+            "SFT_READINESS_EVIDENCE_INVALID",
+            name,
+        )
     arms = value.get("arms", {})
     _require(set(arms) == set(EXPECTED_ARMS), "ARMS_INVALID", repr(sorted(arms)))
     for arm, objectives in EXPECTED_ARMS.items():
@@ -170,7 +308,9 @@ def _validate_experiment(value: dict[str, Any]) -> None:
             "ARM_START_INVALID",
             arm,
         )
-        _require(arms[arm].get("objectives") == objectives, "ARM_OBJECTIVES_INVALID", arm)
+        _require(
+            arms[arm].get("objectives") == objectives, "ARM_OBJECTIVES_INVALID", arm
+        )
 
 
 def _validate_splits(value: dict[str, Any], sources: dict[str, Any]) -> None:
@@ -195,7 +335,9 @@ def _validate_splits(value: dict[str, Any], sources: dict[str, Any]) -> None:
         "SOURCE_FORBIDDEN_SPLIT_MISSING",
         repr(sorted(required_forbidden - forbidden_source_ids)),
     )
-    _require(public.get("source_id") in source_ids, "PUBLIC_SOURCE_UNKNOWN", repr(public))
+    _require(
+        public.get("source_id") in source_ids, "PUBLIC_SOURCE_UNKNOWN", repr(public)
+    )
     _require(
         public.get("source_id") in set(train.get("forbidden_source_ids", [])),
         "PUBLIC_SOURCE_NOT_FORBIDDEN_FROM_TRAIN",
@@ -211,10 +353,18 @@ def _validate_splits(value: dict[str, Any], sources: dict[str, Any]) -> None:
     for index, left in enumerate(names):
         for right in names[index + 1 :]:
             overlap = split_ids[left] & split_ids[right]
-            _require(not overlap, "TASK_SPLIT_OVERLAP", f"{left}/{right}: {sorted(overlap)}")
-    _require(len(split_ids["public"]) == 50, "JAXBENCH_TASK_COUNT_INVALID", str(len(split_ids["public"])))
+            _require(
+                not overlap, "TASK_SPLIT_OVERLAP", f"{left}/{right}: {sorted(overlap)}"
+            )
+    _require(
+        len(split_ids["public"]) == 50,
+        "JAXBENCH_TASK_COUNT_INVALID",
+        str(len(split_ids["public"])),
+    )
     private_ready = private.get("generalization_claim_ready")
-    _require(isinstance(private_ready, bool), "PRIVATE_READY_INVALID", repr(private_ready))
+    _require(
+        isinstance(private_ready, bool), "PRIVATE_READY_INVALID", repr(private_ready)
+    )
     if not private.get("task_ids") or not private.get("family_ids"):
         _require(
             private_ready is False,
@@ -236,11 +386,17 @@ def _validate_eval_policy(value: dict[str, Any], experiment: dict[str, Any]) -> 
         "diagnostic context",
     )
     timing = value.get("timing", {})
-    _require(timing.get("min_repeated_runs", 0) >= 3, "TIMING_REPEATS_INVALID", repr(timing))
+    _require(
+        timing.get("min_repeated_runs", 0) >= 3, "TIMING_REPEATS_INVALID", repr(timing)
+    )
     _require(timing.get("num_warmup", 0) > 0, "TIMING_WARMUP_INVALID", repr(timing))
     _require(timing.get("num_iters", 0) > 0, "TIMING_ITERS_INVALID", repr(timing))
     threshold = timing.get("headline_speedup_threshold")
-    _require(isinstance(threshold, (int, float)) and threshold > 1, "SPEEDUP_THRESHOLD_INVALID", repr(threshold))
+    _require(
+        isinstance(threshold, (int, float)) and threshold > 1,
+        "SPEEDUP_THRESHOLD_INVALID",
+        repr(threshold),
+    )
     authenticity = value.get("authenticity", {})
     _require(
         authenticity.get("require_empirical_tpu_lowering") is True,
@@ -295,7 +451,9 @@ def git_revision(path: Path) -> str:
             stderr=subprocess.STDOUT,
         ).strip()
     except subprocess.CalledProcessError as exc:
-        raise ContractError(f"SOURCE_NOT_GIT_CHECKOUT: {path}: {exc.output.strip()}") from exc
+        raise ContractError(
+            f"SOURCE_NOT_GIT_CHECKOUT: {path}: {exc.output.strip()}"
+        ) from exc
 
 
 def verify_source_checkout(bundle: ContractBundle, source_id: str, path: Path) -> str:
