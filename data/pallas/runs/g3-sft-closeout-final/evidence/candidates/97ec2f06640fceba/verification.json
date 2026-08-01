@@ -1,0 +1,59 @@
+{
+  "candidate_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+  "contract_sha256": "d250ae74723cae814c85e999e9df1696a55ff13a7564238a759a1253424aa16e",
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "full_declared_shapes": true,
+  "input_spec_sha256": "0f2ae6db1f9756cdb8a7bad24aa8f24279a513089af218cf8c901fd5694420f5",
+  "kernel_sha256": "71ca437513bad8ed2ef106b9e77c8015cd8485beae0b8a89345b023fcd858858",
+  "kind": "pallas_corpus_verification",
+  "lowering": {
+    "calibration_sha256": "1fd900bbe04211d53a31f3ab6f3ee1f7d2fdf6cfb62f2ce4df858529f3472985",
+    "candidate_sha256": "653b732fa7ed65919039fc04b989008187ed11d4cae2fd996a3af0c127b688f3",
+    "kernel_sha256": "71ca437513bad8ed2ef106b9e77c8015cd8485beae0b8a89345b023fcd858858",
+    "reasons": [],
+    "runtime": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verified": true
+  },
+  "runtime": {
+    "backend": "tpu",
+    "chex": "0.1.90",
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 1,
+    "process_index": 0,
+    "python": "3.10.12"
+  },
+  "schema_version": 1,
+  "source_revision": "17c7172720ca813b05e5ea248dedd78a0c64612e",
+  "verification_sha256": "19d5217ee7615e9ed85b7c9c1cae1f626c2267c23652cbd1ae7b697e24056d71",
+  "verified": true,
+  "verified_at": "2026-08-01T01:55:49.657075+00:00"
+}
