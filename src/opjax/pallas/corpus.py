@@ -1175,6 +1175,18 @@ def validate_corpus_release(root: Path) -> dict[str, Any]:
             or lowering.candidate_sha256 != verification["candidate_evidence_sha256"]
         ):
             raise CorpusError(f"SFT_LOWERING_INVALID: {row.get('row_id')}")
+    readiness = manifest.get("sft_readiness")
+    if not isinstance(readiness, dict) or not isinstance(
+        readiness.get("required"), dict
+    ):
+        raise CorpusError("CORPUS_SFT_READINESS_INVALID")
+    observed_readiness = _sft_readiness(
+        sft_rows,
+        policy=readiness["required"],
+        holdout_contamination=manifest["counts"]["holdout_contamination"],
+    )
+    if observed_readiness != readiness:
+        raise CorpusError("CORPUS_SFT_READINESS_INVALID")
     return {
         "ok": True,
         "release_sha256": expected_release_sha,

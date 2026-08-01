@@ -217,6 +217,32 @@ def test_corpus_release_rejects_artifact_tampering(tmp_path: Path) -> None:
         validate_corpus_release(out_dir)
 
 
+def test_corpus_release_rejects_rehashed_readiness_tampering(
+    tmp_path: Path,
+) -> None:
+    config, checkouts = _fixture_contracts(tmp_path)
+    out_dir = tmp_path / "release"
+    build_corpus(
+        bundle=load_contracts(config),
+        repo_root=Path(__file__).parents[2],
+        source_checkouts=checkouts,
+        out_dir=out_dir,
+        include_hf=False,
+    )
+    manifest_path = out_dir / "manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["sft_readiness"]["arm_b_authorized"] = True
+    manifest["sft_readiness"]["reasons"] = []
+    unhashed = {
+        key: value for key, value in manifest.items() if key != "release_sha256"
+    }
+    manifest["release_sha256"] = corpus_module._canonical_sha256(unhashed)
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    with pytest.raises(CorpusError, match="CORPUS_SFT_READINESS_INVALID"):
+        validate_corpus_release(out_dir)
+
+
 def test_build_corpus_rejects_nonempty_output(tmp_path: Path) -> None:
     config, checkouts = _fixture_contracts(tmp_path)
     out_dir = tmp_path / "release"
