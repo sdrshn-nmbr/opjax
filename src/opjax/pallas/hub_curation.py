@@ -215,9 +215,16 @@ def load_hub_curation_config(path: Path) -> HubCurationConfig:
         if source.get("benchmark_scope") is not None:
             raise HubCurationError(f"HUB_ROW_BENCHMARK_SCOPE_INVALID: {dataset_id}")
         license_id = source.get("license")
-        if (
-            not isinstance(license_id, str)
-            or license_id.casefold() not in PERMISSIVE_LICENSES
+        quarantine_reasons = source.get("source_quarantine_reasons", [])
+        license_unverified_quarantine = (
+            isinstance(quarantine_reasons, list)
+            and "SOURCE_LICENSE_UNVERIFIED" in quarantine_reasons
+        )
+        if not isinstance(license_id, str) or (
+            license_id.casefold() not in PERMISSIVE_LICENSES
+            and not (
+                license_id.casefold() == "unverified" and license_unverified_quarantine
+            )
         ):
             raise HubCurationError(f"HUB_ROW_LICENSE_AMBIGUOUS: {dataset_id}")
         max_rows = source.get("max_rows")
@@ -700,6 +707,7 @@ def curate_hub_rows(
             "benchmark_signals": observed_benchmark_signals,
             "benchmark_scope": source.get("benchmark_scope"),
             "source_family": source.get("source_family", dataset_id),
+            "source_quarantine_reasons": source.get("source_quarantine_reasons", []),
             "training_authorized": False,
             "status": "complete",
             "failure": None,
@@ -782,6 +790,10 @@ def curate_hub_rows(
                             else None,
                             "family_hint": family_hint,
                             "provenance": evidence,
+                            "source_labels": {
+                                key: record.get(key)
+                                for key in source.get("label_fields", [])
+                            },
                             "discovery_release_sha256": discovery["release_sha256"],
                             "rejection_reasons": _row_reasons(
                                 record,
@@ -924,7 +936,14 @@ def validate_hub_row_release(root: Path) -> dict[str, Any]:
         if (
             source.get("schema_version") != HUB_CURATION_ARTIFACT_SCHEMA_VERSION
             or not _valid_revision(source.get("source_revision"))
-            or str(source.get("license", "")).casefold() not in PERMISSIVE_LICENSES
+            or (
+                str(source.get("license", "")).casefold() not in PERMISSIVE_LICENSES
+                and not (
+                    str(source.get("license", "")).casefold() == "unverified"
+                    and "SOURCE_LICENSE_UNVERIFIED"
+                    in source.get("source_quarantine_reasons", [])
+                )
+            )
             or source.get("role") not in VALID_ROLES
             or source.get("objective") not in VALID_OBJECTIVES
             or source.get("adapter") not in VALID_ADAPTERS
@@ -1024,6 +1043,8 @@ def validate_hub_row_release(root: Path) -> dict[str, Any]:
             )
         ):
             raise HubCurationError(f"HUB_ROW_PROVENANCE_INVALID: {candidate_id}")
+        if not isinstance(row.get("source_labels"), dict):
+            raise HubCurationError(f"HUB_ROW_LABELS_INVALID: {candidate_id}")
         counts[status] += 1
         role_counts[(row["role"], status)] += 1
         reason_counts.update(reason.split(":", 1)[0] for reason in reasons)

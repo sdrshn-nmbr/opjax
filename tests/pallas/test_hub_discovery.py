@@ -118,6 +118,11 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
                 tags=["license:mit"],
             ),
             _dataset(
+                "example/pallasbench-archive",
+                description="Pallas generation archive with correctness results",
+                tags=["license:apache-2.0"],
+            ),
+            _dataset(
                 "example/generic-trajectories",
                 description="Agent trajectory data with no kernel content",
                 tags=["license:mit"],
@@ -141,15 +146,11 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
         config_path=CONFIG_PATH,
         out_dir=out,
         api=api,
-        downloader=_downloader(
-            {("example/triton-kernels", "README.md"): readme}
-        ),
+        downloader=_downloader({("example/triton-kernels", "README.md"): readme}),
     )
 
-    assert manifest["counts"]["inventory"] == 4
-    decisions = {
-        row["dataset_id"]: row for row in _load_rows(out / "decisions.jsonl")
-    }
+    assert manifest["counts"]["inventory"] == 5
+    decisions = {row["dataset_id"]: row for row in _load_rows(out / "decisions.jsonl")}
     assert decisions["CyberHarem/pallas_arknights"]["status"] == "rejected"
     assert decisions["example/triton-kernels"]["category"] == "cross_kernel_domain"
     assert decisions["example/triton-kernels"]["candidate_objectives"] == [
@@ -157,12 +158,23 @@ def test_discovery_rejects_noisy_bare_keywords_and_separates_roles(
     ]
     benchmark = decisions["example/kernelbench-traces"]
     assert benchmark["training_policy"] == "forbidden"
-    assert benchmark["candidate_objectives"] == []
+    assert benchmark["category"] == "cross_kernel_domain"
+    assert benchmark["source_role"] == "benchmark_or_evaluation"
+    assert benchmark["benchmark_or_evaluation"] is True
+    assert benchmark["candidate_objectives"] == [
+        "dapt_candidate",
+        "repair_candidate",
+    ]
     assert "BENCHMARK_CONTAMINATION" in benchmark["risk_flags"]
+    pallasbench = decisions["example/pallasbench-archive"]
+    assert pallasbench["category"] == "pallas_domain"
+    assert pallasbench["training_policy"] == "forbidden"
+    assert pallasbench["candidate_objectives"] == [
+        "dapt_candidate",
+        "repair_candidate",
+    ]
     assert decisions["example/generic-trajectories"]["status"] == "rejected"
-    assert all(
-        call[0] != "example/generic-trajectories" for call in api.info_calls
-    )
+    assert all(call[0] != "example/generic-trajectories" for call in api.info_calls)
 
 
 def test_discovery_is_deterministic_and_pins_detail_requests(tmp_path: Path) -> None:
@@ -230,9 +242,10 @@ def test_discovery_preserves_existing_output_and_accepts_completed_resume(
         resume=True,
         api=FakeApi([]),
     )
-    assert resumed["release_sha256"] == validate_hub_discovery_release(
-        resumable
-    )["release_sha256"]
+    assert (
+        resumed["release_sha256"]
+        == validate_hub_discovery_release(resumable)["release_sha256"]
+    )
     with pytest.raises(HubDiscoveryError, match="HUB_RESUME_FINGERPRINT_MISMATCH"):
         discover_hub_datasets(
             repo_root=Path(__file__).parents[2],
@@ -294,9 +307,7 @@ def test_interrupted_detail_enrichment_resumes_from_checkpoint(
 
 
 def test_unpinned_source_never_enters_trainable_role(tmp_path: Path) -> None:
-    api = FakeApi(
-        [_dataset("example/cuda", description="CUDA kernels", revision=None)]
-    )
+    api = FakeApi([_dataset("example/cuda", description="CUDA kernels", revision=None)])
     out = tmp_path / "release"
     discover_hub_datasets(
         repo_root=Path(__file__).parents[2],

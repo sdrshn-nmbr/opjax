@@ -51,6 +51,8 @@ def _fixture_contracts(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
     jax = tmp_path / "jax"
     jaxbench = tmp_path / "jaxbench"
     pallasbench = tmp_path / "pallasbench"
+    tokamax = tmp_path / "tokamax"
+    maxtext = tmp_path / "maxtext"
     revisions = {
         "jax": _git_repository(
             jax,
@@ -101,6 +103,21 @@ def _fixture_contracts(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
                 "pallasbench/provenance.py": "",
             },
         ),
+        "tokamax": _git_repository(
+            tokamax,
+            {
+                "tokamax/_src/ops/example.py": "from jax.experimental import pallas as pl\n",
+                "tokamax/_src/pallas/example.py": "from jax.experimental import pallas as pl\n",
+                "tokamax/_src/mosaic_tpu.py": "from jax.experimental import pallas as pl\n",
+                "tokamax/_src/mosaic_gpu.py": "from jax.experimental import pallas as pl\n",
+            },
+        ),
+        "maxtext": _git_repository(
+            maxtext,
+            {
+                "src/maxtext/kernels/example.py": "from jax.experimental import pallas as pl\n",
+            },
+        ),
     }
     config = tmp_path / "config"
     config.mkdir()
@@ -121,6 +138,8 @@ def _fixture_contracts(tmp_path: Path) -> tuple[Path, dict[str, Path]]:
         "jax": jax,
         "jaxbench": jaxbench,
         "pallasbench": pallasbench,
+        "tokamax": tokamax,
+        "maxtext": maxtext,
     }
 
 
@@ -230,7 +249,9 @@ def test_failed_verification_is_preserved_without_sft_promotion(
     assert verification["failure"]["code"] == "TPU_COMPILE_FAILED"
 
 
-def test_tpu_preflight_uses_chex_0190_signature(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_tpu_preflight_uses_chex_0190_signature(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     observed: list[tuple[tuple[object, ...], dict[str, object]]] = []
 
     def assert_devices(*args: object, **kwargs: object) -> None:

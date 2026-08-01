@@ -20,8 +20,8 @@ from huggingface_hub import HfApi, hf_hub_download
 from huggingface_hub.errors import HfHubHTTPError
 
 HUB_DISCOVERY_CONFIG_SCHEMA_VERSION = 1
-HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION = 2
-HUB_DISCOVERY_GENERATOR_VERSION = 2
+HUB_DISCOVERY_ARTIFACT_SCHEMA_VERSION = 3
+HUB_DISCOVERY_GENERATOR_VERSION = 3
 KERNEL_SIGNAL_FAMILIES = frozenset(
     {"pallas", "triton", "cuda", "cutlass", "cute", "benchmark"}
 )
@@ -108,9 +108,7 @@ def _iter_jsonl(path: Path) -> Iterable[dict[str, Any]]:
                     f"HUB_JSON_INVALID: {path}:{line_number}: {exc}"
                 ) from exc
             if not isinstance(value, dict):
-                raise HubDiscoveryError(
-                    f"HUB_ROW_NOT_OBJECT: {path}:{line_number}"
-                )
+                raise HubDiscoveryError(f"HUB_ROW_NOT_OBJECT: {path}:{line_number}")
             yield value
 
 
@@ -159,8 +157,10 @@ def load_hub_discovery_config(path: Path) -> HubDiscoveryConfig:
             )
         )
     suffixes = value.get("text_suffixes")
-    if not isinstance(suffixes, list) or not suffixes or not all(
-        isinstance(item, str) and item.startswith(".") for item in suffixes
+    if (
+        not isinstance(suffixes, list)
+        or not suffixes
+        or not all(isinstance(item, str) and item.startswith(".") for item in suffixes)
     ):
         raise HubDiscoveryError("HUB_CONFIG_INVALID: text_suffixes")
     return HubDiscoveryConfig(
@@ -234,9 +234,7 @@ def _call_with_rate_limit_retry(call: Callable[[], Any]) -> Any:
             if delay is None:
                 raise
             if attempt == MAX_RATE_LIMIT_RETRIES:
-                raise HubDiscoveryError(
-                    "HUB_RATE_LIMIT_RETRIES_EXHAUSTED"
-                ) from exc
+                raise HubDiscoveryError("HUB_RATE_LIMIT_RETRIES_EXHAUSTED") from exc
             time.sleep(delay)
     raise AssertionError("unreachable")
 
@@ -352,9 +350,7 @@ def _sibling_row(sibling: Any) -> dict[str, Any] | None:
         "size": size if isinstance(size, int) and not isinstance(size, bool) else None,
         "blob_id": getattr(sibling, "blob_id", None),
         "lfs_sha256": (
-            lfs.get("sha256")
-            if isinstance(lfs, dict)
-            else getattr(lfs, "sha256", None)
+            lfs.get("sha256") if isinstance(lfs, dict) else getattr(lfs, "sha256", None)
         ),
     }
 
@@ -447,9 +443,7 @@ def _enrich_inventory_row(
             flag for flag in row["risk_flags"] if flag != "SOURCE_LICENSE_UNVERIFIED"
         ]
     elif len(card_licenses) == 1 and row["license"] != card_licenses[0]:
-        row["risk_flags"] = sorted(
-            set(row["risk_flags"]) | {"SOURCE_LICENSE_CONFLICT"}
-        )
+        row["risk_flags"] = sorted(set(row["risk_flags"]) | {"SOURCE_LICENSE_CONFLICT"})
     content_texts: dict[str, str] = {}
     for file in _eligible_text_files(row["files"], config):
         try:
@@ -486,9 +480,7 @@ def _enrich_inventory_row(
                 "family_scores": family_scores,
             }
         )
-    file_texts = {
-        f"filename:{file['path']}": file["path"] for file in row["files"]
-    }
+    file_texts = {f"filename:{file['path']}": file["path"] for file in row["files"]}
     card_texts = (
         {"dataset_card": json.dumps(row["dataset_card"], sort_keys=True)}
         if row["dataset_card"]
@@ -510,16 +502,38 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
     scores = row["family_scores"]
     domain_families = {"pallas", "triton", "cuda", "cutlass", "cute"}
     has_domain = any(scores.get(family, 0) > 0 for family in domain_families)
-    benchmark = scores.get("benchmark", 0) > 0
+    tags = {str(tag).casefold() for tag in row.get("tags", [])}
+    card = row.get("dataset_card")
+    if isinstance(card, dict):
+        tags.update(str(tag).casefold() for tag in card.get("tags", []))
+    dataset_id = str(row.get("dataset_id", "")).casefold()
+    benchmark = (
+        scores.get("benchmark", 0) > 0
+        or bool(
+            tags
+            & {
+                "benchmark",
+                "benchmarks",
+                "evaluation",
+                "kernel-benchmark",
+                "kernelbench",
+                "pallasbench",
+                "llm-evaluation",
+            }
+        )
+        or any(
+            token in dataset_id for token in ("kernelbench", "pallasbench", "jaxbench")
+        )
+        or re.search(
+            r"(?:^|[-_/])(?:eval|evaluation|benchmark|bench|test)(?:$|[-_/])",
+            dataset_id,
+        )
+        is not None
+    )
     trace = scores.get("trace", 0) > 0
-    if benchmark:
-        category = "benchmark_or_evaluation"
-        candidate_objectives: list[str] = []
-        training_policy = "forbidden"
-        risk_flags = sorted(set(row["risk_flags"]) | {"BENCHMARK_CONTAMINATION"})
-    elif row["score"] < threshold or not has_domain:
+    if row["score"] < threshold or not has_domain:
         category = "irrelevant_or_ambiguous"
-        candidate_objectives = []
+        candidate_objectives: list[str] = []
         training_policy = "rejected"
         risk_flags = row["risk_flags"]
     elif scores.get("pallas", 0) >= max(
@@ -530,18 +544,21 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
     ):
         category = "pallas_domain"
         candidate_objectives = ["dapt_candidate"]
-        training_policy = "discovery_only"
         risk_flags = row["risk_flags"]
     elif trace:
         category = "kernel_agent_trace"
         candidate_objectives = ["dapt_candidate", "repair_candidate"]
-        training_policy = "discovery_only"
         risk_flags = row["risk_flags"]
     else:
         category = "cross_kernel_domain"
         candidate_objectives = ["dapt_candidate"]
-        training_policy = "discovery_only"
         risk_flags = row["risk_flags"]
+    if category != "irrelevant_or_ambiguous":
+        if benchmark and "repair_candidate" not in candidate_objectives:
+            candidate_objectives.append("repair_candidate")
+        training_policy = "forbidden" if benchmark else "discovery_only"
+        if benchmark:
+            risk_flags = sorted(set(risk_flags) | {"BENCHMARK_CONTAMINATION"})
     status = (
         "candidate"
         if training_policy in {"discovery_only", "forbidden"}
@@ -556,6 +573,8 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
         "score": row["score"],
         "family_scores": row["family_scores"],
         "category": category,
+        "source_role": ("benchmark_or_evaluation" if benchmark else "domain_source"),
+        "benchmark_or_evaluation": benchmark,
         "status": status,
         "training_policy": training_policy,
         "candidate_objectives": candidate_objectives,
@@ -569,8 +588,7 @@ def _classification(row: dict[str, Any], threshold: int) -> dict[str, Any]:
 
 def _detail_eligible(row: dict[str, Any], config: HubDiscoveryConfig) -> bool:
     return row["score"] >= config.detail_threshold and any(
-        row["family_scores"].get(family, 0) > 0
-        for family in KERNEL_SIGNAL_FAMILIES
+        row["family_scores"].get(family, 0) > 0 for family in KERNEL_SIGNAL_FAMILIES
     )
 
 
@@ -702,9 +720,7 @@ def _materialize_release(
         "decisions": inventory_count,
         "inspection_failures": sum(
             len(json.loads(row_json)["inspection_failures"])
-            for (row_json,) in connection.execute(
-                "SELECT row_json FROM inventory"
-            )
+            for (row_json,) in connection.execute("SELECT row_json FROM inventory")
         ),
         "detail_eligible": int(
             connection.execute(
@@ -774,7 +790,9 @@ def discover_hub_datasets(
     enumeration_marker = connection.execute(
         "SELECT value FROM metadata WHERE key = 'enumeration_complete'"
     ).fetchone()
-    enumeration_complete = enumeration_marker is not None and enumeration_marker[0] == "true"
+    enumeration_complete = (
+        enumeration_marker is not None and enumeration_marker[0] == "true"
+    )
     if not enumeration_complete:
         enriched_count = int(
             connection.execute(
@@ -962,9 +980,7 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
     for filename, expected_sha256 in artifacts.items():
         observed_sha256 = _sha256_file(root / filename)
         if observed_sha256 != expected_sha256:
-            raise HubDiscoveryError(
-                f"HUB_ARTIFACT_HASH_MISMATCH: {filename}"
-            )
+            raise HubDiscoveryError(f"HUB_ARTIFACT_HASH_MISMATCH: {filename}")
     inventory_count = 0
     candidate_count = 0
     inspection_failures = 0
@@ -983,9 +999,8 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
         if not isinstance(inventory, dict) or not isinstance(decision, dict):
             raise HubDiscoveryError("HUB_ROW_NOT_OBJECT")
         dataset_id = inventory.get("dataset_id")
-        if (
-            not isinstance(dataset_id, str)
-            or (previous_id is not None and dataset_id <= previous_id)
+        if not isinstance(dataset_id, str) or (
+            previous_id is not None and dataset_id <= previous_id
         ):
             raise HubDiscoveryError("HUB_INVENTORY_ORDER_INVALID")
         previous_id = dataset_id
@@ -1013,10 +1028,22 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
             for objective in objectives
         ):
             raise HubDiscoveryError("HUB_OBJECTIVE_ROUTE_INVALID")
-        if policy == "forbidden" and objectives:
-            raise HubDiscoveryError("HUB_FORBIDDEN_OBJECTIVE_LEAKAGE")
         if policy not in {"discovery_only", "forbidden", "rejected"}:
             raise HubDiscoveryError("HUB_TRAINING_POLICY_INVALID")
+        benchmark = decision.get("benchmark_or_evaluation")
+        source_role = decision.get("source_role")
+        if not isinstance(benchmark, bool) or source_role not in {
+            "benchmark_or_evaluation",
+            "domain_source",
+        }:
+            raise HubDiscoveryError("HUB_SOURCE_ROLE_INVALID")
+        if benchmark != (source_role == "benchmark_or_evaluation"):
+            raise HubDiscoveryError("HUB_SOURCE_ROLE_MISMATCH")
+        if policy == "forbidden" and (
+            not benchmark
+            or "BENCHMARK_CONTAMINATION" not in decision.get("risk_flags", [])
+        ):
+            raise HubDiscoveryError("HUB_BENCHMARK_POLICY_INVALID")
         if decision.get("status") == "candidate":
             if not _valid_revision(decision.get("source_revision")):
                 raise HubDiscoveryError("HUB_CANDIDATE_REVISION_UNPINNED")
@@ -1036,8 +1063,7 @@ def validate_hub_discovery_release(root: Path) -> dict[str, Any]:
         or expected_counts.get("candidates") != candidate_count
         or expected_counts.get("decisions") != inventory_count
         or expected_counts.get("inspection_failures") != inspection_failures
-        or expected_counts.get("categories")
-        != dict(sorted(category_counts.items()))
+        or expected_counts.get("categories") != dict(sorted(category_counts.items()))
         or expected_counts.get("detail_eligible")
         < expected_counts.get("detail_enriched", 0)
     ):

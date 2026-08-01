@@ -223,6 +223,28 @@ def _rows(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
 
 
+def test_unverified_source_is_preserved_only_under_explicit_quarantine(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    case = _case(
+        tmp_path,
+        monkeypatch,
+        source_overrides={
+            "license": "unverified",
+            "source_quarantine_reasons": ["SOURCE_LICENSE_UNVERIFIED"],
+        },
+    )
+    config = load_hub_curation_config(case["config_path"])
+    assert config.sources[0]["license"] == "unverified"
+
+    value = json.loads(case["config_path"].read_text(encoding="utf-8"))
+    value["sources"][0]["source_quarantine_reasons"] = []
+    case["config_path"].write_text(json.dumps(value), encoding="utf-8")
+    with pytest.raises(HubCurationError, match="HUB_ROW_LICENSE_AMBIGUOUS"):
+        load_hub_curation_config(case["config_path"])
+
+
 def _rehash_release(root: Path) -> None:
     manifest_path = root / "manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))

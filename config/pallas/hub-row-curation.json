@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "accepted_discovery_release_sha256": "442ac659d1cf45b7da9d85e7a37519265d3807b385665f08225a357810c1e63d",
+  "accepted_discovery_release_sha256": "47c122fbcc55de4646fabac5af5db11b22d99d885b771cabfd2143c7838ebcfc",
   "near_duplicate_threshold": 0.9,
   "benchmark_policy": "forbidden",
   "sources": [
@@ -78,6 +78,118 @@
       "required_kernel_signals": ["__global__", "cuda"],
       "max_rows": 200,
       "benchmark_source": false
+    },
+    {
+      "dataset_id": "EvanOLeary/pallasbench-robust-gpu-a100",
+      "revision": "d801619f66c291f13a8b49bec8856c5c15c36fa3",
+      "license": "apache-2.0",
+      "role": "pallas_code",
+      "objective": "repair_candidate",
+      "adapter": "parquet_records",
+      "paths": ["data/train-00000-of-00001.parquet"],
+      "content_field": "Pallas_Code",
+      "required_fields": [
+        "Op_Name",
+        "Task_ID",
+        "Pallas_Code",
+        "Correct",
+        "Target_Hardware",
+        "Backend"
+      ],
+      "provenance_fields": ["Op_Name", "Task_ID", "Target_Hardware", "Backend"],
+      "label_fields": ["Correct", "Status", "Max_Diff", "Target_Hardware", "Backend"],
+      "required_kernel_signals": ["pallas_call"],
+      "source_quarantine_reasons": [
+        "GPU_EXECUTION_NOT_TPU",
+        "TPU_REVERIFICATION_REQUIRED"
+      ],
+      "max_rows": 100,
+      "benchmark_source": true
+    },
+    {
+      "dataset_id": "EvanOLeary/pallasbench-robust",
+      "revision": "e3dcb8c520841deb153fbcf89825b85e3e393f6b",
+      "license": "apache-2.0",
+      "role": "pallas_code",
+      "objective": "repair_candidate",
+      "adapter": "jsonl_messages",
+      "paths": ["pallasbench_sakana_format.jsonl"],
+      "content_field": "Pallas_Code",
+      "required_fields": ["Op_Name", "Pallas_Code", "Correct"],
+      "provenance_fields": ["Op_Name", "Task_ID", "Target_Hardware", "Pallas_Backend"],
+      "label_fields": ["Correct", "Max_Diff", "Target_Hardware", "Pallas_Backend"],
+      "required_kernel_signals": ["pallas_call"],
+      "source_quarantine_reasons": [
+        "GPU_EXECUTION_NOT_TPU",
+        "TPU_REVERIFICATION_REQUIRED"
+      ],
+      "max_rows": 100,
+      "benchmark_source": true
+    },
+    {
+      "dataset_id": "EvanOLeary/pallasbench-archive",
+      "revision": "ebbc243c33f5f307c900cc18d7edcc75050514e0",
+      "license": "unverified",
+      "role": "pallas_code",
+      "objective": "repair_candidate",
+      "adapter": "parquet_records",
+      "paths": [
+        "data/level_1-00000-of-00001.parquet",
+        "data/level_2-00000-of-00001.parquet",
+        "data/level_3-00000-of-00001.parquet",
+        "data/level_4-00000-of-00001.parquet"
+      ],
+      "content_field": "Pallas_Code",
+      "required_fields": [
+        "Op_Name",
+        "Task_ID",
+        "Generation_Idx",
+        "Pallas_Code",
+        "Correct",
+        "Target_Hardware"
+      ],
+      "provenance_fields": ["Op_Name", "Task_ID", "Generation_Idx", "LLM_Model", "Target_Hardware"],
+      "label_fields": ["Correct", "Max_Diff", "Error", "Target_Hardware", "Pallas_Backend", "LLM_Model"],
+      "required_kernel_signals": ["pallas_call"],
+      "source_quarantine_reasons": [
+        "SOURCE_LICENSE_UNVERIFIED",
+        "INTERPRETER_OR_GPU_EVIDENCE_ONLY",
+        "TPU_REVERIFICATION_REQUIRED"
+      ],
+      "max_rows": 3000,
+      "benchmark_source": true
+    },
+    {
+      "dataset_id": "EvanOLeary/pallasbench-unified",
+      "revision": "b0c928c21101a96ddee17682d897b8897fa27740",
+      "license": "unverified",
+      "role": "pallas_code",
+      "objective": "repair_candidate",
+      "adapter": "parquet_records",
+      "paths": [
+        "data/level_1-00000-of-00001.parquet",
+        "data/level_2-00000-of-00001.parquet",
+        "data/level_3-00000-of-00001.parquet"
+      ],
+      "content_field": "Pallas_Code",
+      "required_fields": [
+        "Op_Name",
+        "Task_ID",
+        "Generation_Idx",
+        "Pallas_Code",
+        "Correct",
+        "Target_Hardware"
+      ],
+      "provenance_fields": ["Op_Name", "Task_ID", "Generation_Idx", "LLM_Model", "Target_Hardware"],
+      "label_fields": ["Correct", "Max_Diff", "Error", "Target_Hardware", "Pallas_Backend", "LLM_Model"],
+      "required_kernel_signals": ["pallas_call"],
+      "source_quarantine_reasons": [
+        "SOURCE_LICENSE_UNVERIFIED",
+        "INTERPRETER_OR_GPU_EVIDENCE_ONLY",
+        "TPU_REVERIFICATION_REQUIRED"
+      ],
+      "max_rows": 1500,
+      "benchmark_source": true
     }
   ]
 }

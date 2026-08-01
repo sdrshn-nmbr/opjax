@@ -34,6 +34,39 @@
       "allowlisted_paths": []
     },
     {
+      "id": "tokamax",
+      "kind": "git",
+      "url": "https://github.com/openxla/tokamax.git",
+      "revision": "b33bdfa64a78cc16193f3c77dd223bb040aeebf4",
+      "license": "Apache-2.0",
+      "roles": [
+        "production_pallas",
+        "dapt_candidate"
+      ],
+      "training_policy": "allowlisted_paths_only",
+      "allowlisted_paths": [
+        "tokamax/_src/ops",
+        "tokamax/_src/pallas",
+        "tokamax/_src/mosaic_tpu.py",
+        "tokamax/_src/mosaic_gpu.py"
+      ]
+    },
+    {
+      "id": "maxtext",
+      "kind": "git",
+      "url": "https://github.com/AI-Hypercomputer/maxtext.git",
+      "revision": "17c7172720ca813b05e5ea248dedd78a0c64612e",
+      "license": "Apache-2.0",
+      "roles": [
+        "production_pallas",
+        "dapt_candidate"
+      ],
+      "training_policy": "allowlisted_paths_only",
+      "allowlisted_paths": [
+        "src/maxtext/kernels"
+      ]
+    },
+    {
       "id": "pallasbench",
       "kind": "git",
       "url": "https://github.com/Tyronita/PallasBench.git",
