@@ -1025,6 +1025,7 @@ def build_corpus(
         shutil.copytree(
             Path(verification["_artifact_path"]).parent,
             out_dir / evidence_relative_path,
+            ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
         )
         verification["evidence_relative_path"] = evidence_relative_path.as_posix()
     dapt_rows = [
