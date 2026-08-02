@@ -372,6 +372,8 @@ def _binary_expression(operation: str) -> str:
         "multiply": "x_ref[...] * y_ref[...]",
         "subtract": "x_ref[...] - y_ref[...]",
         "maximum": "jnp.maximum(x_ref[...], y_ref[...])",
+        "minimum": "jnp.minimum(x_ref[...], y_ref[...])",
+        "safe_divide": "x_ref[...] / (jnp.abs(y_ref[...]) + 0.25)",
     }
     try:
         return expressions[operation]
@@ -385,6 +387,8 @@ def _unary_expression(operation: str) -> str:
         "tanh": "jnp.tanh(x_ref[...])",
         "sigmoid": "jax.nn.sigmoid(x_ref[...])",
         "square": "jnp.square(x_ref[...])",
+        "absolute": "jnp.abs(x_ref[...])",
+        "exp": "jnp.exp(x_ref[...])",
     }
     try:
         return expressions[operation]
@@ -418,6 +422,8 @@ def _render_sft_solution(group: dict[str, Any], variant: dict[str, Any]) -> str:
             expressions = {
                 "silu_gate": "jax.nn.silu(x_ref[...]) * gate_ref[...]",
                 "gelu_gate": "jax.nn.gelu(x_ref[...]) * gate_ref[...]",
+                "relu_gate": "jnp.maximum(x_ref[...], 0.0) * gate_ref[...]",
+                "tanh_gate": "jnp.tanh(x_ref[...]) * gate_ref[...]",
             }
             try:
                 expression = expressions[operation]
@@ -464,17 +470,46 @@ def workload({workload_args}):
                     "    variance = jnp.mean(jnp.square(values - mean), axis=-1, keepdims=True)\n"
                     "    o_ref[...] = (values - mean) * jax.lax.rsqrt(variance + 1e-5)"
                 )
+            elif operation == "l2norm":
+                body = (
+                    "    values = x_ref[...].astype(jnp.float32)\n"
+                    "    squared_norm = jnp.sum(jnp.square(values), axis=-1, keepdims=True)\n"
+                    "    inverse_norm = jax.lax.rsqrt(squared_norm + 1e-5)\n"
+                    "    o_ref[...] = values * inverse_norm"
+                )
             else:
                 raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
         elif kind == "softmax":
-            body = (
-                "    values = x_ref[...].astype(jnp.float32)\n"
-                "    maximum = jnp.max(values, axis=-1, keepdims=True)\n"
-                "    numerator = jnp.exp(values - maximum)\n"
-                "    o_ref[...] = numerator / jnp.sum(numerator, axis=-1, keepdims=True)"
-            )
+            if operation not in {"softmax", "log_softmax", "softmin"}:
+                raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
+            if operation == "softmax":
+                body = (
+                    "    values = x_ref[...].astype(jnp.float32)\n"
+                    "    maximum = jnp.max(values, axis=-1, keepdims=True)\n"
+                    "    numerator = jnp.exp(values - maximum)\n"
+                    "    o_ref[...] = numerator / jnp.sum(numerator, axis=-1, keepdims=True)"
+                )
+            else:
+                sign = "-" if operation == "softmin" else ""
+                final = (
+                    "jnp.log(numerator) - jnp.log(denominator)"
+                    if operation == "log_softmax"
+                    else "numerator / denominator"
+                )
+                body = (
+                    f"    values = {sign}x_ref[...].astype(jnp.float32)\n"
+                    "    maximum = jnp.max(values, axis=-1, keepdims=True)\n"
+                    "    numerator = jnp.exp(values - maximum)\n"
+                    "    denominator = jnp.sum(numerator, axis=-1, keepdims=True)\n"
+                    f"    o_ref[...] = {final}"
+                )
         else:
-            reducer = {"sum": "jnp.sum", "max": "jnp.max"}.get(operation)
+            reducer = {
+                "sum": "jnp.sum",
+                "max": "jnp.max",
+                "mean": "jnp.mean",
+                "min": "jnp.min",
+            }.get(operation)
             if reducer is None:
                 raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
             body = (
@@ -502,12 +537,19 @@ def workload(x):
     if kind == "transpose":
         if len(shape) != 2 or any(size % 128 for size in shape):
             raise CorpusError(f"SFT_TRANSPOSE_SHAPE_INVALID: {variant['id']}")
+        transpose_expression = {
+            "transpose": "jnp.transpose(x_ref[...])",
+            "transpose_square": "jnp.transpose(jnp.square(x_ref[...]))",
+            "transpose_abs": "jnp.transpose(jnp.abs(x_ref[...]))",
+        }.get(operation)
+        if transpose_expression is None:
+            raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
         return (
             header
             + f"""SHAPE = {tuple(shape)!r}
 
 def _kernel(x_ref, o_ref):
-    o_ref[...] = jnp.transpose(x_ref[...])
+    o_ref[...] = {transpose_expression}
 
 def workload(x):
     in_spec = pl.BlockSpec((128, 128), lambda i, j: (i, j))
@@ -525,14 +567,30 @@ def workload(x):
         if len(shape) != 3 or any(size % 128 for size in shape):
             raise CorpusError(f"SFT_MATMUL_SHAPE_INVALID: {variant['id']}")
         m, k, n = shape
+        if operation not in {"matmul", "matmul_relu", "matmul_square"}:
+            raise CorpusError(f"SFT_OPERATION_UNSUPPORTED: {operation}")
+        assignment = (
+            "    o_ref[...] = jnp.dot(\n"
+            "        x_ref[...], y_ref[...], preferred_element_type=jnp.float32\n"
+            "    )"
+        )
+        if operation != "matmul":
+            epilogue = {
+                "matmul_relu": "jnp.maximum(accumulator, 0.0)",
+                "matmul_square": "jnp.square(accumulator)",
+            }[operation]
+            assignment = (
+                "    accumulator = jnp.dot(\n"
+                "        x_ref[...], y_ref[...], preferred_element_type=jnp.float32\n"
+                "    )\n"
+                f"    o_ref[...] = {epilogue}"
+            )
         return (
             header
             + f"""M, K, N = {m}, {k}, {n}
 
 def _kernel(x_ref, y_ref, o_ref):
-    o_ref[...] = jnp.dot(
-        x_ref[...], y_ref[...], preferred_element_type=jnp.float32
-    )
+{assignment}
 
 def workload(x, y):
     x_spec = pl.BlockSpec((128, K), lambda i, j: (i, 0))
@@ -1267,6 +1325,10 @@ def _semantic_oracle(operation: str, *inputs: jax.Array) -> jax.Array:
         return x - inputs[1]
     if operation == "maximum":
         return jnp.maximum(x, inputs[1])
+    if operation == "minimum":
+        return jnp.minimum(x, inputs[1])
+    if operation == "safe_divide":
+        return x / (jnp.abs(inputs[1]) + 0.25)
     if operation == "relu":
         return jnp.maximum(x, 0.0)
     if operation == "tanh":
@@ -1275,6 +1337,10 @@ def _semantic_oracle(operation: str, *inputs: jax.Array) -> jax.Array:
         return jax.nn.sigmoid(x)
     if operation == "square":
         return jnp.square(x)
+    if operation == "absolute":
+        return jnp.abs(x)
+    if operation == "exp":
+        return jnp.exp(x)
     if operation == "rmsnorm":
         values = x.astype(jnp.float32)
         return values * jax.lax.rsqrt(
@@ -1285,21 +1351,50 @@ def _semantic_oracle(operation: str, *inputs: jax.Array) -> jax.Array:
         mean = jnp.mean(values, axis=-1, keepdims=True)
         variance = jnp.mean(jnp.square(values - mean), axis=-1, keepdims=True)
         return (values - mean) * jax.lax.rsqrt(variance + 1e-5)
+    if operation == "l2norm":
+        values = x.astype(jnp.float32)
+        return values * jax.lax.rsqrt(
+            jnp.sum(jnp.square(values), axis=-1, keepdims=True) + 1e-5
+        )
     if operation == "softmax":
         return jax.nn.softmax(x.astype(jnp.float32), axis=-1)
+    if operation == "log_softmax":
+        return jax.nn.log_softmax(x.astype(jnp.float32), axis=-1)
+    if operation == "softmin":
+        return jax.nn.softmax(-x.astype(jnp.float32), axis=-1)
     if operation == "transpose":
         return jnp.transpose(x)
+    if operation == "transpose_square":
+        return jnp.transpose(jnp.square(x))
+    if operation == "transpose_abs":
+        return jnp.transpose(jnp.abs(x))
     if operation == "matmul":
         return jnp.matmul(x, inputs[1], preferred_element_type=jnp.float32)
+    if operation == "matmul_relu":
+        values = jnp.matmul(x, inputs[1], preferred_element_type=jnp.float32)
+        return jnp.maximum(values, 0.0)
+    if operation == "matmul_square":
+        values = jnp.matmul(x, inputs[1], preferred_element_type=jnp.float32)
+        return jnp.square(values)
     if operation == "silu_gate":
         return jax.nn.silu(x) * inputs[1]
     if operation == "gelu_gate":
         return jax.nn.gelu(x) * inputs[1]
+    if operation == "relu_gate":
+        return jnp.maximum(x, 0.0) * inputs[1]
+    if operation == "tanh_gate":
+        return jnp.tanh(x) * inputs[1]
     if operation == "sum":
         reduced = jnp.sum(x, axis=-1, keepdims=True)
         return jnp.broadcast_to(reduced, x.shape)
     if operation == "max":
         reduced = jnp.max(x, axis=-1, keepdims=True)
+        return jnp.broadcast_to(reduced, x.shape)
+    if operation == "mean":
+        reduced = jnp.mean(x, axis=-1, keepdims=True)
+        return jnp.broadcast_to(reduced, x.shape)
+    if operation == "min":
+        reduced = jnp.min(x, axis=-1, keepdims=True)
         return jnp.broadcast_to(reduced, x.shape)
     raise CorpusError(f"ORACLE_OPERATION_UNSUPPORTED: {operation}")
 
