@@ -325,7 +325,7 @@ def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) ->
     observed = validate_sample_run(
         bundle=bundle,
         sample_run=sample_run,
-        model_id="thinkingmachines/Inkling",
+        model_id="thinkingmachines/Inkling-Small",
         arm="A",
         prompt_context=PromptContext.SPEC,
     )
@@ -338,7 +338,7 @@ def test_evaluation_binds_kernel_to_completed_sample_manifest(tmp_path: Path) ->
         validate_sample_run(
             bundle=bundle,
             sample_run=sample_run,
-            model_id="thinkingmachines/Inkling",
+            model_id="thinkingmachines/Inkling-Small",
             arm="A",
             prompt_context=PromptContext.SPEC,
         )

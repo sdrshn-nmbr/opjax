@@ -31,6 +31,19 @@ def test_repository_contract_is_valid_and_not_generalization_ready() -> None:
     assert len(report["contract_sha256"]) == 64
 
 
+def test_experiment_is_locked_to_inkling_small(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "experiment.json"
+    experiment = json.loads(path.read_text(encoding="utf-8"))
+    experiment["base_model"] = "thinkingmachines/Inkling"
+    for arm in experiment["arms"].values():
+        arm["start"] = "thinkingmachines/Inkling"
+    path.write_text(json.dumps(experiment), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="BASE_MODEL_INVALID"):
+        load_contracts(root)
+
+
 def test_public_benchmark_source_is_forbidden_from_training() -> None:
     bundle = load_contracts(CONFIG_ROOT)
     jaxbench = next(

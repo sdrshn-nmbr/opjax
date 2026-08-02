@@ -22,6 +22,7 @@ EXPECTED_ARMS = {
     "C": ["kernel_domain_adaptive_lora", "pallas_sft"],
     "D": ["kernel_domain_adaptive_lora"],
 }
+EXPECTED_BASE_MODEL = "thinkingmachines/Inkling-Small"
 
 
 class ContractError(ValueError):
@@ -216,9 +217,9 @@ def _validate_sources(value: dict[str, Any]) -> None:
 
 def _validate_experiment(value: dict[str, Any]) -> None:
     _require(
-        value.get("base_model") == "thinkingmachines/Inkling",
+        value.get("base_model") == EXPECTED_BASE_MODEL,
         "BASE_MODEL_INVALID",
-        "base",
+        repr(value.get("base_model")),
     )
     target = value.get("target", {})
     _require(target.get("accelerator") == "tpu", "TARGET_INVALID", "accelerator")

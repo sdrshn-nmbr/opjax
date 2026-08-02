@@ -3182,8 +3182,8 @@ requires-dist = [
 [package.metadata.requires-dev]
 dev = [{ name = "pytest", specifier = "==9.0.3" }]
 tinker = [
-    { name = "tinker", specifier = "==0.23.0" },
-    { name = "tinker-cookbook", extras = ["inkling"], specifier = "==0.5.2" },
+    { name = "tinker", specifier = "==0.24.0" },
+    { name = "tinker-cookbook", extras = ["inkling"], specifier = "==0.5.3" },
 ]
 tpu = [{ name = "google-tunix", editable = "references/tunix" }]
 
@@ -4801,7 +4801,7 @@ wheels = [
 
 [[package]]
 name = "tinker"
-version = "0.23.0"
+version = "0.24.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "anyio" },
@@ -4819,14 +4819,14 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "zstandard" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/33/ce/0d30f80d7234ea88e8310b91d4ef58e9d27a96be5c579553407f831bba6b/tinker-0.23.0.tar.gz", hash = "sha256:b48f3e74128e56ad34bee18124f9b3a109a502bfa602853e999679eaf128aa49", size = 247551, upload-time = "2026-07-15T17:16:40.621Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/51/de/971aee9a8dc5257b99f097c6384961d405455fc8d1804c99bf8db438c921/tinker-0.24.0.tar.gz", hash = "sha256:78ce15620078e8b9e19db29df93f675adf864dea9959e5fd836dd46f86baecfe", size = 259515, upload-time = "2026-07-29T03:07:53.012Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/bb/a6/17932357c145c6dbe988832613b36bc7630a661148e17db1f6017ddca01a/tinker-0.23.0-py3-none-any.whl", hash = "sha256:416a20f2cc62fc83cc92c5b69de7f6aa8736bceee0156fda07fbe2fef1b00936", size = 237099, upload-time = "2026-07-15T17:16:39.183Z" },
+    { url = "https://files.pythonhosted.org/packages/0a/d8/56b8997df0f2e28e7efd81032e32bcc7c6411c6c19ba1c8a87e8c4a7d9f7/tinker-0.24.0-py3-none-any.whl", hash = "sha256:0b535ad393a04f8d22024c7e04d8d81094ffb9d78f6ea4446d0a3afb286e3be0", size = 249174, upload-time = "2026-07-29T03:07:54.308Z" },
 ]
 
 [[package]]
 name = "tinker-cookbook"
-version = "0.5.2"
+version = "0.5.3"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp" },
@@ -4848,9 +4848,9 @@ dependencies = [
     { name = "tqdm" },
     { name = "transformers", version = "4.57.6", source = { registry = "https://pypi.org/simple" } },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1f/a9/586de1daa657aa2d1087e4fa1173524bc93c5a11d598e35e0355233297a0/tinker_cookbook-0.5.2.tar.gz", hash = "sha256:f4e2cc465d072385c68cb25baff2883fcc2ffe89157d2d7329768e88e4cd06a0", size = 4723636, upload-time = "2026-07-15T18:50:25.351Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/15/49/41bcdb36098ec0bb3c9428445b9cc1d46758d4c749defb76a1ef627365b9/tinker_cookbook-0.5.3.tar.gz", hash = "sha256:d66d32b12c4c07de1ab1cd09cac8f86c8788e6b88882f4de9282a8eed4f9f1b3", size = 4821854, upload-time = "2026-07-30T17:38:19.473Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/eb/d8/12ebe2d7fac3835a8bc2d1c23b59b026e7e1389ced92aadf0fcdf746620d/tinker_cookbook-0.5.2-py3-none-any.whl", hash = "sha256:42554513b8c7a4fe5b124e680345a8883e82eff90345658d4e009f0866654dfa", size = 1042439, upload-time = "2026-07-15T18:50:23.51Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/90/5ff7212eff07a962facd5e7ea66262e6ef6397a84474d13692e9fd926c4d/tinker_cookbook-0.5.3-py3-none-any.whl", hash = "sha256:40c54b741ffe6af2387ca0797b3261ba8019b507d1c6c17064a50359772ec3ac", size = 1110902, upload-time = "2026-07-30T17:38:17.43Z" },
 ]
 
 [package.optional-dependencies]

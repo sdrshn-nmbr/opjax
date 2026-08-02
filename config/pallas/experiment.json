@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "experiment_id": "pallas-v1-v5e",
-  "base_model": "thinkingmachines/Inkling",
+  "experiment_id": "pallas-v2-inkling-small-v5e",
+  "base_model": "thinkingmachines/Inkling-Small",
   "target": {
     "accelerator": "tpu",
     "hardware": "v5e",
@@ -40,17 +40,17 @@
   },
   "arms": {
     "A": {
-      "start": "thinkingmachines/Inkling",
+      "start": "thinkingmachines/Inkling-Small",
       "objectives": []
     },
     "B": {
-      "start": "thinkingmachines/Inkling",
+      "start": "thinkingmachines/Inkling-Small",
       "objectives": [
         "pallas_sft"
       ]
     },
     "C": {
-      "start": "thinkingmachines/Inkling",
+      "start": "thinkingmachines/Inkling-Small",
       "objectives": [
         "kernel_domain_adaptive_lora",
         "pallas_sft"
@@ -58,7 +58,7 @@
     },
     "D": {
       "diagnostic_only": true,
-      "start": "thinkingmachines/Inkling",
+      "start": "thinkingmachines/Inkling-Small",
       "objectives": [
         "kernel_domain_adaptive_lora"
       ]
