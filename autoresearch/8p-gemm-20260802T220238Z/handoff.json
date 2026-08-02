@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "mode": "classic",
+  "status": "PLATEAU",
+  "goal": "Maximize stable baseline_time_ms / candidate_time_ms for pinned JAXBench 8p_GEMM on TPU v5e.",
+  "iterations_completed": 25,
+  "iterations_bound": 25,
+  "outcomes": {
+    "correct": 15,
+    "vmem_resource_exhausted": 10
+  },
+  "incumbent": {
+    "iteration": 16,
+    "candidate": "candidates/iter_016_bm1024_bn1024_bk512.py",
+    "candidate_sha256": "753fe8627a0abad44ba7e2abcb8a77a09721229e30f32b75813ae45851feb324",
+    "parameters": {
+      "bm": 1024,
+      "bn": 1024,
+      "bk": 512
+    },
+    "baseline_median_ms": 20.5212,
+    "candidate_median_ms": 20.5344,
+    "speedup": 0.9993571762505843,
+    "baseline_cv": 1.3973047862657017e-05,
+    "candidate_cv": 1.0006629519838957e-05,
+    "correct": true,
+    "stable": true,
+    "device_profiler": true,
+    "normal_lowering_verified": true,
+    "stablehlo_tpu_custom_call": 1,
+    "executable_hlo_tpu_custom_call": 1,
+    "profiled_tpu_executions": 3
+  },
+  "historical_comparison": {
+    "prior_seed_0_speedup": 0.4798823292815819,
+    "metric_multiplier": 2.0825249273450654
+  },
+  "runtime": {
+    "python": "3.10.12",
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "chex": "0.1.90",
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "device": "TPU v5 lite",
+    "topology": "v5litepod-1",
+    "zone": "us-west4-a"
+  },
+  "pinned_jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+  "eligibility": {
+    "correct": true,
+    "normal_lowering": true,
+    "interpret_absent": true,
+    "stablehlo_marker": true,
+    "executable_hlo_marker": true,
+    "profiler_evidence": true,
+    "timing_cv_policy": true,
+    "faster_than_baseline": false,
+    "score": 0.9993571762505843
+  },
+  "artifacts": {
+    "ledger": "results.tsv",
+    "final_timing": "final_proof/summary.json",
+    "lowering_validation": "lowering_proof/validation.json",
+    "candidate_evidence": "lowering_proof/candidate/candidate.json",
+    "stablehlo": "lowering_proof/candidate/candidate/stablehlo.mlir",
+    "executable_hlo": "lowering_proof/candidate/candidate/executable.hlo.txt",
+    "raw_runs": "raw",
+    "invalidated_retry_collision": "invalidated_final_proof_retry_collision"
+  },
+  "artifact_sha256": {
+    "ledger": "7ffdc26a389bb12ffad0637bb60c5ba415db4332922704922b696e23322666a2",
+    "final_timing": "4cc08da471c0187a700d391f4a299e5dbd4ec3fad561ac12204fbfd0c6ea314e",
+    "lowering_validation": "d358182fd8d693a2cbaa323d9e5ec0ed2f26b5d3f18763d669798575e594af3e",
+    "calibration": "12202d8ee0affb81f2e72beb1ed54701dfacd7662a2b2ccde3c34d6a04a6efdc",
+    "candidate_evidence": "a219711fd74461b367fa527de91ae31f33104b50dc77d36979f5f24e7323485a"
+  },
+  "provenance": {
+    "reference_inspected": true,
+    "purpose": "diagnostic upper bound",
+    "training_policy": "forbidden",
+    "model_evaluation_policy": "forbidden",
+    "publication": "not_published"
+  },
+  "evidence_integrity": {
+    "final_proof_launcher": "run_proof_once.sh",
+    "lock_protected": true,
+    "launcher_exit_code": 0,
+    "invalidated_attempt_preserved": true,
+    "invalidated_reason": "An automatic SSH retry overwrote raw run files while another process owned libtpu; the proof was rerun in a fresh lock-protected directory."
+  },
+  "cleanup": {
+    "tpu_name": "opjax-ar8p-0802-220238",
+    "deleted": true,
+    "zone_inventory_empty": true
+  },
+  "conclusion": "Best-found on this pinned harness is stable near parity with XLA, not a speedup and not a global SOTA claim."
+}

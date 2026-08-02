@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "workload": "8p_GEMM",
+  "jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+  "candidate": "/home/sudarshan/rootverify/iter_016_bm1024_bn1024_bk512.py",
+  "candidate_sha256": "753fe8627a0abad44ba7e2abcb8a77a09721229e30f32b75813ae45851feb324",
+  "runtime": {
+    "python": "3.10.12",
+    "platform": "Linux-5.19.0-1030-gcp-x86_64-with-glibc2.35",
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "chex": "0.1.90",
+    "devices": [
+      "TPU_0(process=0,(0,0,0,0))"
+    ]
+  },
+  "runs": 3,
+  "correct": true,
+  "device_profiler": true,
+  "baseline_samples_ms": [
+    20.5208,
+    20.5205,
+    20.521
+  ],
+  "candidate_samples_ms": [
+    20.5349,
+    20.5342,
+    20.534
+  ],
+  "baseline_cv": 1.0013293855169018e-05,
+  "candidate_cv": 1.8790997373204192e-05,
+  "stable": true,
+  "baseline_median_ms": 20.5208,
+  "candidate_median_ms": 20.5342,
+  "speedup": 0.9993474301409357,
+  "eligible_timing": true
+}

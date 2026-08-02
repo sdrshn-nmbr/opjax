@@ -1,0 +1,22 @@
+{
+  "calibration_sha256": "12202d8ee0affb81f2e72beb1ed54701dfacd7662a2b2ccde3c34d6a04a6efdc",
+  "candidate_sha256": "a219711fd74461b367fa527de91ae31f33104b50dc77d36979f5f24e7323485a",
+  "kernel_sha256": "753fe8627a0abad44ba7e2abcb8a77a09721229e30f32b75813ae45851feb324",
+  "reasons": [],
+  "runtime": {
+    "backend": "tpu",
+    "chex": "0.1.90",
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "process_count": 1,
+    "process_index": 0,
+    "python": "3.10.12"
+  },
+  "verified": true
+}

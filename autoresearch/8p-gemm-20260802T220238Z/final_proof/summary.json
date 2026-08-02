@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "workload": "8p_GEMM",
+  "jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+  "candidate": "/home/sudarshan/ar8p/8p-gemm-20260802T220238Z/candidates/iter_016_bm1024_bn1024_bk512.py",
+  "candidate_sha256": "753fe8627a0abad44ba7e2abcb8a77a09721229e30f32b75813ae45851feb324",
+  "runtime": {
+    "python": "3.10.12",
+    "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "chex": "0.1.90",
+    "devices": [
+      "TPU_0(process=0,(0,0,0,0))"
+    ]
+  },
+  "runs": 3,
+  "correct": true,
+  "device_profiler": true,
+  "baseline_samples_ms": [
+    20.5216,
+    20.5209,
+    20.5212
+  ],
+  "candidate_samples_ms": [
+    20.5342,
+    20.5347,
+    20.5344
+  ],
+  "baseline_cv": 1.3973047862657017e-05,
+  "candidate_cv": 1.0006629519838957e-05,
+  "stable": true,
+  "baseline_median_ms": 20.5212,
+  "candidate_median_ms": 20.5344,
+  "speedup": 0.9993571762505843,
+  "eligible_timing": true
+}

@@ -1,0 +1,42 @@
+2026-08-02 22:15:47.348672: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:15:47.770501: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:15:48.779124: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:15:49.222055: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:01.056912: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:01.477274: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:02.695917: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:03.118754: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:15.001956: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:15.423415: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:16.632215: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:17.056430: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:29.340368: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:29.761641: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:31.253816: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+2026-08-02 22:16:31.675111: E external/xla/xla/python/profiler/internal/python_hooks.cc:412] Can't import tensorflow.python.profiler.trace
+https://symbolize.stripped_domain/r/?trace=7f427d63e45c,7f42cca4251f,7f427d5b7184,7f427d63ecd0,7f427d63f0d0,7f427a8f87e6,7f4274866249,7f427358863b,7f4273588278,7f42712a42a6,7f42712a460d,7f42712392d9,7f42814bddfc,7f42814b02d5,7f42814b03ed,7f42894882c6,7f4280e060d6,7f4287b6025d,7f428945ad93,7f42cd12b809&map= 
+*** SIGTERM received by PID 10291 (TID 10291) on cpu 10 from PID 11343; stack trace: ***
+PC: @     0x7f427d63e45c  (unknown)  (unknown)
+    @     0x7f427d5b47e5       1904  (unknown)
+    @     0x7f42cca42520  732098176  (unknown)
+    @     0x7f427d5b7185         64  (unknown)
+    @     0x7f427d63ecd1         64  (unknown)
+    @     0x7f427d63f0d1        128  (unknown)
+    @     0x7f427a8f87e7        192  (unknown)
+    @     0x7f427486624a         96  (unknown)
+    @     0x7f427358863c         80  (unknown)
+    @     0x7f4273588279         48  (unknown)
+    @     0x7f42712a42a7         64  (unknown)
+    @     0x7f42712a460e         32  (unknown)
+    @     0x7f42712392da         32  (unknown)
+    @     0x7f42814bddfd         64  std::_Function_handler<>::_M_invoke()
+    @     0x7f42814b02d6         80  xla::PjRtCApiClient::~PjRtCApiClient()
+    @     0x7f42814b03ee         32  xla::PjRtCApiClient::~PjRtCApiClient()
+    @     0x7f42894882c7         80  xla::ifrt::PjRtClient::~PjRtClient()
+    @     0x7f4280e060d7         32  std::_Sp_counted_deleter<>::_M_dispose()
+    @     0x7f4287b6025e         80  xla::PyClient::~PyClient()
+    @     0x7f428945ad94         96  nanobind::detail::inst_dealloc()
+    @     0x7f42cd12b80a  (unknown)  gc_collect_main
+https://symbolize.stripped_domain/r/?trace=7f427d63e45c,7f427d5b47e4,7f42cca4251f,7f427d5b7184,7f427d63ecd0,7f427d63f0d0,7f427a8f87e6,7f4274866249,7f427358863b,7f4273588278,7f42712a42a6,7f42712a460d,7f42712392d9,7f42814bddfc,7f42814b02d5,7f42814b03ed,7f42894882c6,7f4280e060d6,7f4287b6025d,7f428945ad93,7f42cd12b809&map= 
+E0802 22:17:21.537667   10291 coredump_hook.cc:247] RAW: Remote crash gathering disabled for SIGTERM.
+E0802 22:17:21.570550   10291 process_state.cc:808] RAW: Raising signal 15 with default behavior

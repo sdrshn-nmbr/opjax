@@ -1,0 +1,14 @@
+HloModule jit__interpreted_pallas_control, is_scheduled=true, entry_computation_layout={(bf16[128,128]{1,0:T(8,128)(2,1)})->bf16[128,128]{1,0:T(8,128)(2,1)}}, allow_spmd_sharding_propagation_to_parameters={true}, allow_spmd_sharding_propagation_to_output={true}
+
+%fused_computation (param_0: bf16[128,128]) -> bf16[128,128] {
+  %param_0 = bf16[128,128]{1,0:T(8,128)(2,1)} parameter(0)
+  %constant.8 = bf16[]{:T(256)} constant(1)
+  %broadcast.1 = bf16[128,128]{1,0:T(8,128)(2,1)} broadcast(%constant.8), dimensions={}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"output_chunk_bound_config":{"output_chunk_bound":[]}}
+  ROOT %add.10 = bf16[128,128]{1,0:T(8,128)(2,1)} add(%param_0, %broadcast.1), metadata={op_name="jit(_interpreted_pallas_control)/jit(main)/while/body/add" source_file="/home/sudarshan/ar8p/opjax/src/opjax/pallas/lowering.py" source_line=98}
+}
+
+ENTRY %main.80 (Arg_0.1: bf16[128,128]) -> bf16[128,128] {
+  %Arg_0.1 = bf16[128,128]{1,0:T(8,128)(2,1)} parameter(0), metadata={op_name="x"}
+  ROOT %broadcast_add_fusion = bf16[128,128]{1,0:T(8,128)(2,1)} fusion(%Arg_0.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(_interpreted_pallas_control)/jit(main)/while/body/add" source_file="/home/sudarshan/ar8p/opjax/src/opjax/pallas/lowering.py" source_line=98}, backend_config={"flag_configs":[],"window_config":{"kernel_window_bounds":[],"output_window_bounds":["16","1"],"input_window_bounds":[],"estimated_cycles":"2098","iteration_bounds":["1","1"]},"scoped_memory_configs":[],"used_scoped_memory_configs":[{"memory_space":"1","offset":"0","size":"65536"}],"retry_config":{"retry_count":"0"}}
+}
+

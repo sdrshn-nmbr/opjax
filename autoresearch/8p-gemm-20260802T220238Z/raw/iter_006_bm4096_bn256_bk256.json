@@ -1,0 +1,39 @@
+{
+  "workload": "8p_GEMM",
+  "status": "correct",
+  "tpu": "v5e",
+  "config": {
+    "name": "gemm_llama70b",
+    "model": "Llama-3.1-70B",
+    "operator": "dense_matmul",
+    "M": 8192,
+    "K": 8192,
+    "N": 28672
+  },
+  "correctness": {
+    "correct": true,
+    "max_diff": 0.03125,
+    "reason": "ok"
+  },
+  "baseline": {
+    "median_ms": 20.5215,
+    "mean_ms": 20.5214,
+    "std_ms": 0.001,
+    "min_ms": 20.5187,
+    "timing_method": "device_profiler",
+    "tflops": 187.52,
+    "utilization_pct": 95.2
+  },
+  "kernel": {
+    "median_ms": 23.9594,
+    "mean_ms": 23.9597,
+    "std_ms": 0.0041,
+    "min_ms": 23.9531,
+    "timing_method": "device_profiler",
+    "tflops": 160.62,
+    "utilization_pct": 81.5
+  },
+  "speedup_vs_baseline": 0.86,
+  "pallas_reference": null,
+  "speedup_vs_pallas": null
+}

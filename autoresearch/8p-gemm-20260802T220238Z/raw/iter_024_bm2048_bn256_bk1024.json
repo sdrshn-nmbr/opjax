@@ -1,0 +1,15 @@
+{
+  "workload": "8p_GEMM",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "gemm_llama70b",
+    "model": "Llama-3.1-70B",
+    "operator": "dense_matmul",
+    "M": 8192,
+    "K": 8192,
+    "N": 28672
+  },
+  "error": "RESOURCE_EXHAUSTED: Ran out of memory in memory space vmem while allocating on stack for %workload.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} custom-call(%Arg_0.1, %Arg_1.2), custom_call_target=\"tpu_custom_call\", operand_layout_constraints={bf16[8192,8192]{1,0}, bf16[8192,28672]{1,0}}, metadata={op_nam",
+  "traceback": "(%Arg_0.1, %Arg_1.2), custom_call_target=\"tpu_custom_call\", operand_layout_constraints={bf16[8192,8192]{1,0}, bf16[8192,28672]{1,0}}, metadata={op_name=\"jit(workload)/jit(main)/jit(workload)/pallas_call\" source_file=\"/home/sudarshan/ar8p/8p-gemm-20260802T220238Z/candidates/iter_024_bm2048_bn256_bk1024.py\" source_line=30}. Scoped allocation with size 16.99M and limit 16.00M exceeded scoped vmem limit by 1016.0K. It should not be possible to run out of scoped vmem - please file a bug against XLA.\n"
+}

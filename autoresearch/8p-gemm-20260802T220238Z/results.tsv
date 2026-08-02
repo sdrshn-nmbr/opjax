@@ -1,0 +1,26 @@
+iteration	candidate	bm	bn	bk	correct	compiled	stablehlo_tpu_custom_call	executable_hlo_tpu_custom_call	profiler	baseline_ms	candidate_ms	speedup	baseline_cv	candidate_cv	decision	reason
+000	candidates/iter_000_bm128_bn128_bk128.py	128	128	128	true	true	not_captured	not_captured	true	20.5213	317.8915	0.06455441557890035	6.822146637169004e-05	6.857733179443285e-05	DISCARD	slower_than_incumbent
+001	candidates/iter_001_bm2048_bn1024_bk256.py	2048	1024	256	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+002	candidates/iter_002_bm2048_bn512_bk1024.py	2048	512	1024	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+003	candidates/iter_003_bm4096_bn256_bk512.py	4096	256	512	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+004	candidates/iter_004_bm512_bn512_bk256.py	512	512	256	true	true	not_captured	not_captured	true	20.5214	30.7522	0.6673148587743316	6.822179881391529e-05	0.00014308245126254005	DISCARD	slower_than_incumbent
+005	candidates/iter_005_bm4096_bn128_bk512.py	4096	128	512	true	true	not_captured	not_captured	true	20.5216	41.863	0.49020853737190356	6.334881318434991e-05	4.0608749035542204e-05	DISCARD	slower_than_incumbent
+006	candidates/iter_006_bm4096_bn256_bk256.py	4096	256	256	true	true	not_captured	not_captured	true	20.5215	23.9594	0.8565114318388608	4.872961883692146e-05	0.00017112067346419197	DISCARD	slower_than_incumbent
+007	candidates/iter_007_bm512_bn1024_bk256.py	512	1024	256	true	true	not_captured	not_captured	true	20.5211	23.4049	0.876786484881371	6.335035671123932e-05	0.00011535996581926939	DISCARD	slower_than_incumbent
+008	candidates/iter_008_bm1024_bn512_bk256.py	1024	512	256	true	true	not_captured	not_captured	true	20.5211	23.7143	0.8653470690680306	5.8476397464073556e-05	0.00010963710119504439	DISCARD	slower_than_incumbent
+009	candidates/iter_009_bm1024_bn1024_bk256.py	1024	1024	256	true	true	not_captured	not_captured	true	20.5214	21.2735	0.9646461560157004	4.872985629565378e-05	0.00011751544152901691	DISCARD	slower_than_incumbent
+010	candidates/iter_010_bm1024_bn1024_bk512_first_dot.py	1024	1024	512	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+011	candidates/iter_011_bm2048_bn256_bk256.py	2048	256	256	true	true	not_captured	not_captured	true	20.521	27.9581	0.7339912225795029	5.360414798643328e-05	0.00011803714951014582	DISCARD	slower_than_incumbent
+012	candidates/iter_012_bm512_bn1024_bk512.py	512	1024	512	true	true	not_captured	not_captured	true	20.5215	21.6389	0.9483615156038431	5.3602580720613604e-05	6.007671334165165e-05	DISCARD	slower_than_incumbent
+013	candidates/iter_013_bm1024_bn1024_bk512_final_store.py	1024	1024	512	true	true	not_captured	not_captured	true	20.5215	20.6538	0.9935943990936292	6.334943058607968e-05	5.3259222318519205e-05	DISCARD	slower_than_incumbent
+014	candidates/iter_014_bm512_bn1024_bk1024.py	512	1024	1024	true	true	not_captured	not_captured	true	20.521	20.6417	0.9941526133990902	6.822246370808582e-05	4.360148245040331e-05	DISCARD	slower_than_incumbent
+015	candidates/iter_015_bm1024_bn512_bk1024.py	1024	512	1024	true	true	not_captured	not_captured	true	20.5214	20.6643	0.9930846919566595	6.334819579465438e-05	0.00010646431993495998	DISCARD	slower_than_incumbent
+016	candidates/iter_016_bm1024_bn1024_bk512.py	1024	1024	512	true	true	1	1	true	20.5212	20.5344	0.9993571762505843	1.3973047862657017e-05	1.0006629519838957e-05	KEEP	incumbent_final_verified_near_parity
+017	candidates/iter_017_bm1024_bn1024_bk1024.py	1024	1024	1024	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+018	candidates/iter_018_bm512_bn2048_bk512.py	512	2048	512	true	true	not_captured	not_captured	true	20.5211	20.6748	0.9925658289318396	8.284196676575214e-05	6.287908834995598e-05	DISCARD	slower_than_incumbent
+019	candidates/iter_019_bm512_bn2048_bk1024.py	512	2048	1024	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+020	candidates/iter_020_bm1024_bn1792_bk256.py	1024	1792	256	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+021	candidates/iter_021_bm1024_bn2048_bk512.py	1024	2048	512	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+022	candidates/iter_022_bm2048_bn512_bk512.py	2048	512	512	true	true	not_captured	not_captured	true	20.5214	20.6499	0.9937772095748648	5.8476397464073556e-05	5.3269539024780026e-05	DISCARD	slower_than_incumbent
+023	candidates/iter_023_bm2048_bn896_bk256.py	2048	896	256	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED
+024	candidates/iter_024_bm2048_bn256_bk1024.py	2048	256	1024	false	false	not_captured	not_captured	false						DISCARD	VMEM_RESOURCE_EXHAUSTED

@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "mode": "classic",
+  "workload": "8p_GEMM",
+  "pinned_jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+  "metric": "baseline_time_ms / candidate_time_ms",
+  "iterations_bound": 25,
+  "eligibility": {
+    "correct": true,
+    "normal_lowering": true,
+    "interpret_absent": true,
+    "stablehlo_marker": "tpu_custom_call",
+    "executable_hlo_marker": "tpu_custom_call",
+    "profiler_required": true,
+    "max_timing_cv": 0.1
+  },
+  "target": {
+    "project": "astral-medley-465922-b2",
+    "zone": "us-west4-a",
+    "accelerator": "v5litepod-1",
+    "tpu_name": "opjax-ar8p-0802-220238"
+  },
+  "provenance": "Upper-bound diagnostic: official optimized reference and current Pallas APIs may be inspected. Result is forbidden from training and model evaluation."
+}

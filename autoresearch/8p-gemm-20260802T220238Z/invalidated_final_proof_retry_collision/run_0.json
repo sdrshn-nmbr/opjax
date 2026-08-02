@@ -1,0 +1,15 @@
+{
+  "workload": "8p_GEMM",
+  "status": "error",
+  "tpu": "v5e",
+  "config": {
+    "name": "gemm_llama70b",
+    "model": "Llama-3.1-70B",
+    "operator": "dense_matmul",
+    "M": 8192,
+    "K": 8192,
+    "N": 28672
+  },
+  "error": "Unable to initialize backend 'tpu': ABORTED: The TPU is already in use by process with pid 16983. Not attempting to load libtpu.so in this process. (set JAX_PLATFORMS='' to automatically choose an available backend)",
+  "traceback": "b/python3.10/site-packages/jax/_src/core.py\", line 1066, in process_primitive\n    return primitive.impl(*args, **params)\n  File \"/home/sudarshan/ar8p/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/dispatch.py\", line 91, in apply_primitive\n    outs = fun(*args)\nRuntimeError: Unable to initialize backend 'tpu': ABORTED: The TPU is already in use by process with pid 16983. Not attempting to load libtpu.so in this process. (set JAX_PLATFORMS='' to automatically choose an available backend)\n"
+}
