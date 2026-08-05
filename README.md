@@ -4,6 +4,67 @@ Palinkle is an evidence-first effort to train Inkling Small to write correct,
 real [JAX Pallas](https://docs.jax.dev/en/latest/pallas/index.html) kernels for
 TPUs.
 
+Palinkle combines **Pallas** with **Inkling**, the model family used for the
+current training experiments.
+
+## Sources and references
+
+The project pins code and data sources by revision in
+[`config/pallas/sources.json`](config/pallas/sources.json). The links below
+state each source's role; inclusion here does not mean it is allowed in
+training.
+
+### Models
+
+- **Inkling:** [release](https://thinkingmachines.ai/news/introducing-inkling/),
+  [official model card](https://thinkingmachines.ai/model-card/inkling/), and
+  [weights](https://huggingface.co/thinkingmachines/Inkling). This was the
+  original base model and remains a historical comparison.
+- **Inkling Small:**
+  [release](https://thinkingmachines.ai/news/inkling-small/),
+  [official model card](https://thinkingmachines.ai/model-card/inkling-small/),
+  and [weights](https://huggingface.co/thinkingmachines/Inkling-Small). This is
+  the active base model.
+
+### Pallas code and training-source candidates
+
+- **JAX and Pallas:** the
+  [Pallas documentation](https://docs.jax.dev/en/latest/pallas/index.html) and
+  [pinned JAX source](https://github.com/jax-ml/jax/tree/aaf50c6a71d3bde4188c1836323f3a0ae9cb9e7f).
+  Only allowlisted Pallas documentation, implementation, and test paths may
+  enter the governed corpus.
+- **Tokamax:**
+  [pinned repository](https://github.com/openxla/tokamax/tree/b33bdfa64a78cc16193f3c77dd223bb040aeebf4),
+  used for allowlisted production Pallas and Mosaic kernel candidates.
+- **MaxText:**
+  [pinned kernel tree](https://github.com/AI-Hypercomputer/maxtext/tree/17c7172720ca813b05e5ea248dedd78a0c64612e/src/maxtext/kernels),
+  used for allowlisted production kernel candidates.
+- **Hugging Face kernel sources:** the governed Hub discovery and admission
+  pipeline records row-level licenses, repository revisions, duplicate checks,
+  and split assignments. The final broad-kernel DAPT release spans 95 source
+  repositories; its
+  [manifest](data/pallas/runs/g3-hub-dapt-admission/manifest.json), rather than
+  a search result page, defines membership.
+
+### Evaluation and discovery-only sources
+
+- **JAXBench:**
+  [pinned benchmark](https://github.com/AI-Hypercomputer/accelerator-agents/tree/6b6c44293c43976032ba12d2f72d6bebeaf2394f/JAXBench),
+  held out for public evaluation. Its implementations are forbidden in
+  training.
+- **PallasBench:**
+  [pinned repository](https://github.com/Tyronita/PallasBench/tree/30a6ee07fd4923f3877906a94002d994e972d6fe)
+  and the
+  [unified Hugging Face dataset](https://huggingface.co/datasets/EvanOLeary/pallasbench-unified/tree/b0c928c21101a96ddee17682d897b8897fa27740).
+  These are benchmark, mining, and discovery evidence—not training sources.
+
+The agent harness also builds on
+[DeepSWE](https://github.com/datacurve-ai/deep-swe),
+[mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent),
+[Chex](https://github.com/google-deepmind/chex), and
+[Tinker](https://tinker-docs.thinkingmachines.ai/). These are implementation
+references, not corpus rows.
+
 The project is deliberately narrow. A generated program only counts when it:
 
 1. satisfies an independently defined numerical specification;
@@ -12,9 +73,6 @@ The project is deliberately narrow. A generated program only counts when it:
 4. runs safely at the declared full shape;
 5. leaves compiler and profiler evidence; and
 6. is compared with XLA only after correctness is established.
-
-Palinkle combines **Pallas** with **Inkling**, the model family used for the
-current training experiments.
 
 ## Current result
 
