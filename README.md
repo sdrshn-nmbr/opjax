@@ -1,197 +1,157 @@
 # Palinkle
 
-Palinkle is an evidence-first effort to train Inkling Small to write correct,
-real [JAX Pallas](https://docs.jax.dev/en/latest/pallas/index.html) kernels for
-TPUs.
+Palinkle trains Inkling Small to write correct and fast
+[JAX Pallas](https://docs.jax.dev/en/latest/pallas/index.html) kernels for TPUs.
+The name combines Pallas and Inkling.
 
-Palinkle combines **Pallas** with **Inkling**, the model family used for the
-current training experiments.
+The project has one rule: a result only counts when the generated kernel is
+correct, runs through real Pallas lowering on a TPU, and leaves enough evidence
+for someone else to check it.
 
-## Sources and references
+## Sources
 
-The project pins code and data sources by revision in
-[`config/pallas/sources.json`](config/pallas/sources.json). The links below
-state each source's role; inclusion here does not mean it is allowed in
-training.
+[`config/pallas/sources.json`](config/pallas/sources.json) pins each code and
+data source to a revision. A source listed here is not automatically approved
+for training.
 
 ### Models
 
 - **Inkling:** [release](https://thinkingmachines.ai/news/introducing-inkling/),
-  [official model card](https://thinkingmachines.ai/model-card/inkling/), and
+  [model card](https://thinkingmachines.ai/model-card/inkling/), and
   [weights](https://huggingface.co/thinkingmachines/Inkling). This was the
-  original base model and remains a historical comparison.
+  original base model and is now a historical comparison.
 - **Inkling Small:**
   [release](https://thinkingmachines.ai/news/inkling-small/),
-  [official model card](https://thinkingmachines.ai/model-card/inkling-small/),
-  and [weights](https://huggingface.co/thinkingmachines/Inkling-Small). This is
-  the active base model.
+  [model card](https://thinkingmachines.ai/model-card/inkling-small/), and
+  [weights](https://huggingface.co/thinkingmachines/Inkling-Small). This is the
+  current base model.
 
-### Pallas code and training-source candidates
+### Training sources
 
-- **JAX and Pallas:** the
-  [Pallas documentation](https://docs.jax.dev/en/latest/pallas/index.html) and
-  [pinned JAX source](https://github.com/jax-ml/jax/tree/aaf50c6a71d3bde4188c1836323f3a0ae9cb9e7f).
-  Only allowlisted Pallas documentation, implementation, and test paths may
-  enter the governed corpus.
+- **JAX and Pallas:**
+  [documentation](https://docs.jax.dev/en/latest/pallas/index.html) and
+  [pinned source](https://github.com/jax-ml/jax/tree/aaf50c6a71d3bde4188c1836323f3a0ae9cb9e7f).
+  Only approved documentation, implementation, and test paths may enter the
+  training data.
 - **Tokamax:**
   [pinned repository](https://github.com/openxla/tokamax/tree/b33bdfa64a78cc16193f3c77dd223bb040aeebf4),
-  used for allowlisted production Pallas and Mosaic kernel candidates.
+  used for approved Pallas and Mosaic kernel examples.
 - **MaxText:**
-  [pinned kernel tree](https://github.com/AI-Hypercomputer/maxtext/tree/17c7172720ca813b05e5ea248dedd78a0c64612e/src/maxtext/kernels),
-  used for allowlisted production kernel candidates.
-- **Hugging Face kernel sources:** the governed Hub discovery and admission
-  pipeline records row-level licenses, repository revisions, duplicate checks,
-  and split assignments. The final broad-kernel DAPT release spans 95 source
-  repositories; its
-  [manifest](data/pallas/runs/g3-hub-dapt-admission/manifest.json), rather than
-  a search result page, defines membership.
+  [pinned kernel directory](https://github.com/AI-Hypercomputer/maxtext/tree/17c7172720ca813b05e5ea248dedd78a0c64612e/src/maxtext/kernels),
+  used for approved production kernel examples.
+- **Hugging Face:** the data pipeline records each row's license, source
+  revision, duplicate status, and split. The broad-kernel dataset contains 830
+  approved rows from 95 repositories. Its
+  [manifest](data/pallas/runs/g3-hub-dapt-admission/manifest.json) defines the
+  dataset.
 
-### Evaluation and discovery-only sources
+### Evaluation-only sources
 
 - **JAXBench:**
-  [pinned benchmark](https://github.com/AI-Hypercomputer/accelerator-agents/tree/6b6c44293c43976032ba12d2f72d6bebeaf2394f/JAXBench),
-  held out for public evaluation. Its implementations are forbidden in
-  training.
+  [pinned benchmark](https://github.com/AI-Hypercomputer/accelerator-agents/tree/6b6c44293c43976032ba12d2f72d6bebeaf2394f/JAXBench).
+  Its implementations are held out from training.
 - **PallasBench:**
   [pinned repository](https://github.com/Tyronita/PallasBench/tree/30a6ee07fd4923f3877906a94002d994e972d6fe)
-  and the
-  [unified Hugging Face dataset](https://huggingface.co/datasets/EvanOLeary/pallasbench-unified/tree/b0c928c21101a96ddee17682d897b8897fa27740).
-  These are benchmark, mining, and discovery evidence—not training sources.
+  and
+  [pinned dataset](https://huggingface.co/datasets/EvanOLeary/pallasbench-unified/tree/b0c928c21101a96ddee17682d897b8897fa27740).
+  It is used for evaluation and data discovery, not training.
 
-The agent harness also builds on
+The coding harness uses
 [DeepSWE](https://github.com/datacurve-ai/deep-swe),
 [mini-swe-agent](https://github.com/SWE-agent/mini-swe-agent),
 [Chex](https://github.com/google-deepmind/chex), and
-[Tinker](https://tinker-docs.thinkingmachines.ai/). These are implementation
-references, not corpus rows.
-
-The multi-turn kernel-training reference is
-[Kevin](https://arxiv.org/abs/2507.11948); a local Markdown extraction is kept
-in [`kevin32b.md`](kevin32b.md) beside the existing Composer 2 notes.
-
-The project is deliberately narrow. A generated program only counts when it:
-
-1. satisfies an independently defined numerical specification;
-2. uses Pallas rather than a plain-JAX fallback;
-3. lowers normally on a real TPU, without `interpret=True`;
-4. runs safely at the declared full shape;
-5. leaves compiler and profiler evidence; and
-6. is compared with XLA only after correctness is established.
+[Tinker](https://tinker-docs.thinkingmachines.ai/). The multi-turn training
+reference is [Kevin](https://arxiv.org/abs/2507.11948), with a local extraction
+in [`kevin32b.md`](kevin32b.md). `composer2.md` contains the Composer 2 notes.
 
 ## Current result
 
-G4.2 is the first credible positive checkpoint result in the Pallas program.
-It is a narrow diagnostic win, not yet a broadly capable or fast kernel agent.
+G4.2 is the first checkpoint that clearly improved Pallas kernel generation.
+It is still a small result, not a general or fast kernel-writing agent.
 
-| Model | Valid kernels at 3 calls | Valid kernels at 6 calls |
+| Model | Valid after 3 calls | Valid after 6 calls |
 |---|---:|---:|
 | Inkling Small base | 0/12 | 4/12 |
 | G4.1 SFT | 0/12 | 3/12 |
 | G4.2 repair SFT | **7/12** | **7/12** |
 
-These are 12 task-and-seed cells built from four tasks: add, matmul, RMSNorm,
-and row sum. The three seeds are repeated samples, not separate tasks.
+The 12 cases are four tasks—add, matrix multiplication, RMSNorm, and row
+sum—sampled with three model seeds. They are not 12 independent tasks.
 
-G4.2 beat the base model in 10 of 24 paired task/seed/horizon cells, lost none,
-and introduced no task-family regression at six calls. It did not demonstrate a
-meaningful speed improvement:
+Across the same task, seed, and call-limit pairs, G4.2 beat the base model in
+10 of 24 cases and lost none. No task family became worse after six calls.
+Speed did not meaningfully improve:
 
-- median G4.2 speedup was `1.0039x` at three calls and `0.9998x` at six;
-- the best verified sample reached `1.0825x`;
+- median speedup was `1.0039x` after three calls and `0.9998x` after six;
+- the best valid sample reached `1.0825x`;
 - row sum remained unsolved; and
-- extra calls did not repair any G4.2 failures because successful trajectories
-  had already submitted by the third call.
+- the extra three calls did not fix any failed G4.2 runs.
 
-The honest conclusion is that verified repair-format SFT improved local Pallas
-syntax, API use, and solution structure. It has not yet proved broad transfer,
-learned repair reasoning, or optimization skill.
-
-The aggregate evidence is in
+The result shows better Pallas syntax, API use, and solution structure. It does
+not yet show broad transfer, learned repair, or kernel optimization skill. The
+full result is in
 [`g42-final-results.json`](data/pallas/runs/g42-final-results.json).
 
-## How the experiment works
+## What counts as a valid kernel
 
-```text
-licensed source code
-        |
-        v
-governed corpus and contamination checks
-        |
-        v
-Inkling Small LoRA training through Tinker
-        |
-        v
-isolated coding workspace with a bounded call budget
-        |
-        v
-captured Git patch
-        |
-        v
-pristine TPU verifier
-        |
-        +-- numerical correctness at seeds 0, 1, and 2
-        +-- real Pallas lowering
-        +-- runtime safety
-        +-- compiler and Perfetto evidence
-        +-- candidate versus XLA timing
-```
+A generated kernel must:
 
-The G4.2 harness follows the useful boundary from DeepSWE-style evaluation:
-the model works in a disposable repository, submits a patch, and cannot see the
-authoritative verifier or reference solution. Curriculum tasks may return one
-sanitized failure stage. Benchmark tasks return no hidden feedback during the
-rollout.
+1. match an independently written numerical specification;
+2. use Pallas instead of falling back to ordinary JAX;
+3. lower normally on a real TPU without `interpret=True`;
+4. run safely at the full declared shape;
+5. leave compiler and profiler evidence; and
+6. be compared with XLA only after it passes the first five checks.
 
-The verifier gives:
+The model works in a temporary Git repository and submits a patch. It cannot
+see the hidden verifier or reference solution. Training tasks may return one
+short failure message. Evaluation tasks return no hidden feedback while the
+model is working.
 
-- `1` for a correct, authentic, normally lowered, profiled Pallas kernel;
-- `0` for a candidate failure; and
-- `-1` for an infrastructure failure that cannot be blamed on the candidate.
+The verifier returns:
 
-Speed is recorded separately. A fast wrong answer never receives credit.
+- `1` for a valid Pallas kernel;
+- `0` when the candidate fails; and
+- `-1` when the test system fails for a reason unrelated to the candidate.
 
-## Data boundaries
+Speed is recorded separately. A fast wrong answer gets no credit.
 
-The project keeps training, development, and evaluation sources separate.
+## Data rules
 
-- **JAXBench is held-out evaluation.** Its implementations are not training
-  material.
-- **PallasBench is discovery and benchmark evidence, not training data.** Its
-  rows are preserved for analysis but excluded from the training release.
-- **The G4 SFT release contains 32 TPU-verified kernels across eight operation
-  families.** This met the minimum experiment gate; it was not evidence that 32
-  examples were broadly sufficient.
-- **The G4.2 release contains 32 verified six-action trajectories and 192
-  prefix-SFT rows.** Those 192 rows are prefixes of 32 trajectories, not 192
-  independent repairs.
-- **The broad kernel DAPT pool contains 830 authorized rows.** DAPT has not
-  started, and the pool must remain an ablation rather than an assumed benefit.
+- JAXBench code never enters training data.
+- PallasBench code never enters training data.
+- The G4 SFT dataset has 32 TPU-verified kernels across eight operation
+  families. This was enough to run one small experiment, not enough to claim
+  broad coverage.
+- The G4.2 dataset has 32 verified six-action runs and 192 training rows. The
+  192 rows are prefixes of those 32 runs, not independent repairs.
+- The broad-kernel dataset has 830 approved rows. Domain-adaptive pretraining
+  (DAPT) has not started and remains an experiment, not an assumed improvement.
 
-Every promoted SFT kernel must pass full-shape correctness over fixed seeds,
-normal TPU lowering, profile checks, license checks, duplicate checks, and
-JAXBench contamination checks.
+Every SFT kernel must pass full-shape correctness on fixed seeds, real TPU
+lowering, profiling, license checks, duplicate checks, and JAXBench overlap
+checks.
 
 ## Repository map
 
-| Path | Purpose |
+| Path | Contents |
 |---|---|
-| [`config/pallas`](config/pallas) | Frozen experiment, source, split, harness, and evaluation contracts |
-| [`src/opjax/pallas`](src/opjax/pallas) | Corpus, sampling, training, agent harness, verifier, and evaluation code |
-| [`tests/pallas`](tests/pallas) | Local contract and adversarial tests |
-| [`tests_tinker/pallas`](tests_tinker/pallas) | Tinker and agent-driver integration tests |
-| [`environments/pallas-eval`](environments/pallas-eval) | Isolated TPU evaluation environment |
-| [`data/pallas/runs`](data/pallas/runs) | Committed manifests and evidence for accepted runs |
-| [`docs/model-factory`](docs/model-factory) | Earlier model-factory work and the experiments that led to the Pallas pivot |
-| [`archive`](archive) | Superseded project plans, references, and work logs retained for provenance |
+| [`config/pallas`](config/pallas) | Experiment, source, split, harness, and evaluation settings |
+| [`src/opjax/pallas`](src/opjax/pallas) | Data, training, agent, verifier, and evaluation code |
+| [`tests/pallas`](tests/pallas) | Local and adversarial tests |
+| [`tests_tinker/pallas`](tests_tinker/pallas) | Tinker and agent integration tests |
+| [`environments/pallas-eval`](environments/pallas-eval) | Isolated TPU test environment |
+| [`data/pallas/runs`](data/pallas/runs) | Run manifests and evidence |
+| [`docs/model-factory`](docs/model-factory) | Earlier model-training experiments |
+| [`archive`](archive) | Old plans, references, and work logs kept for provenance |
 
-The active implementation is under `src/opjax/pallas`. Earlier broad plans in
+The current code is in `src/opjax/pallas`. The broad plan in
 [`archive/opjax.md`](archive/opjax.md), `composer2.md`, and the model-factory
-documents are historical research context. They are not the current execution
-plan.
+documents is historical context, not the current plan.
 
-## Local use
+## Run locally
 
-Palinkle uses Python 3.12 and `uv` for the local environment.
+Palinkle uses Python 3.12 and `uv`.
 
 ```bash
 uv sync
@@ -199,96 +159,82 @@ uv run pytest -q
 uv run opjax-pallas validate-contracts
 ```
 
-Useful entry points include:
+Useful commands:
 
 ```bash
-# Inspect all Pallas commands.
 uv run opjax-pallas --help
-
-# Validate the governed corpus and source contracts.
 uv run opjax-pallas validate-corpus --help
-
-# Inspect the bounded G4.2 agent driver.
 uv run opjax-pallas-g42-agent --help
-
-# Inspect the matched experiment runner.
 uv run opjax-pallas-g42-experiment --help
 ```
 
-TPU runs require the pinned cloud environment and produce immutable evidence
-manifests. Local tests do not establish TPU correctness.
+Local tests do not prove that a kernel works on a TPU. TPU runs use the pinned
+cloud environment and produce evidence manifests.
 
 ## What we learned
 
-Several attractive results disappeared when the experiment became stricter.
-Those reversals define the project more than the early scores do.
+- Passing a JAX correctness test does not prove Pallas skill. A model can copy
+  the baseline or return ordinary JAX.
+- Showing the reference implementation encourages copying. When references
+  were removed and copied answers lost credit, the earlier LoRA advantage
+  disappeared.
+- `interpret=True` runs the kernel body as a JAX loop. It does not prove normal
+  Pallas lowering on a TPU. Five of the first six reported successes used it.
+- Lower training loss does not prove executable code. The first Pallas SFT
+  model produced Pallas-looking code with reversed `BlockSpec` arguments and
+  incomplete kernels.
+- A failed run is not always the model's fault. One TPU failure came from a
+  stale lock in the evaluator.
+- Row count is not the same as data diversity. The 32-row threshold allowed a
+  small test; it did not prove that the dataset was large enough.
+- Multi-turn training helped, but the current runs were built around known
+  solutions. The result does not yet separate real feedback-driven repair from
+  seeing the solution pattern and learning the shell format.
+- Add and dense matrix multiplication are useful basic tests but weak speed
+  tests because XLA already handles them well.
 
-- Raw JAX correctness is not Pallas competence. A model can return the supplied
-  baseline or plain JAX and still pass a numerical test.
-- Reference-visible evaluation rewards copying. The earlier apparent advantage
-  of the personal-trace LoRA disappeared under spec-only prompts and anti-copy
-  scoring.
-- `interpret=True` runs the kernel body but does not prove real TPU Pallas
-  lowering. Five of six initially reported correct Gate 2 candidates used it.
-- A training loss decrease does not prove executable code. The first direct
-  Pallas SFT checkpoint learned the look of Pallas while still reversing the
-  `BlockSpec` arguments and emitting incomplete kernels.
-- A successful process is not necessarily a successful candidate. One TPU
-  canary was initially blamed on the model before the evaluator's retained TPU
-  lock was found and corrected.
-- Row counts can overstate diversity. The 32-row SFT threshold authorized one
-  small causal experiment; it did not establish broad data sufficiency.
-- Multi-turn data helped, but the current trajectories are scripted around
-  known verified solutions. The result does not isolate genuine
-  feedback-conditioned repair from solution exposure and shell-format learning.
-- Simple add and dense GEMM are useful mechanics checks but weak optimization
-  benchmarks because XLA already handles them well.
+The main lesson is simple: keep the claim, the training change, and the
+evidence separate. If any one changes, score the result again.
 
-The practical lesson is simple: preserve the claim, the intervention, and the
-evidence as separate objects. When one changes, the result must be re-scored.
+## Next step
 
-## Next boundary
+Gate 5 is the broad-kernel DAPT experiment. It is allowed to start, but the
+open questions from G4.2 should be resolved first:
 
-Gate 5, the broad-kernel DAPT ablation, is eligible but has not started. It
-should not start merely because the procedural gate is open.
+1. freeze a larger evaluation set with unseen operations and separate task
+   generation code;
+2. report results by task, not only by repeated model seeds;
+3. repeat checkpoint comparisons across training seeds;
+4. test solution exposure, shell-format training, verifier wording, and real
+   repair feedback separately; and
+5. add performance tasks where XLA has room to improve, including fusion,
+   ragged computation, structured sparsity, mixture-of-experts routing, and
+   larger model subgraphs.
 
-The next useful work is:
-
-1. freeze a larger independent evaluation with unseen operations and no shared
-   task-generation code;
-2. report task-level results separately from repeated model seeds;
-3. reproduce checkpoint comparisons across training seeds;
-4. separate complete-solution exposure, shell-action training, verifier
-   language, and genuine repair feedback; and
-5. build a performance suite around fusion, ragged computation, structured
-   sparsity, MoE, and larger model subgraphs where XLA has measurable headroom.
-
-The JAXBench v5e audit found one provisional example: corrected Megablox GMM
-ran at a stable `1.147x` over XLA across three device-profiled repeats. The
-other seven bundled optimized references were not valid default-shape v5e
-comparisons under a single runtime contract. See the
+The JAXBench v5e check found one possible performance task: a corrected
+Megablox grouped matrix multiplication ran at `1.147x` XLA speed across three
+profiled runs. The other seven optimized references did not run as fair
+default-shape comparisons in one shared environment. This result remains
+provisional until the runtime and test setup are frozen. See the
 [`headroom manifest`](data/pallas/runs/jaxbench-v5e-headroom/manifest.json).
 
 ## Worklog
 
-This is the human-readable project log. New entries are appended; old entries
-are not silently rewritten. If a result is overturned, a later entry records
-the correction.
+This table is the human-readable project log. New entries are appended. If a
+result is overturned, a later entry records the correction. The manifests in
+[`data/pallas/runs`](data/pallas/runs) are the source of truth.
 
 | Date | Work | Result |
 |---|---|---|
-| 2026-07-15 | Began as a personalized Inkling coding-sidekick experiment built from exported agent traces. The scope expanded into a general model factory, RL, serving, teacher transfer, and memory research. | The ambition was useful, but the project mixed several separate claims and lacked stable falsifiers. |
-| 2026-07-16 | Added data rights, retention, scrubbing, upload gates, sealed splits, axport curation, and controlled Tinker training. | The first rank-64 Inkling LoRA reached 4/4 on four small mechanical tasks. This supported narrow format/task compliance, not agentic coding ability. |
-| 2026-07-22 | Ran thin GRPO on the hardened eight-task set. | The score stayed 7/8 and the same task failed. The kill condition fired; the low-diversity training tasks had saturated. |
-| 2026-07-23 to 2026-07-28 | Evaluated the trace LoRA and base Inkling on JAXBench, corrected asymmetric prompting and extraction, removed visible references, and added anti-copy scoring. | The apparent LoRA advantage reversed. Base Inkling retained more Pallas exploration. The project pivoted to correct, real, fast Pallas kernels. |
-| 2026-07-29 | Froze Gate 0 contracts and built the Gate 1 evaluator. Ran Gate 2 over 50 JAXBench workloads and three seeds. | The first report said six correct Pallas candidates. Review found five used `interpret=True`; the corrected result was one normally lowered correct kernel out of 150 and no speed win. |
-| 2026-07-30 | Added empirical lowering checks, isolated TPU processes, compiler markers, Perfetto traces, Chex runtime assertions, and fail-closed evidence. | The evaluator could now distinguish real Pallas execution from interpreted or plain-JAX behavior. |
-| 2026-07-30 to 2026-08-02 | Built governed GitHub and Hugging Face discovery, scanned roughly 982,000 Hub datasets, corrected benchmark/source classification bugs, and TPU-verified the SFT release. | The final release reached 32 verified kernels across eight families. The broad DAPT pool reached 830 authorized rows, but DAPT remained untested. |
-| 2026-08-02 | Switched the active training lineage to Inkling Small. Ran an upper-bound search on JAXBench GEMM. | The best searched Pallas GEMM reached `0.9993x`, effectively XLA parity. JAXPR was confirmed to be too high-level for explaining the final TPU performance difference. |
-| 2026-08-04 | Trained direct Pallas SFT on the 32-row release. | Training completed, but all three TPU canaries failed. The model learned Pallas-shaped text, not executable kernels. |
-| 2026-08-04 | Audited supervision and created G4.1 with explicit output contracts and at most three feedback attempts. | The renderer was sound, but prompts had hidden the exact interface. G4.1 recovered some modules through feedback yet produced no verified gain over base: 1/4 versus 1/4. |
-| 2026-08-04 to 2026-08-05 | Built the DeepSWE-style G4.2 patch harness, pristine verifier, 32-task repair curriculum, six-action trajectories, and matched three-model evaluation. | G4.2 reached 7/12 at both horizons versus base at 0/12 and 4/12. This was the first positive checkpoint result, but speed stayed near XLA parity and the benchmark covered only four tasks. |
-| 2026-08-05 | Audited all eight bundled optimized JAXBench references on a v5e before selecting performance tasks. | No strict subset worked under the project runtime. A corrected compatibility lane found stable `1.147x` Megablox GMM headroom; it remains provisional until its runtime and harness contract are frozen. |
-
-The machine-readable manifests under [`data/pallas/runs`](data/pallas/runs)
-remain the source of truth when this summary and an artifact disagree.
+| 2026-07-15 | Started with a personalized Inkling coding model trained on exported agent sessions. The scope grew into a general model factory, RL, serving, teacher transfer, and memory research. | The broader research was useful, but it mixed separate claims and lacked stable pass/fail rules. |
+| 2026-07-16 | Added data rights, retention, scrubbing, upload checks, sealed splits, agent-session curation, and controlled Tinker training. | The first rank-64 Inkling LoRA passed 4/4 small mechanical tasks. This showed narrow task compliance, not general coding skill. |
+| 2026-07-22 | Ran a small GRPO experiment on the harder eight-task set. | The score stayed 7/8 and the same task failed. Training stopped because the small task set had saturated. |
+| 2026-07-23 to 2026-07-28 | Compared the trace LoRA with base Inkling on JAXBench, fixed unequal prompts and extraction, hid references, and rejected copied answers. | The apparent LoRA advantage reversed. Base Inkling tried Pallas more often, so the project shifted to correct, real, fast Pallas kernels. |
+| 2026-07-29 | Froze the first contracts, built the evaluator, and tested 50 JAXBench tasks with three model seeds. | The first report claimed six correct Pallas kernels. Five used `interpret=True`; the corrected result was one normally lowered kernel out of 150 and no speed win. |
+| 2026-07-30 | Added real lowering checks, isolated TPU processes, compiler markers, Perfetto traces, Chex assertions, and strict evidence checks. | The evaluator could now separate normal Pallas execution from interpreted or ordinary JAX code. |
+| 2026-07-30 to 2026-08-02 | Built GitHub and Hugging Face data discovery, scanned about 982,000 datasets, fixed source-classification bugs, and verified the SFT data on TPUs. | The SFT dataset reached 32 kernels across eight families. The broad DAPT dataset reached 830 approved rows; DAPT remained untested. |
+| 2026-08-02 | Switched training to Inkling Small and searched for a faster JAXBench matrix multiplication kernel. | The best Pallas kernel reached `0.9993x`, effectively equal to XLA. JAXPR was too high-level to explain the final TPU speed difference. |
+| 2026-08-04 | Trained direct Pallas SFT on the 32 verified kernels. | Training finished, but all three TPU checks failed. The model learned the shape of Pallas code, not working kernels. |
+| 2026-08-04 | Fixed hidden interface details in the training prompts and allowed up to three feedback attempts in G4.1. | G4.1 recovered some kernels after feedback but did not beat the base model: 1/4 versus 1/4. |
+| 2026-08-04 to 2026-08-05 | Built the G4.2 patch-based agent test, hidden verifier, 32-task repair dataset, six-action runs, and matched three-model comparison. | G4.2 reached 7/12 after both three and six calls, versus base at 0/12 and 4/12. This was the first positive checkpoint result, but speed stayed near XLA and the test covered only four tasks. |
+| 2026-08-05 | Tested all eight optimized JAXBench references on a v5e before choosing speed tasks. | None worked as a strict shared-environment comparison. A corrected setup found stable `1.147x` Megablox headroom, which remains provisional. |
