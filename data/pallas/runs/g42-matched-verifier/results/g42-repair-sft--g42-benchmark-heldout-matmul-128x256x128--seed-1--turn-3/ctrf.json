@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": "MLIRError: Invalid type:\nerror: \"/masked_load\"(callsite(\"matmul_kernel\"(\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\":9:0 to 0:0) at callsite(\"workload\"(\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\":13:0 to 0:0) at callsite(\"evaluate_task\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":158:0 to 0:0) at callsite(\"main\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":305:0 to 0:0) at \"<module>\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":322:0 to 0:0)))))): vector types must have positive constant sizes but got 0, 0",
+      "name": "tpu_compile",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "full_shape_correctness",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

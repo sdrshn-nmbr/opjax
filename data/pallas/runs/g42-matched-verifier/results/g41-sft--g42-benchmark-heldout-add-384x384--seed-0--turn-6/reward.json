@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": false,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "92408ad54cbf7f0f3a7039c97da71779f3067ace0405a2b2744a24e8dea6e689",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 0.9805208428789585,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g42-benchmark-heldout-add-384x384",
+  "worker_recovery_required": false
+}

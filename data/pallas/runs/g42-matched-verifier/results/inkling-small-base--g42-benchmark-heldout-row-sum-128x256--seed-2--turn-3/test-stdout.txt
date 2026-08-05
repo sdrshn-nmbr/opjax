@@ -1,0 +1,36 @@
+{
+  "authentic": false,
+  "correct": false,
+  "error": "The module is incomplete or does not define top-level workload(*inputs). Return a complete implementation.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "/home/sudarshan/opjax-g42/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\n",
+    "stdout": "{\"authentic\": false, \"correct\": false, \"error\": \"The module is incomplete or does not define top-level workload(*inputs). Return a complete implementation.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"artifact_contract\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": false, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "artifact_contract",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": false,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

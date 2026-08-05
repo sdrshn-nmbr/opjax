@@ -1,0 +1,35 @@
+{
+  "checkpoint": null,
+  "kind": "pallas_g42_agent_run",
+  "schema_version": 1,
+  "seed": 1,
+  "snapshot_turns": [
+    3,
+    6
+  ],
+  "snapshots": {
+    "3": {
+      "commit": "d01a0f4914685d47d0f42c55781622f5390ead43",
+      "kernel_path": "turn-3-kernel.py",
+      "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+      "patch_path": "turn-3.patch",
+      "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "turn": 3,
+      "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+    },
+    "6": {
+      "commit": "3e13f3588da0b0359f5993b4d0307f8a7fc3827c",
+      "kernel_path": "turn-6-kernel.py",
+      "kernel_sha256": "eaffaad4b177e161c080fb74c9223a74d632fe35cc872fde29c3af55b2c82a30",
+      "patch_path": "turn-6.patch",
+      "patch_sha256": "f2396c910c313869083be77c850481feb62289ea7c8bf2e5ccac4e73a170b279",
+      "turn": 6,
+      "workspace_sha256": "052aef722bbdef81766478190c586c36f053ceea666d08063c8b3e5ead03ba61"
+    }
+  },
+  "submitted": false,
+  "task_id": "g42-benchmark-heldout-add-384x384",
+  "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d",
+  "trajectory_path": "trajectory.json",
+  "turn_limit": 6
+}

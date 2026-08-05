@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "MLIRError: Invalid type:\nerror: \"/masked_load\"(callsite(\"matmul_kernel\"(\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\":9:0 to 0:0) at callsite(\"workload\"(\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\":13:0 to 0:0) at callsite(\"evaluate_task\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":158:0 to 0:0) at callsite(\"main\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":305:0 to 0:0) at \"<module>\"(\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\":322:0 to 0:0)))))): vector types must have positive constant sizes but got 0, 0",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "/home/sudarshan/opjax-g42/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\n",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"MLIRError: Invalid type:\\nerror: \\\"/masked_load\\\"(callsite(\\\"matmul_kernel\\\"(\\\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\\\":9:0 to 0:0) at callsite(\\\"workload\\\"(\\\"/home/sudarshan/opjax-g42/data/pallas/runs/g42-matched-verifier/units/g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-1--turn-3/kernel.py\\\":13:0 to 0:0) at callsite(\\\"evaluate_task\\\"(\\\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\\\":158:0 to 0:0) at callsite(\\\"main\\\"(\\\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\\\":305:0 to 0:0) at \\\"<module>\\\"(\\\"/home/sudarshan/opjax-g42/src/opjax/pallas/environment_runner.py\\\":322:0 to 0:0)))))): vector types must have positive constant sizes but got 0, 0\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"tpu_compile\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "tpu_compile",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "kind": "pallas_g42_agent_run",
+  "schema_version": 1,
+  "seed": 1,
+  "snapshot_turns": [
+    3,
+    6
+  ],
+  "snapshots": {
+    "3": {
+      "commit": "0ef9086e82ec45f0357f8ce455edec96e34c0efb",
+      "kernel_path": "turn-3-kernel.py",
+      "kernel_sha256": "01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991",
+      "patch_path": "turn-3.patch",
+      "patch_sha256": "2dcb79355049e8b7fa1abcb1d48c1f4ab4fea698dca8e9b5b4cb2efde737b10f",
+      "turn": 3,
+      "workspace_sha256": "b68a6a6120c3fcb1d750298e2186ea1587b9e9ec8a291c4bbab2cb54dde4612d"
+    },
+    "6": {
+      "commit": "d22b862e600aef561b5f973debcef0e610db49c3",
+      "kernel_path": "turn-6-kernel.py",
+      "kernel_sha256": "01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991",
+      "patch_path": "turn-6.patch",
+      "patch_sha256": "2dcb79355049e8b7fa1abcb1d48c1f4ab4fea698dca8e9b5b4cb2efde737b10f",
+      "turn": 6,
+      "workspace_sha256": "b68a6a6120c3fcb1d750298e2186ea1587b9e9ec8a291c4bbab2cb54dde4612d"
+    }
+  },
+  "submitted": true,
+  "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+  "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e",
+  "trajectory_path": "trajectory.json",
+  "turn_limit": 6
+}

@@ -1,0 +1,13 @@
+{
+  "checkpoint": null,
+  "family": "matmul",
+  "kernel_sha256": "7e0875cf87c48f491a82ac6605ea5a709c607a6dbd2eb94b24d9afd64c753470",
+  "model_id": "inkling-small-base",
+  "patch_sha256": "e01c97ee5bb310216a61bc06df96df501e2b939465d3ca61ae97cc58bc26ea32",
+  "seed": 0,
+  "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+  "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e",
+  "trajectory_sha256": "db369aa39290c2fd85e9a56480cf67f512ca601ca3a5c84c4f4586ff90a5207c",
+  "turn": 6,
+  "unit_id": "inkling-small-base--g42-benchmark-heldout-matmul-128x256x128--seed-0--turn-6"
+}

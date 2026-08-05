@@ -1,0 +1,13 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "matmul",
+  "kernel_sha256": "6dd0c88213333a0f55a27f39d2bc47e2fd2d194d4af4c9e09b17adf60fa1eb74",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "0b2604f08ec019ca31987ebd322ca9f0aa65c95dcceae308e6a5a19d97e12c3c",
+  "seed": 2,
+  "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+  "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e",
+  "trajectory_sha256": "1c3ea70a8eb1a1fecbf96bbad690e39598cbaa1ece5378e130d0f5e1325631d0",
+  "turn": 6,
+  "unit_id": "g42-repair-sft--g42-benchmark-heldout-matmul-128x256x128--seed-2--turn-6"
+}

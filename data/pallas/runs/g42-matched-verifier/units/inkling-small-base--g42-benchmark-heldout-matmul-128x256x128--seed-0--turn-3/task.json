@@ -1,0 +1,32 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "matmul",
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      128,
+      256
+    ],
+    [
+      256,
+      128
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "matmul",
+  "reference_kernel_sha256": "5f8fb5e2de4104ef8d677a1af398c1f5eee645ba4a0f90da154e714d3423ec9f",
+  "source_task_id": "heldout-matmul-128x256x128",
+  "task_id": "g42-benchmark-heldout-matmul-128x256x128"
+}

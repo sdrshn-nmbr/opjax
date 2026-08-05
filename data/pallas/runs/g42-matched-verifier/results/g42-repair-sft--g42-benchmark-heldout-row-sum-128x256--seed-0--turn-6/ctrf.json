@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g42-benchmark-heldout-row-sum-128x256",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\n(shapes (128, 1), (128, 256) mismatch)\n ACTUAL: array([[-26.684845],\n       [-27.833122],\n       [  9.686815],...\n DESIRED: array([[-26.684841, -26.684841, -26.684841, ..., -26.684841, -26.684841,\n        -26.684841],\n       [-27.833126, -27.833126, -27.833126, ..., -27.833126, -27.833126,... \nOriginal dtypes: float32, float32.",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

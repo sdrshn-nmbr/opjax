@@ -1,0 +1,13 @@
+{
+  "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+  "family": "add",
+  "kernel_sha256": "924fe7f9b083f48ba4c3ef66419eebc7c12958e9f51e15180836ab2e4ad0fd59",
+  "model_id": "g41-sft",
+  "patch_sha256": "7f5fbe4e86521e44377e1a03d0501b84bc2cd7a264d0fd93227baadfa7973a4d",
+  "seed": 2,
+  "task_id": "g42-benchmark-heldout-add-384x384",
+  "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d",
+  "trajectory_sha256": "220962b989b1892a125e8c292a01276103bfc0891215a4d1a74bea849a7fa143",
+  "turn": 6,
+  "unit_id": "g41-sft--g42-benchmark-heldout-add-384x384--seed-2--turn-6"
+}

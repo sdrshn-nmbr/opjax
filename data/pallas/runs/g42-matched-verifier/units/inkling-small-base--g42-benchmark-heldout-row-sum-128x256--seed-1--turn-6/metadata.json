@@ -1,0 +1,13 @@
+{
+  "checkpoint": null,
+  "family": "row_sum",
+  "kernel_sha256": "efe9891ddcb377da3ea9e69f406b04350c94f9b2d6a29626497d3f7932f4f67f",
+  "model_id": "inkling-small-base",
+  "patch_sha256": "7f58e9f49a52f62fb137322be6a3a4d5a9473c471e06228522c4c35515ccb18e",
+  "seed": 1,
+  "task_id": "g42-benchmark-heldout-row-sum-128x256",
+  "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f",
+  "trajectory_sha256": "5a5faaa562690bc2ed214945bc0d3c47f38dad8d4a2e3da4858eaf419f98526e",
+  "turn": 6,
+  "unit_id": "inkling-small-base--g42-benchmark-heldout-row-sum-128x256--seed-1--turn-6"
+}

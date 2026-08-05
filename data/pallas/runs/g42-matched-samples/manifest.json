@@ -1,0 +1,1063 @@
+{
+  "agent_environment": {
+    "image": "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+    "image_id": "sha256:0445c02b019cf3f9d61bac90acaac8e2d37ae6991b3384bd9d75fec93bcdfe98"
+  },
+  "benchmark_release_sha256": "adbae9894d42936924df1fc2d8ffdcf85585075f66e27d5bb796c69883f9bfbe",
+  "config_sha256": "6d8e68122265dcd0b2f715abf72cb8ae8d99ab72bbc1fa241683dcc09edcab63",
+  "counts": {
+    "runs": 36,
+    "snapshots": 72
+  },
+  "experiment_id": "pallas-g42-matched-k3-k6",
+  "kind": "pallas_g42_sample_matrix",
+  "opjax_revision": "45be4bdbba311237ea4ea22e058faa172dd1b5e1",
+  "records": [
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-add-384x384/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "b19a21fe23704791a4e5c86991d4c30acff82bf4",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "9bb7f3e174efc3b3027b55bce0352a24f86eef5c",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "92408ad54cbf7f0f3a7039c97da71779f3067ace0405a2b2744a24e8dea6e689",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "8c7691b9d35fb06d21b6b4928daaa39256dc889a369614457f7382d699812f98",
+          "turn": 6,
+          "workspace_sha256": "0b3ba542e75379ab7896c516a1ecf85af7269eb7e6797ffd7eb2cf71b2624861"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-add-384x384/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "660e6ddf16a3895e7a6dac73c580c8a7f1ddb0bc",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "9554b3d31f706ba36d6af3960e52f952ff3f1cb0",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "f0644deae73d6debbabc6205d28fb1531783517ce4ee2dae1b77bd525d71170a",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "42b78cd1ebfeb4e2e17cef76614b016253cad83bb271ea3c6f5072402b85cd6f",
+          "turn": 6,
+          "workspace_sha256": "3a3103e4b7361a7b0ef82ec802d08bca47ebc7d060c0f4bcaa55ef48cfd08c07"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-add-384x384/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "9b92fb9bf27c17af889c2c246af6f7056428070f",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "628c564714682f5626edb46d18e46f4d110b5298",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "924fe7f9b083f48ba4c3ef66419eebc7c12958e9f51e15180836ab2e4ad0fd59",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "7f5fbe4e86521e44377e1a03d0501b84bc2cd7a264d0fd93227baadfa7973a4d",
+          "turn": 6,
+          "workspace_sha256": "4691e3f6845bf831cbdaf23a1cca7df99c4c1b938ca981b9302264aa7ad60df1"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-matmul-128x256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "7a1daf47e238cf0a05d1f3a914395b620d44a369",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "3099d2a5da317f5e992b7b78e820475cefdd8526",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-matmul-128x256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "7ffa7c75bd1a51e34ce73fecf78a6d885d898a02",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "c66005fb4c0a9bf211663778912e6a9536d7291d",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-matmul-128x256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "b30e8e739df1228b8de770124c6f653dadbf1c4f",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "afa3471c6bfe08bc4f6f75dffbc6abb3d2cd4d70",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "f32edd42b7794d8baf633049d19a43981b75861a",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "8444e90ede064683e8a6ce8b6c8f1f1e57ac1242",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "d57c89b4409312e96971214e4acb5a48df620cee",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "4a6a1124133716a19592aeb8c31020f62c4f2e7e",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "cb99339af98c16594e9b28c493bae348f30dd45c",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "e02626ce7d39f6a91e808cc16aef7ec1081603e2",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-row-sum-128x256/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "aef842f748ae6c6d3e5e0669d49b393c6268d7a4",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "33fea0800843ec3e91a3ab323e1c472119185767",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-row-sum-128x256/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "4eff0ad7d145220b0bd8d5585744ebc8f0821a93",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "bfe46fe5d8b1486dec1ce7c2daa54be3b62b4289",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "f570f5c4fbb1c544259efa5d5a16da2126dc8badcfa8a2ff2da9652f8e1fe523",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "1d572c6f8e09e7fdc3fc75c89f09e0f54b96c2619d5185ff8315e62d76f81b7e",
+          "turn": 6,
+          "workspace_sha256": "93777ec358d141eb4667316d66e7d015cf8182a628cdc44973c0870ee568d690"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "model_id": "g41-sft",
+      "run_path": "runs/g41-sft/g42-benchmark-heldout-row-sum-128x256/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "a872330cd164921d11246f03bcdf5fdf3819b8c3",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "d1b42a860be424902eb0524543821317b3580819",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "da3120f25ee222ecf78697e749279212652b74ebe98afaa772e41a3a6fbe295d",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "ecde41c7261ea0977cddd07d141c1bacd79aaae420305a77356f462acbdb4581",
+          "turn": 6,
+          "workspace_sha256": "7da371b40f7999525719fe64c7915457c5282f29f2ed8dbf2230a02fcc152a12"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-add-384x384/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "e20f7144af51f19ed82bf3ceaafa40efef84aaa3",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "eeb3017c9a0134df21acce290ae606ed048767d46536fb2ec6c6ba488a98ed38",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "1a7044fd641ba5cd5c3e06fa29b9c1d0eafb7ad5d7f4a76bfacadae23960415a",
+          "turn": 3,
+          "workspace_sha256": "17d4787f602321cd315e13ead7331180cb9b021faaee7c4e832f1d1d22afd5f4"
+        },
+        "6": {
+          "commit": "2142d539db25ce3a5dc79117bf186ee2e0db0bcb",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "eeb3017c9a0134df21acce290ae606ed048767d46536fb2ec6c6ba488a98ed38",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "1a7044fd641ba5cd5c3e06fa29b9c1d0eafb7ad5d7f4a76bfacadae23960415a",
+          "turn": 6,
+          "workspace_sha256": "17d4787f602321cd315e13ead7331180cb9b021faaee7c4e832f1d1d22afd5f4"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-add-384x384/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "d134b6480ddbacca6b5ac485d6b5cffbc346a271",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "eeb3017c9a0134df21acce290ae606ed048767d46536fb2ec6c6ba488a98ed38",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "1a7044fd641ba5cd5c3e06fa29b9c1d0eafb7ad5d7f4a76bfacadae23960415a",
+          "turn": 3,
+          "workspace_sha256": "17d4787f602321cd315e13ead7331180cb9b021faaee7c4e832f1d1d22afd5f4"
+        },
+        "6": {
+          "commit": "2dffb0be92a0ac1f50eb20f22569d8f3f22d4907",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "eeb3017c9a0134df21acce290ae606ed048767d46536fb2ec6c6ba488a98ed38",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "1a7044fd641ba5cd5c3e06fa29b9c1d0eafb7ad5d7f4a76bfacadae23960415a",
+          "turn": 6,
+          "workspace_sha256": "17d4787f602321cd315e13ead7331180cb9b021faaee7c4e832f1d1d22afd5f4"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-add-384x384/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "769095d22eaae27435ba0fac16035e6de594e5cc",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "4907fae1327d9a7c6e59891484d61d44bb0163d430ba876b0f92ba28a1bd77ad",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "6e4001bd9ffb46793e75178cb7c018568d4c5d2d38d055bdd73a98de9b44afab",
+          "turn": 3,
+          "workspace_sha256": "8799014d78d280de3cbe8ebcfb6d318761baf879b7afacbf0dbc419a4693e326"
+        },
+        "6": {
+          "commit": "d8af225e33b79eab6067e34504d1ce17491682b6",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "4907fae1327d9a7c6e59891484d61d44bb0163d430ba876b0f92ba28a1bd77ad",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "6e4001bd9ffb46793e75178cb7c018568d4c5d2d38d055bdd73a98de9b44afab",
+          "turn": 6,
+          "workspace_sha256": "8799014d78d280de3cbe8ebcfb6d318761baf879b7afacbf0dbc419a4693e326"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-matmul-128x256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "b4ca77f3875a7ba17a43acb3a5c9da6b00526027",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "f9d0c05dd0d67f760a5847d872be9e401360a97e3ad2caaa4afaaf9c4cb42d52",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "aca18f09ee4c082f5167dce482ce335e3a6300e871a17af78c10ba6d7e8d21ff",
+          "turn": 3,
+          "workspace_sha256": "a9437540167c892f12135acddb4eeec792c88e8f18b90bd2dee5ddde7601e0ca"
+        },
+        "6": {
+          "commit": "32be828dc4325049e12a0462cfb4180f3a6b896b",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "f9d0c05dd0d67f760a5847d872be9e401360a97e3ad2caaa4afaaf9c4cb42d52",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "aca18f09ee4c082f5167dce482ce335e3a6300e871a17af78c10ba6d7e8d21ff",
+          "turn": 6,
+          "workspace_sha256": "a9437540167c892f12135acddb4eeec792c88e8f18b90bd2dee5ddde7601e0ca"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-matmul-128x256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "0ef9086e82ec45f0357f8ce455edec96e34c0efb",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "2dcb79355049e8b7fa1abcb1d48c1f4ab4fea698dca8e9b5b4cb2efde737b10f",
+          "turn": 3,
+          "workspace_sha256": "b68a6a6120c3fcb1d750298e2186ea1587b9e9ec8a291c4bbab2cb54dde4612d"
+        },
+        "6": {
+          "commit": "d22b862e600aef561b5f973debcef0e610db49c3",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "01c4675b79163b776096bd62e4ef62d03c00a9a81b0167c6c53b484625a59991",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "2dcb79355049e8b7fa1abcb1d48c1f4ab4fea698dca8e9b5b4cb2efde737b10f",
+          "turn": 6,
+          "workspace_sha256": "b68a6a6120c3fcb1d750298e2186ea1587b9e9ec8a291c4bbab2cb54dde4612d"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-matmul-128x256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "deb00325a733e3b01fd66e951bcbeaab93f08e27",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "6dd0c88213333a0f55a27f39d2bc47e2fd2d194d4af4c9e09b17adf60fa1eb74",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "0b2604f08ec019ca31987ebd322ca9f0aa65c95dcceae308e6a5a19d97e12c3c",
+          "turn": 3,
+          "workspace_sha256": "f02f418e1102ab192c10a1dac1a80e3d2c209ebef96e3d5d082ae9e4c67780a8"
+        },
+        "6": {
+          "commit": "b878d38fa35b2995aedcfd86ae43c6fcb2047015",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "6dd0c88213333a0f55a27f39d2bc47e2fd2d194d4af4c9e09b17adf60fa1eb74",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "0b2604f08ec019ca31987ebd322ca9f0aa65c95dcceae308e6a5a19d97e12c3c",
+          "turn": 6,
+          "workspace_sha256": "f02f418e1102ab192c10a1dac1a80e3d2c209ebef96e3d5d082ae9e4c67780a8"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "abb905ee2e2bf8de06cc36cc4c31162ce65c120e",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "da435333288b767b98f5c76bd96c9ad944197e00b45bb0e82c0155f2273984a4",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "f07cfa707a6d2f193b21e413c0f3ddcf696f523a8c95b604d9d3d16b9f743060",
+          "turn": 3,
+          "workspace_sha256": "d10a6c8b3007bfe6b6b0c85717edd36d5c6d04408ef5004ad2bcce352690f801"
+        },
+        "6": {
+          "commit": "f2cbaf76fba283ebb32404d8ac589ba4f9585d12",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "da435333288b767b98f5c76bd96c9ad944197e00b45bb0e82c0155f2273984a4",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "f07cfa707a6d2f193b21e413c0f3ddcf696f523a8c95b604d9d3d16b9f743060",
+          "turn": 6,
+          "workspace_sha256": "d10a6c8b3007bfe6b6b0c85717edd36d5c6d04408ef5004ad2bcce352690f801"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "3059ed4f3e93fdf4110491d7187751a40f91dc09",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "2588a25c188e2575ea856c1a22081ad4afb5c9391f5f239587c529f6165041d2",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "4f0b8af8c5b83aaf85eb7b8b6b9ec13aa400accf5a67911a9c58e9a3bb013909",
+          "turn": 3,
+          "workspace_sha256": "96d106fcbe6a338a031fc98a24d63fe722d77b24375e95bf29b692d99c62973d"
+        },
+        "6": {
+          "commit": "59c9f7b7546446adab5bbec5e6ddd0c37c8d4e75",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "2588a25c188e2575ea856c1a22081ad4afb5c9391f5f239587c529f6165041d2",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "4f0b8af8c5b83aaf85eb7b8b6b9ec13aa400accf5a67911a9c58e9a3bb013909",
+          "turn": 6,
+          "workspace_sha256": "96d106fcbe6a338a031fc98a24d63fe722d77b24375e95bf29b692d99c62973d"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-rmsnorm-256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "582fcbb32cd4dad4753cf853b25d982f99db40cf",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "b195be15235862514704cad2ca995c69161421e0f536d25e658d11ae1bd99ba5",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "0e398ea382831535590ccf59d57864c4f2d18fa2b32348dc351e8699e200d66b",
+          "turn": 3,
+          "workspace_sha256": "fbf6c5b4120fc1f887187dc4d4336e39ab35661342734fd565f0911c51e19f86"
+        },
+        "6": {
+          "commit": "aa9c7a1ad3960a62fe31b5ca7f0fd0b7fb1389c0",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "b195be15235862514704cad2ca995c69161421e0f536d25e658d11ae1bd99ba5",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "0e398ea382831535590ccf59d57864c4f2d18fa2b32348dc351e8699e200d66b",
+          "turn": 6,
+          "workspace_sha256": "fbf6c5b4120fc1f887187dc4d4336e39ab35661342734fd565f0911c51e19f86"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-row-sum-128x256/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "7cc099d3214f1e48f6b79b134f715f0b1b4d8932",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "4594e9102132ce4f55cc863dacd52df628176a6f050e0cdacf91a2c272580b10",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "9bcfa16d7d5a80f343770d997224413b0a823f0023778f9baa17ea0a20f143e3",
+          "turn": 3,
+          "workspace_sha256": "7138cceb780dfed9e9fcb34671024a52f1b8f28b55365ac053ac7013b67e9b37"
+        },
+        "6": {
+          "commit": "6ca4514dbb110e2aac2650930298461df24e1d7f",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "4594e9102132ce4f55cc863dacd52df628176a6f050e0cdacf91a2c272580b10",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "9bcfa16d7d5a80f343770d997224413b0a823f0023778f9baa17ea0a20f143e3",
+          "turn": 6,
+          "workspace_sha256": "7138cceb780dfed9e9fcb34671024a52f1b8f28b55365ac053ac7013b67e9b37"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-row-sum-128x256/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "6f38085d66a6e6f46a4f2cee020bc6aee71bd850",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "2d35904dd3514c7a9eb213517f6849258659a4b55677f603418834be8a4ea138",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "5f7dd2776ee9d5c241e65ece04254e45cb497b861c5bd46e3849814c0b05ba71",
+          "turn": 3,
+          "workspace_sha256": "0fe45be2177c0d8834ab89aa283c07f1d78bd853efa23d5bc25272489dea6daf"
+        },
+        "6": {
+          "commit": "6d33429f13d11d9784851d20ca5043fe813854a2",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "2d35904dd3514c7a9eb213517f6849258659a4b55677f603418834be8a4ea138",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "5f7dd2776ee9d5c241e65ece04254e45cb497b861c5bd46e3849814c0b05ba71",
+          "turn": 6,
+          "workspace_sha256": "0fe45be2177c0d8834ab89aa283c07f1d78bd853efa23d5bc25272489dea6daf"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "model_id": "g42-repair-sft",
+      "run_path": "runs/g42-repair-sft/g42-benchmark-heldout-row-sum-128x256/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "eb86a2a449be08c004a8c4f3388cb4b752e56ada",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "440ce67ebc45da1c5203a7ecd411d7fdfe088ecd27f05b7ffa987c7b2c4d3122",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "755aadc3fd15b068831541068725bcfc00a5f7da96379ec514725df680392138",
+          "turn": 3,
+          "workspace_sha256": "ced1839c19cd507d4ead05eebe93bdabf144957061b12166eb597e98a3a1d887"
+        },
+        "6": {
+          "commit": "1ef0b1995e3547813f872b17b1355a3f0e3ae07f",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "440ce67ebc45da1c5203a7ecd411d7fdfe088ecd27f05b7ffa987c7b2c4d3122",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "755aadc3fd15b068831541068725bcfc00a5f7da96379ec514725df680392138",
+          "turn": 6,
+          "workspace_sha256": "ced1839c19cd507d4ead05eebe93bdabf144957061b12166eb597e98a3a1d887"
+        }
+      },
+      "submitted": true,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-add-384x384/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "2565947809a6fb35eeccd4b873d4fb8e97a56f67",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "92ed35af1578b82d890c6bf32b9b2ddc22002e25",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "05acb312be699a30de34686eb7bed5f2ec0c9e328540a0b94a996916e5bfbd3a",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "ca93b6948868c9410e0c2dfb3bf56c79ebb8c1082997415edba8724632fc902b",
+          "turn": 6,
+          "workspace_sha256": "7530ebe706adb95f7e81078e1128a5a8dae4b43a069536a463ad434cdd6b8f28"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-add-384x384/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "d01a0f4914685d47d0f42c55781622f5390ead43",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "3e13f3588da0b0359f5993b4d0307f8a7fc3827c",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "eaffaad4b177e161c080fb74c9223a74d632fe35cc872fde29c3af55b2c82a30",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "f2396c910c313869083be77c850481feb62289ea7c8bf2e5ccac4e73a170b279",
+          "turn": 6,
+          "workspace_sha256": "052aef722bbdef81766478190c586c36f053ceea666d08063c8b3e5ead03ba61"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-add-384x384/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "6ba9914b0a83eb5cb43f0da2035fea4679266976",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6af14d683a32e392842b69a080caf26200b86a4ab9f359912784f743d8967851"
+        },
+        "6": {
+          "commit": "b51e8cb2bf2ee7ffeb7bd1ce323435b3858d305c",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "f0644deae73d6debbabc6205d28fb1531783517ce4ee2dae1b77bd525d71170a",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "42b78cd1ebfeb4e2e17cef76614b016253cad83bb271ea3c6f5072402b85cd6f",
+          "turn": 6,
+          "workspace_sha256": "3a3103e4b7361a7b0ef82ec802d08bca47ebc7d060c0f4bcaa55ef48cfd08c07"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-matmul-128x256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "ec1e426d67720f652d9dea664358600289efa8c3",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "3b69d6eb26318388786b73699aec61f937cd44ed",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "7e0875cf87c48f491a82ac6605ea5a709c607a6dbd2eb94b24d9afd64c753470",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e01c97ee5bb310216a61bc06df96df501e2b939465d3ca61ae97cc58bc26ea32",
+          "turn": 6,
+          "workspace_sha256": "712655013594633eaadedde39e56526d243e9ee72bbd05d11a7fa9b53e0c81c9"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-matmul-128x256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "582609c542477d68d99bc2afd069247512a0d377",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "923119bc1213b0bed4a677e404bf634a12749126",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "2525c007ce5059437499555c5a7f3823f6e5edc5a988afd64456a9007b458486",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "54ecd5ec4dbcac0083ed58c0b3860c034e3c75f9c14706bafc4436fa8d58adbd",
+          "turn": 6,
+          "workspace_sha256": "28c4ecfb8f4c95e95312947f7e18eae908f58d9b79edbb8a5e303842925046fe"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-matmul-128x256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "bfd04d6e6e529dfd359522a4d7e6c6671554967f",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        },
+        "6": {
+          "commit": "672dd9ed0170142fceae92c54515673aeeb2d2b4",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "6e8af7571f389f29999f125821641f3d8eaf26142da4a1eed3d9bb2a3dbf6e4c"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-rmsnorm-256x128/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "9c35c683c0e2ceba6cd6e017f83df5b321ff0052",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "3fa6d6db31024857ba6ca15ccf09d1cf84ec788c",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-rmsnorm-256x128/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "bc304e85d39f594b0de7a54c3f588a3895eff902",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "e1e000abddf94701c4e48b63b5e620efb35dfbf9",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-rmsnorm-256x128/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "4da639fa8b7c80895a3179716e639c7eb2faad9c",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        },
+        "6": {
+          "commit": "607dc68f93aab8676302ca92ba863e5275ce7d5b",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "958a32f075d2aab60258434fe12c3912fb323a10b4f744e174381894259f41aa"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-row-sum-128x256/seed-0",
+      "seed": 0,
+      "snapshots": {
+        "3": {
+          "commit": "33e4e1d34d154d11a0677f55e4f70ebeae5014c5",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "1ae51d97c6cdeae43c8a4fd12db803d3836f87c9",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "7ebe86e93536400d33ee1e17a55a722c28dbe4224217759b4cc24b5a83287a4e",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "26a682933b2ff0199b47ec47c0de04adeac98e136f739ed182aa5b62c275bbd9",
+          "turn": 6,
+          "workspace_sha256": "54b93fc6d9b0a0e5ff3dbd425f13c080c45dad181ce34f30767de63d856b9ecc"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-row-sum-128x256/seed-1",
+      "seed": 1,
+      "snapshots": {
+        "3": {
+          "commit": "830101965cce42a94714376fcb1a334673c6d9ca",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "8422d0d9876ce097536d5e1e38fdd8cc7eb18420",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "efe9891ddcb377da3ea9e69f406b04350c94f9b2d6a29626497d3f7932f4f67f",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "7f58e9f49a52f62fb137322be6a3a4d5a9473c471e06228522c4c35515ccb18e",
+          "turn": 6,
+          "workspace_sha256": "fb9c84bba4531b23ff5ccce953868691af7b45707a6700f099dbf5b9d9b8325e"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    },
+    {
+      "checkpoint": null,
+      "model_id": "inkling-small-base",
+      "run_path": "runs/inkling-small-base/g42-benchmark-heldout-row-sum-128x256/seed-2",
+      "seed": 2,
+      "snapshots": {
+        "3": {
+          "commit": "3125804191eb9e968030905b63c292ef9c0e2af9",
+          "kernel_path": "turn-3-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-3.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 3,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        },
+        "6": {
+          "commit": "d5e0c366c142c50cb733d7be8710e5b1d8ff8e3d",
+          "kernel_path": "turn-6-kernel.py",
+          "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+          "patch_path": "turn-6.patch",
+          "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "turn": 6,
+          "workspace_sha256": "a1353bcf1b63072a7f52e4c13100868ca946ce66a1020a9338250a24daa16539"
+        }
+      },
+      "submitted": false,
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    }
+  ],
+  "release_sha256": "529d2ea2f8f6ffa0d5cc660cbf3fd934670126eb97857f74b5117dc31746bffd",
+  "schema_version": 1
+}

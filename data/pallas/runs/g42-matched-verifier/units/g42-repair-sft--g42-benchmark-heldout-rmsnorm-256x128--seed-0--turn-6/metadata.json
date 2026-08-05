@@ -1,0 +1,13 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "rmsnorm",
+  "kernel_sha256": "da435333288b767b98f5c76bd96c9ad944197e00b45bb0e82c0155f2273984a4",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "f07cfa707a6d2f193b21e413c0f3ddcf696f523a8c95b604d9d3d16b9f743060",
+  "seed": 0,
+  "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+  "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb",
+  "trajectory_sha256": "beae967d1f147b9b694348a07bed8193b945222237e2b32786184561bcefa947",
+  "turn": 6,
+  "unit_id": "g42-repair-sft--g42-benchmark-heldout-rmsnorm-256x128--seed-0--turn-6"
+}

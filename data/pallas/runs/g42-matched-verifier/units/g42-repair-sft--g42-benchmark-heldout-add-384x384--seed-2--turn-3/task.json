@@ -1,0 +1,32 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "add",
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      384
+    ],
+    [
+      384,
+      384
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "add",
+  "reference_kernel_sha256": "b6b8b16f2472f941e74f7d106ae990723b84eea21208d58927d72eae6fb3d0a7",
+  "source_task_id": "heldout-add-384x384",
+  "task_id": "g42-benchmark-heldout-add-384x384"
+}

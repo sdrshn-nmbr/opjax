@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "row_sum",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      128,
+      256
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "row_sum",
+  "reference_kernel_sha256": "857f693d93d3397dfdce985723dc4258fae63e1517fc63a07ae1235a061e04c2",
+  "source_task_id": "heldout-row-sum-128x256",
+  "task_id": "g42-benchmark-heldout-row-sum-128x256"
+}
