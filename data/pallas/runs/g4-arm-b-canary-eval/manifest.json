@@ -1,0 +1,75 @@
+{
+  "completed_at": "2026-08-05T01:41:19.131352+00:00",
+  "created_at": "2026-08-05T01:40:03.743800+00:00",
+  "fingerprint": {
+    "arm": "B",
+    "contract_sha256": "6d58c6ce1e24e763da39bb1032624bb2ee29f1712da986c789c724db46710409",
+    "experiment_id": "pallas-v2-inkling-small-v5e",
+    "jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+    "jaxbench_tracked_dirty": false,
+    "kernel_sha256": {
+      "12p_RMSNorm::seed=0": "c6c82bd57f5390d4a3ec3209501fe8c161ca36f88893cf93a669e90bca9e8dcd",
+      "1p_Flash_Attention::seed=0": "177135c36a357982abd0bad67b853e529f9c5a9788fb9549a1a45d45451ca779",
+      "8p_GEMM::seed=0": "0753d4991f59a4128ebc5866133df5701b08c21fe88df6372188a0c17854922b"
+    },
+    "lowering_calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "model_id": "tinker://8af8a8f8-a3e6-5ae8-b17c-e9691ac01120:train:0/sampler_weights/final",
+    "opjax_revision": "a72e76014b5f278cfbf46ef2d2963871c063932e",
+    "opjax_tracked_dirty": false,
+    "packages": {
+      "chex": "0.1.90",
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "tinker": null,
+      "tinker-cookbook": null
+    },
+    "platform": "Linux-5.19.0-1030-gcp-x86_64-with-glibc2.35",
+    "prompt_context": "spec",
+    "prompt_contract_sha256": "bef1b519699f0bfa8ce25a68697d792ea305b2784d67096a1cdbe7055e2e5565",
+    "python": "3.10.12",
+    "runtime_hardware": {
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "platforms": [
+        "tpu"
+      ],
+      "process_count": 1,
+      "process_index": 0
+    },
+    "sample_fingerprint_sha256": "d0162bc77e3dae9f4cba9a97d0b6f9a4234e6258a2164f3a34650e551d641940",
+    "target": {
+      "accelerator": "tpu",
+      "hardware": "v5e",
+      "topology": "v5litepod-1"
+    }
+  },
+  "generator": {
+    "argv": [
+      "/home/sudarshan/opjax/src/opjax/pallas/evaluation_cli.py",
+      "evaluate",
+      "--repo-root",
+      ".",
+      "--jaxbench-root",
+      "/home/sudarshan/jaxbench-root/JAXBench",
+      "--sample-run",
+      "data/pallas/runs/g4-arm-b-canary-samples",
+      "--lowering-calibration",
+      "data/pallas/runs/g3-sft-ready-final/evidence/calibration",
+      "--out-dir",
+      "/home/sudarshan/g4-canary-eval-final",
+      "--model-id",
+      "tinker://8af8a8f8-a3e6-5ae8-b17c-e9691ac01120:train:0/sampler_weights/final",
+      "--arm",
+      "B",
+      "--prompt-context",
+      "spec",
+      "--timeout-seconds",
+      "900"
+    ]
+  },
+  "schema_version": 2,
+  "status": "complete"
+}

@@ -1,0 +1,84 @@
+{
+  "completed_at": "2026-08-05T01:09:53.543888+00:00",
+  "created_at": "2026-08-05T00:53:04.334879+00:00",
+  "fingerprint": {
+    "arm": "B",
+    "base_model": "thinkingmachines/Inkling-Small",
+    "contract_sha256": "6d58c6ce1e24e763da39bb1032624bb2ee29f1712da986c789c724db46710409",
+    "jaxbench_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+    "jaxbench_tracked_dirty": false,
+    "model_path": "tinker://8af8a8f8-a3e6-5ae8-b17c-e9691ac01120:train:0/sampler_weights/final",
+    "opjax_revision": "46599766873710b721aff15dfd800b06920fb09e",
+    "opjax_tracked_dirty": false,
+    "packages": {
+      "tinker": "0.24.0",
+      "tinker-cookbook": "0.5.3"
+    },
+    "prompt": {
+      "diagnostic_context": "baseline",
+      "mode": "pallas_required",
+      "scored_context": "spec"
+    },
+    "prompt_context": "spec",
+    "renderer": "tml_v0",
+    "request": {
+      "sample_ids": [
+        "12p_RMSNorm::seed=0",
+        "1p_Flash_Attention::seed=0",
+        "8p_GEMM::seed=0"
+      ],
+      "seeds": [
+        0
+      ],
+      "workloads": [
+        "12p_RMSNorm",
+        "1p_Flash_Attention",
+        "8p_GEMM"
+      ]
+    },
+    "sampling": {
+      "max_concurrency": 8,
+      "max_retries": 2,
+      "max_tokens": 8192,
+      "retry_seed_stride": 1000000,
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "temperature": 0.2,
+      "top_p": 0.95
+    },
+    "sha256": "d0162bc77e3dae9f4cba9a97d0b6f9a4234e6258a2164f3a34650e551d641940",
+    "system_prompt_sha256": "e346dfb25a4b5554d3b1ed296416a7a2c20bbc5b133dd2a528ba79f4a8837dce"
+  },
+  "generator": {
+    "argv": [
+      "/Users/sudarshan/Code/opjax/.venv/bin/opjax-pallas",
+      "sample",
+      "--repo-root",
+      ".",
+      "--jaxbench-root",
+      "/tmp/opjax-jaxbench-small.vlC88D",
+      "--out-dir",
+      "data/pallas/runs/g4-arm-b-canary-samples",
+      "--arm",
+      "B",
+      "--model-path",
+      "tinker://8af8a8f8-a3e6-5ae8-b17c-e9691ac01120:train:0/sampler_weights/final",
+      "--prompt-context",
+      "spec",
+      "--workload",
+      "1p_Flash_Attention",
+      "--workload",
+      "8p_GEMM",
+      "--workload",
+      "12p_RMSNorm",
+      "--seed",
+      "0"
+    ]
+  },
+  "n_samples": 3,
+  "schema_version": 2,
+  "status": "sampled"
+}
