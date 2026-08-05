@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "XlaRuntimeError: INTERNAL: Core halted unexpectedly: INTERNAL: Accelerator device halted prematurely, perhaps due to an on-device check-failure. Node 0 halted unexpectedly at tag:pc TensorCoreSequencer:1:0x97 (from TensorCoreSequencer:1:0x1c7): BoundsCheck 0 [deref of %s162] for %446 = dma.hbm_to_vmem [thread:$0]  (!%p444), /*hbm=*/%s162, /*size_in_granules=*/2048, /*vmem=*/%s164, /*dst_syncflagno=*/%s148, /*src_stride=*/256, /*dst_stride=*/128, /*steps_per_stride=*/8 /* \nbase_bounds: (64, 2)\ndynamic_base_bounds: (64, 2)\nwindow_bounds: (16, 1)\niteration_bounds: (4, 2)\nstrides: (16, 1)\npad_low: (0, 0)\npad_high: (0, 0)\nelement_size_in_bytes: 4096 */\nhlo: main.1\n HLO: main.1; HLO computation: main.4\n=== Source Location Trace: ===\nlearning/45eac/tpu/runtime/hal/internal/tpu_program_termination_validation.cc:180\n",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "c0c2de97f4303bc6cfc4783e8314cc0eabe3f808d22cb252144afe3881789e1b",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "/home/sudarshan/opjax-g42/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\n",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"XlaRuntimeError: INTERNAL: Core halted unexpectedly: INTERNAL: Accelerator device halted prematurely, perhaps due to an on-device check-failure. Node 0 halted unexpectedly at tag:pc TensorCoreSequencer:1:0x97 (from TensorCoreSequencer:1:0x1c7): BoundsCheck 0 [deref of %s162] for %446 = dma.hbm_to_vmem [thread:$0]  (!%p444), /*hbm=*/%s162, /*size_in_granules=*/2048, /*vmem=*/%s164, /*dst_syncflagno=*/%s148, /*src_stride=*/256, /*dst_stride=*/128, /*steps_per_stride=*/8 /* \\nbase_bounds: (64, 2)\\ndynamic_base_bounds: (64, 2)\\nwindow_bounds: (16, 1)\\niteration_bounds: (4, 2)\\nstrides: (16, 1)\\npad_low: (0, 0)\\npad_high: (0, 0)\\nelement_size_in_bytes: 4096 */\\nhlo: main.1\\n HLO: main.1; HLO computation: main.4\\n=== Source Location Trace: ===\\nlearning/45eac/tpu/runtime/hal/internal/tpu_program_termination_validation.cc:180\\n\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"c0c2de97f4303bc6cfc4783e8314cc0eabe3f808d22cb252144afe3881789e1b\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}

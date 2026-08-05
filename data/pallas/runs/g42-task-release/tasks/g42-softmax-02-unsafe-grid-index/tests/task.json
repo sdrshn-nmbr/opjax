@@ -8,7 +8,7 @@
     "atol": 0.001,
     "rtol": 0.001
   },
-  "expected_initial_failure_stage": "full_shape_correctness",
+  "expected_initial_failure_stage": "runtime_safety",
   "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
   "family": "softmax",
   "feedback_stages": [

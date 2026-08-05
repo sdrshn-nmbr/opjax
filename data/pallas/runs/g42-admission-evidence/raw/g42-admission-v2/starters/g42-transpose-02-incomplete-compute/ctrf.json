@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g42-transpose-02-incomplete-compute",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 95831 / 98304 (97.5%)\nMax absolute difference among violations: 19.590132\nMax relative difference among violations: 1.\n ACTUAL: array([[0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],...\n DESIRED: array([[5.965578, 0.023785, 1.394488, ..., 0.06754 , 2.682431, 2.668625],\n       [4.144086, 1.822831, 6.138992, ..., 2.848492, 0.820599, 3.308085],\n       [0.042248, 1.671792, 0.577395, ..., 1.373539, 0.010284, 0.083531],... \nOriginal dtypes: float32, float32.",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

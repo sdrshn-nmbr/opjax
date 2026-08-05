@@ -1,0 +1,23 @@
+{
+  "authentic": true,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "full_shape_correctness",
+  "infrastructure_error": false,
+  "kernel_sha256": "c0c2de97f4303bc6cfc4783e8314cc0eabe3f808d22cb252144afe3881789e1b",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 1.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g42-binary-elementwise-03-unsafe-grid-index"
+}

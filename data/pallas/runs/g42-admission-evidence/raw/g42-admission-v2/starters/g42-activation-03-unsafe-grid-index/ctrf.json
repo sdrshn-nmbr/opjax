@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g42-activation-03-unsafe-grid-index",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "XlaRuntimeError: INTERNAL: Core halted unexpectedly: INTERNAL: Accelerator device halted prematurely, perhaps due to an on-device check-failure. Node 0 halted unexpectedly at tag:pc TensorCoreSequencer:1:0x8e (from TensorCoreSequencer:1:0x1be): BoundsCheck 0 [deref of %s126] for %632 = dma.hbm_to_vmem [thread:$0]  (!%p630), /*hbm=*/%s126, /*size_in_granules=*/2048, /*vmem=*/%s128, /*dst_syncflagno=*/%s112, /*src_stride=*/256, /*dst_stride=*/128, /*steps_per_stride=*/8 /* \nbase_bounds: (64, 2)\ndynamic_base_bounds: (64, 2)\nwindow_bounds: (16, 1)\niteration_bounds: (4, 2)\nstrides: (16, 1)\npad_low: (0, 0)\npad_high: (0, 0)\nelement_size_in_bytes: 4096 */\nhlo: main.1\n HLO: main.1; HLO computation: main.3\n=== Source Location Trace: === \nlearning/45eac/tpu/runtime/hal/internal/tpu_program_termination_validation.cc:180\n",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

@@ -8,10 +8,11 @@ import hashlib
 import json
 import re
 import sys
-import tomllib
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+
+import tomli
 
 from opjax.pallas.g42_harness import (
     canonical_sha256,
@@ -63,7 +64,7 @@ class _SingleMutation(ast.NodeTransformer):
         if self.mutation != "incomplete_compute" or self.changed:
             return node
         if any(isinstance(target, ast.Subscript) for target in node.targets):
-            node.value = ast.Constant(0.0)
+            node.value = ast.BinOp(left=ast.Constant(0.0), op=ast.Mult(), right=node.value)
             self.changed = True
         return node
 
@@ -179,7 +180,11 @@ def _write_task(*, root: Path, row: dict[str, Any], task: dict[str, Any], mutati
     expected_stage = {
         "reversed_blockspec": "pallas_api",
         "illegal_block_geometry": "tpu_compile",
-        "unsafe_grid_index": "full_shape_correctness",
+        "unsafe_grid_index": (
+            "runtime_safety"
+            if family in {"matmul", "normalization", "row_reduction", "softmax"}
+            else "full_shape_correctness"
+        ),
         "incomplete_compute": "full_shape_correctness",
     }[mutation]
     metadata = {
@@ -266,7 +271,7 @@ def _write_package(
 
 
 def load_task_package_without_hash(root: Path) -> dict[str, Any]:
-    manifest = tomllib.loads((root / "task.toml").read_text(encoding="utf-8"))
+    manifest = tomli.loads((root / "task.toml").read_text(encoding="utf-8"))
     manifest["metadata"]["task_sha256"] = None
     required = (
         "instruction.md",

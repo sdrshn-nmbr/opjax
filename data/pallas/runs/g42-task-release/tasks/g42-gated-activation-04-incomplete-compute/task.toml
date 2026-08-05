@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "gated_activation"
 source_row_id = "maxtext:src/maxtext/kernels/attention/ragged_attention.py:tanh-gate-384x256:sft"
 mutation = "incomplete_compute"
-task_sha256 = "83733448416c82723cc1c47890c674faf6e85767cd96a93cb67a0c512082a304"
+task_sha256 = "5db08bd14e05fb7204548c388c9cfb12e346133fa2b047b21238c13412003c88"
 input_shapes_json = "[[384,256],[384,256]]"
 input_dtypes_json = "[\"float32\",\"float32\"]"
 

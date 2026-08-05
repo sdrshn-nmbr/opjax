@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "activation"
 source_row_id = "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:square-512x512:sft"
 mutation = "incomplete_compute"
-task_sha256 = "38bc2edbc7ddca8980c104b60122bb8f6fb672f964d3cb8cf164d625f23079e4"
+task_sha256 = "357ca8753c61bf4fd25fd3be38d5e50c2d32c6a0b328c0b2c314a0ecb44bf255"
 input_shapes_json = "[[512,512]]"
 input_dtypes_json = "[\"float32\"]"
 

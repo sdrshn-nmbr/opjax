@@ -5,6 +5,7 @@ requires-python = ">=3.10,<3.11"
 dependencies = [
     "chex==0.1.90",
     "jax[tpu]==0.6.2",
+    "tomli==2.2.1",
 ]
 
 [tool.uv]

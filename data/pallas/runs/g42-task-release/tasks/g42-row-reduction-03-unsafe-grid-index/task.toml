@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "row_reduction"
 source_row_id = "maxtext:src/maxtext/kernels/sort_activations.py:row-mean-96x128:sft"
 mutation = "unsafe_grid_index"
-task_sha256 = "218da1befa4bcdc405f5bcf8be7dfe77d11cc18ef2706b1e3773451844d487b1"
+task_sha256 = "3cbd7f8e5ca544c6f6ae4d83ec45a56c6c124ceeeff1797b3b31ac0af09d4cd8"
 input_shapes_json = "[[96,128]]"
 input_dtypes_json = "[\"float32\"]"
 

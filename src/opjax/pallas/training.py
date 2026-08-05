@@ -261,6 +261,28 @@ def train_sft(
     )
     if dry_run:
         return {"ok": True, "dry_run": True, "preparation": preparation}
+    return run_prepared_sft(
+        preparation=preparation,
+        rows=rows,
+        datums=datums,
+        order=order,
+        tokenizer=tokenizer,
+        repo_root=repo_root,
+        out_dir=out_dir,
+    )
+
+
+def run_prepared_sft(
+    *,
+    preparation: dict[str, Any],
+    rows: list[dict[str, Any]],
+    datums: list[tinker.Datum],
+    order: list[int],
+    tokenizer: Any,
+    repo_root: Path,
+    out_dir: Path,
+) -> dict[str, Any]:
+    """Execute an already validated and rendered SFT preparation."""
     if _tracked_dirty(repo_root):
         raise TrainingError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
     if out_dir.exists() and any(out_dir.iterdir()):

@@ -1,0 +1,22 @@
+{
+  "error": "CANDIDATE_PROCESS_EXIT_-6",
+  "infrastructure_error": false,
+  "passed": false,
+  "process": {
+    "returncode": -6,
+    "stderr": "/home/sudarshan/opjax-g42/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\nF0805 06:43:55.738013   37842 math_util.cc:67] Check failed: llo::CouldLtS32(digits[i], bounds[i]) \n*** Check failure stack trace: ***\n    @     0x7fede4e2ff84  (unknown)\n    @     0x7fede4e2ff38  (unknown)\n    @     0x7fede1e00e35  (unknown)\n    @     0x7fede1df0c8a  (unknown)\n    @     0x7fede1df134b  (unknown)\n    @     0x7fede1df1021  (unknown)\n    @     0x7fede1cb2de5  (unknown)\n    @     0x7fede1ca9055  (unknown)\n    @     0x7fede1ca4e12  (unknown)\n    @     0x7feddc6a85a9  (unknown)\n    @     0x7feddc6a3be8  (unknown)\n    @     0x7feddc694c13  (unknown)\n    @     0x7feddc6743e9  (unknown)\n    @     0x7feddc694cd9  (unknown)\n    @     0x7feddc6993bd  (unknown)\n    @     0x7feddc69cf5c  (unknown)\n    @     0x7fede4a10445  (unknown)\n    @     0x7fede4a15776  (unknown)\n    @     0x7fede4a1e632  (unknown)\n    @     0x7fede4c8b863  (unknown)\n    @     0x7fee34c94b43  (unknown)\nhttps://symbolize.stripped_domain/r/?trace=7fede4e2ff84,7fede4e2ff37,7fede1e00e34,7fede1df0c89,7fede1df134a,7fede1df1020,7fede1cb2de4,7fede1ca9054,7fede1ca4e11,7feddc6a85a8,7feddc6a3be7,7feddc694c12,7feddc6743e8,7feddc694cd8,7feddc6993bc,7feddc69cf5b,7fede4a10444,7fede4a15775,7fede4a1e631,7fede4c8b862,7fee34c94b42&map= \nhttps://symbolize.stripped_domain/r/?trace=7fee34c96a7c,7fee34c4251f&map= \n*** SIGABRT received by PID 37593 (TID 37842) on cpu 18 from PID 37593; ***\nE0805 06:43:55.756894   37842 coredump_hook.cc:301] RAW: Remote crash data gathering hook invoked.\nE0805 06:43:55.756901   37842 coredump_hook.cc:340] RAW: Skipping coredump since rlimit was 0 at process start.\nE0805 06:43:55.756905   37842 client.cc:270] RAW: Coroner client retries enabled, will retry for up to 30 sec.\nE0805 06:43:55.756906   37842 coredump_hook.cc:396] RAW: Sending fingerprint to remote end.\nE0805 06:43:55.756915   37842 coredump_hook.cc:405] RAW: Cannot send fingerprint to Coroner: [NOT_FOUND] stat failed on crash reporting socket /var/google/services/logmanagerd/remote_coredump.socket (Is the listener running?): No such file or directory\nE0805 06:43:55.756918   37842 coredump_hook.cc:457] RAW: Dumping core locally.\nF0805 06:43:55.738013   37842 math_util.cc:67] Check failed: llo::CouldLtS32(digits[i], bounds[i]) \nE0805 06:43:55.813125   37842 process_state.cc:808] RAW: Raising signal 6 with default behavior\n",
+    "stdout": "",
+    "timed_out": false
+  },
+  "stage": "runtime_safety",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  },
+  "worker_recovery_required": true
+}

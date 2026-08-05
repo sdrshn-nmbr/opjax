@@ -15,6 +15,7 @@ dependencies = [
     "pillow==12.2.0",
     "pyarrow==24.0.0",
     "qwix>=0.1.6",
+    "tomli==2.2.1",
     "wandb==0.26.1",
 ]
 
@@ -29,7 +30,11 @@ opjax-pallas-environment-corpus = "opjax.pallas.environment_corpus:main"
 opjax-pallas-environment-runner = "opjax.pallas.environment_runner:main"
 opjax-pallas-environment-sample = "opjax.pallas.environment_sampling:main"
 opjax-pallas-g42-agent = "opjax.pallas.g42_agent:main"
+opjax-pallas-g42-admission = "opjax.pallas.g42_admission:main"
 opjax-pallas-g42-curriculum = "opjax.pallas.g42_curriculum:main"
+opjax-pallas-g42-traces = "opjax.pallas.g42_traces:main"
+opjax-pallas-g42-train = "opjax.pallas.g42_training:main"
+opjax-pallas-g42-verifier = "opjax.pallas.g42_verifier:main"
 
 [dependency-groups]
 dev = [

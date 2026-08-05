@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "transpose"
 source_row_id = "jax:tests/pallas/tpu_pallas_test.py:transpose-square-256x384:sft"
 mutation = "incomplete_compute"
-task_sha256 = "426124eb3847f8a6336a0e762f5d571db27e56f090b2715abbc377253b231a14"
+task_sha256 = "98fc95e27facd19fe550d13eb807d65a8a77813a23d4d9fcdf9322da59533f4e"
 input_shapes_json = "[[256,384]]"
 input_dtypes_json = "[\"float32\"]"
 

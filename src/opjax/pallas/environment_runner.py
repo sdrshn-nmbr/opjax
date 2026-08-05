@@ -16,6 +16,7 @@ import chex
 import jax
 
 from opjax.pallas.corpus import _generate_inputs, _semantic_oracle
+from opjax.pallas.environment import verify_static
 from opjax.pallas.lowering import capture_lowering_case
 from opjax.pallas.scoring import inspect_pallas_source
 
@@ -95,6 +96,16 @@ def evaluate_task(
         "profile": False,
     }
     source = kernel_path.read_text(encoding="utf-8")
+    static = verify_static(f"```python\n{source}\n```")
+    if not static.passed:
+        stage = "artifact_contract" if static.stage == "output_contract" else static.stage
+        return _failed(
+            stage=stage,
+            error=static.feedback,
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
+        )
     inspection = inspect_pallas_source(source)
     if not inspection.authentic:
         return _failed(

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g42-repair-inkling-small-v5e",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "renderer": "tml_v0",
+  "train_on": "last_assistant_message",
+  "trace_release_sha256": "db5526b9fb2562faac0433add044950732385daa66b83b931610efa99487672b",
+  "dataset_sha256": "51d9457405a1c1b3ff930ae66ed3d8795207bbaf1fe4ee04d2726e447ca5898f",
+  "verified_trajectories": 32,
+  "prefix_sft_rows": 192,
+  "arm": "G4.2-repair",
+  "lora_rank": 64,
+  "batch_size": 4,
+  "num_epochs": 1,
+  "max_length": 8192,
+  "learning_rate": 0.0001,
+  "lr_schedule": "constant",
+  "optimizer": {
+    "name": "adam",
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "eps": 1e-8,
+    "weight_decay": 0.0,
+    "grad_clip_norm": 0.0
+  },
+  "loss_fn": "cross_entropy",
+  "shuffle_seed": 0,
+  "training_seed": 0,
+  "checkpoint_every_steps": 12
+}

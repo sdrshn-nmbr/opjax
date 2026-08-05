@@ -14,6 +14,7 @@ from opjax.pallas.g42_harness import (
     classify_verifier_result,
     create_agent_workspace,
     load_task_package,
+    materialize_submission,
     parse_action,
     snapshot_workspace,
     summarize_horizons,
@@ -79,6 +80,24 @@ def test_agent_workspace_excludes_hidden_material_and_snapshots_prefix(task_rele
     second = snapshot_workspace(workspace, turn=6, output_dir=tmp_path / "snapshots")
     assert first["patch_sha256"] == second["patch_sha256"]
     assert first["kernel_sha256"] == second["kernel_sha256"]
+
+
+def test_materialize_submission_applies_patch_to_fresh_task_base(task_release: Path, tmp_path: Path) -> None:
+    manifest = json.loads((task_release / "manifest.json").read_text())
+    task = load_task_package(task_release / manifest["tasks"][0])
+    workspace = tmp_path / "agent-workspace"
+    create_agent_workspace(task, workspace)
+    (workspace / "kernel.py").write_text("def workload(x):\n    return x\n", encoding="utf-8")
+    snapshot = snapshot_workspace(workspace, turn=1, output_dir=tmp_path / "snapshots")
+
+    materialized = materialize_submission(
+        task=task,
+        patch_path=tmp_path / "snapshots" / snapshot["patch_path"],
+        destination=tmp_path / "verifier-workspace",
+    )
+
+    assert Path(materialized["kernel_path"]).read_text(encoding="utf-8") == "def workload(x):\n    return x\n"
+    assert not (tmp_path / "verifier-workspace" / "tests").exists()
 
 
 def test_task_tampering_is_rejected(task_release: Path) -> None:

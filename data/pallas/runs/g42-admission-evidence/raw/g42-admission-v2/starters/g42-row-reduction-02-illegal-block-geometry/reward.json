@@ -1,0 +1,23 @@
+{
+  "authentic": true,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "tpu_compile",
+  "infrastructure_error": false,
+  "kernel_sha256": "12d9bcd9669c09924e473f0c3cf9edbb02e7362d214995e450d50319fddac0e3",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 1.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 0.0
+  },
+  "task_id": "g42-row-reduction-02-illegal-block-geometry"
+}

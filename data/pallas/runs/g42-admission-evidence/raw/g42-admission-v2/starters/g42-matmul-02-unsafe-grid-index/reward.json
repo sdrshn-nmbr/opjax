@@ -1,0 +1,23 @@
+{
+  "authentic": false,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "runtime_safety",
+  "infrastructure_error": false,
+  "kernel_sha256": "883264915f8f4311d38769a869621baf03643a5d18cc62baf52fa17f77f64d6d",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 1.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g42-matmul-02-unsafe-grid-index"
+}

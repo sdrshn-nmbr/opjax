@@ -1,0 +1,29 @@
+diff --git a/kernel.py b/kernel.py
+index 4bcde5d..4f455d3 100644
+--- a/kernel.py
++++ b/kernel.py
+@@ -1,6 +1,7 @@
+ import jax
+ import jax.numpy as jnp
+ from jax.experimental import pallas as pl
++
+ SHAPE = (96, 256)
+ 
+ def _kernel(x_ref, o_ref):
+@@ -8,8 +9,14 @@ def _kernel(x_ref, o_ref):
+     maximum = jnp.max(values, axis=-1, keepdims=True)
+     numerator = jnp.exp(values - maximum)
+     denominator = jnp.sum(numerator, axis=-1, keepdims=True)
+-    o_ref[...] = 0.0 * (numerator / denominator)
++    o_ref[...] = numerator / denominator
+ 
+ def workload(x):
+     spec = pl.BlockSpec((8, SHAPE[1]), lambda i: (i, 0))
+-    return pl.pallas_call(_kernel, out_shape=jax.ShapeDtypeStruct(SHAPE, jnp.float32), grid=(SHAPE[0] // 8,), in_specs=(spec,), out_specs=spec)(x)
++    return pl.pallas_call(
++        _kernel,
++        out_shape=jax.ShapeDtypeStruct(SHAPE, jnp.float32),
++        grid=(SHAPE[0] // 8,),
++        in_specs=(spec,),
++        out_specs=spec,
++    )(x)

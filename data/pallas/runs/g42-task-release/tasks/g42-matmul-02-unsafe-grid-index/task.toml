@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "matmul"
 source_row_id = "jax:tests/pallas/tpu_pallas_test.py:matmul-relu-256x128x256:sft"
 mutation = "unsafe_grid_index"
-task_sha256 = "d4e08c3bdb684acdc92d2dc3c00fcb1ff9d0765a40e34583bfc367b44749e6ff"
+task_sha256 = "41f0f9516e3fd3b0bee9b899f48e1f096f63e3ef14625b144f4d7140e328af4d"
 input_shapes_json = "[[256,128],[128,256]]"
 input_dtypes_json = "[\"bfloat16\",\"bfloat16\"]"
 

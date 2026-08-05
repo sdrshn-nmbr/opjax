@@ -1,0 +1,23 @@
+{
+  "authentic": false,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "pallas_api",
+  "infrastructure_error": false,
+  "kernel_sha256": "e144e6e79e51b73b19066f09ed12673cf4bfc1240a4ef1e5e3ea2398a4762927",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 0.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 0.0
+  },
+  "task_id": "g42-binary-elementwise-05-reversed-blockspec"
+}

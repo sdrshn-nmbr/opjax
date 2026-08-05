@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "normalization"
 source_row_id = "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft"
 mutation = "unsafe_grid_index"
-task_sha256 = "5944adede78dc2046993610e5abbc81a59910a8d6a2556a5ba9308ceb9aea5c1"
+task_sha256 = "e6c5ced81793c9416bdd210a1149cc269a5fbeb0b0a3fa1df1d4855e952e692e"
 input_shapes_json = "[[128,128]]"
 input_dtypes_json = "[\"float32\"]"
 

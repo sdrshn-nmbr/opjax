@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 255456 / 262144 (97.4%)\nMax absolute difference among violations: 19.590132\nMax relative difference among violations: 1.\n ACTUAL: array([[0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],\n       [0., 0., 0., ..., 0., 0., 0.],...\n DESIRED: array([[5.965578e+00, 4.144086e+00, 4.224848e-02, ..., 1.197793e+00,\n        2.724761e-02, 2.127314e-02],\n       [2.827889e-03, 4.040613e+00, 5.273013e-01, ..., 1.807022e+00,... \nOriginal dtypes: float32, float32.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "8b68e33ec71fa41f4fedbb2819e17627d93d962c1f8be7b91f388d0cfc07dee1",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "/home/sudarshan/opjax-g42/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\n",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \\nNot equal to tolerance rtol=0.001, atol=0.001\\nError in value equality check: Values not approximately equal\\nMismatched elements: 255456 / 262144 (97.4%)\\nMax absolute difference among violations: 19.590132\\nMax relative difference among violations: 1.\\n ACTUAL: array([[0., 0., 0., ..., 0., 0., 0.],\\n       [0., 0., 0., ..., 0., 0., 0.],\\n       [0., 0., 0., ..., 0., 0., 0.],...\\n DESIRED: array([[5.965578e+00, 4.144086e+00, 4.224848e-02, ..., 1.197793e+00,\\n        2.724761e-02, 2.127314e-02],\\n       [2.827889e-03, 4.040613e+00, 5.273013e-01, ..., 1.807022e+00,... \\nOriginal dtypes: float32, float32.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"8b68e33ec71fa41f4fedbb2819e17627d93d962c1f8be7b91f388d0cfc07dee1\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}

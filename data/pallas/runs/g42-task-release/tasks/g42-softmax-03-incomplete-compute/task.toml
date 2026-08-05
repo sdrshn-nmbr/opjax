@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "softmax"
 source_row_id = "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmin-96x256:sft"
 mutation = "incomplete_compute"
-task_sha256 = "e69db2d4595c28ef4264294ce0316cc8bed1ba65a13f9db89da1027830edfddf"
+task_sha256 = "dbbe6276d4633e399f6968a95d99516c6df830e9721d9c6429ce090d0d6b0a44"
 input_shapes_json = "[[96,256]]"
 input_dtypes_json = "[\"float32\"]"
 

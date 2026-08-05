@@ -8,10 +8,11 @@ import os
 import re
 import shutil
 import subprocess
-import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
+
+import tomli
 
 from opjax.pallas.environment import verify_static
 
@@ -104,10 +105,10 @@ def load_task_package(root: Path) -> TaskPackage:
     root = root.resolve()
     manifest_path = root / "task.toml"
     try:
-        manifest = tomllib.loads(manifest_path.read_text(encoding="utf-8"))
+        manifest = tomli.loads(manifest_path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
         raise G42HarnessError(f"TASK_MANIFEST_MISSING: {manifest_path}") from exc
-    except tomllib.TOMLDecodeError as exc:
+    except tomli.TOMLDecodeError as exc:
         raise G42HarnessError(f"TASK_MANIFEST_INVALID: {exc}") from exc
     _require(manifest.get("schema_version") == TASK_SCHEMA_VERSION, "TASK_SCHEMA_INVALID", root.name)
     task = manifest.get("task", {})
@@ -279,6 +280,33 @@ def snapshot_workspace(workspace: Path, *, turn: int, output_dir: Path) -> dict[
     }
     (output_dir / f"turn-{turn}.json").write_text(json.dumps(record, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return record
+
+
+def materialize_submission(*, task: TaskPackage, patch_path: Path, destination: Path) -> dict[str, Any]:
+    """Apply only a captured agent patch to a fresh copy of the immutable task base."""
+    workspace_record = create_agent_workspace(task, destination)
+    patch_bytes = patch_path.read_bytes()
+    patch_sha256 = hashlib.sha256(patch_bytes).hexdigest()
+    applied = subprocess.run(
+        ["git", "-C", str(destination), "apply", "--whitespace=error-all", "-"],
+        input=patch_bytes,
+        capture_output=True,
+    )
+    if applied.returncode != 0:
+        raise G42HarnessError(
+            f"PATCH_APPLY_FAILED: {applied.stderr.decode(errors='replace').strip()}"
+        )
+    kernel_path = destination / "kernel.py"
+    _require(kernel_path.is_file() and not kernel_path.is_symlink(), "KERNEL_ARTIFACT_INVALID", str(kernel_path))
+    for forbidden in FORBIDDEN_WORKSPACE_NAMES:
+        _require(not (destination / forbidden).exists(), "PATCH_CREATED_HIDDEN_PATH", forbidden)
+    return {
+        **workspace_record,
+        "patch_sha256": patch_sha256,
+        "kernel_sha256": file_sha256(kernel_path),
+        "workspace_sha256": tree_sha256(destination, excluded={".git"}),
+        "kernel_path": str(kernel_path),
+    }
 
 
 def static_dev_result(kernel_path: Path) -> dict[str, Any]:

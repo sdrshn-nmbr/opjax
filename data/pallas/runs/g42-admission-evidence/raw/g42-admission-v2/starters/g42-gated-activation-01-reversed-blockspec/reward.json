@@ -1,0 +1,23 @@
+{
+  "authentic": false,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "pallas_api",
+  "infrastructure_error": false,
+  "kernel_sha256": "1ff5980a09349e390ef2b7e22e04866d7a1f228be7cbabb801318ba3c94baa67",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 0.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 0.0
+  },
+  "task_id": "g42-gated-activation-01-reversed-blockspec"
+}

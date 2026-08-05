@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g42-gated-activation-04-incomplete-compute",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 97746 / 98304 (99.4%)\nMax absolute difference among violations: 4.0234933\nMax relative difference among violations: 1.\n ACTUAL: array([[ 0.,  0., -0., ..., -0., -0., -0.],\n       [-0.,  0.,  0., ..., -0., -0.,  0.],\n       [-0., -0.,  0., ..., -0., -0., -0.],...\n DESIRED: array([[ 1.238641e+00,  3.881325e-01, -2.272979e-01, ..., -7.495220e-01,\n        -1.260406e-01, -2.004277e-01],\n       [-4.461480e-02,  5.948603e-01,  1.729812e-01, ..., -7.140850e-02,... \nOriginal dtypes: float32, float32.",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

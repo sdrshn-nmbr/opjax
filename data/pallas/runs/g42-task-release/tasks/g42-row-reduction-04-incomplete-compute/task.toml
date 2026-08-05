@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "row_reduction"
 source_row_id = "maxtext:src/maxtext/kernels/sort_activations.py:row-min-96x256:sft"
 mutation = "incomplete_compute"
-task_sha256 = "d5b52114de640c575d063a4c1a88d327cac598fc79327e0686f5add4f0ffddba"
+task_sha256 = "7d6ce1e91c1624e2823c6afab756d2fdd6e0786a4cd6eb2b522f73ac7b568acb"
 input_shapes_json = "[[96,256]]"
 input_dtypes_json = "[\"float32\"]"
 

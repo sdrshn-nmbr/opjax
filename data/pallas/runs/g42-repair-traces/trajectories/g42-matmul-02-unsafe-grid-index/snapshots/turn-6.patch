@@ -1,0 +1,32 @@
+diff --git a/kernel.py b/kernel.py
+index 22e9d44..d5f6a73 100644
+--- a/kernel.py
++++ b/kernel.py
+@@ -1,14 +1,23 @@
+ import jax
+ import jax.numpy as jnp
+ from jax.experimental import pallas as pl
+-M, K, N = (256, 128, 256)
++
++M, K, N = 256, 128, 256
+ 
+ def _kernel(x_ref, y_ref, o_ref):
+-    accumulator = jnp.dot(x_ref[...], y_ref[...], preferred_element_type=jnp.float32)
++    accumulator = jnp.dot(
++        x_ref[...], y_ref[...], preferred_element_type=jnp.float32
++    )
+     o_ref[...] = jnp.maximum(accumulator, 0.0)
+ 
+ def workload(x, y):
+-    x_spec = pl.BlockSpec((128, K), lambda i, j: (i + 1, 0 + 1))
++    x_spec = pl.BlockSpec((128, K), lambda i, j: (i, 0))
+     y_spec = pl.BlockSpec((K, 128), lambda i, j: (0, j))
+     out_spec = pl.BlockSpec((128, 128), lambda i, j: (i, j))
+-    return pl.pallas_call(_kernel, out_shape=jax.ShapeDtypeStruct((M, N), jnp.float32), grid=(M // 128, N // 128), in_specs=(x_spec, y_spec), out_specs=out_spec)(x, y)
++    return pl.pallas_call(
++        _kernel,
++        out_shape=jax.ShapeDtypeStruct((M, N), jnp.float32),
++        grid=(M // 128, N // 128),
++        in_specs=(x_spec, y_spec),
++        out_specs=out_spec,
++    )(x, y)

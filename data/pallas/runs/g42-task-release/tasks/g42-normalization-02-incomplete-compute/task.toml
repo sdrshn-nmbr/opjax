@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "normalization"
 source_row_id = "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:layernorm-128x256:sft"
 mutation = "incomplete_compute"
-task_sha256 = "12622e8b6d3ef2babf1f2209a60c9770d61d069eeaf1b4d978d4c1f4bad7d6fa"
+task_sha256 = "69ad0744ce5bf210ac2be24a81f2fc6ea9562e439304b0ec9457a2a49100b26b"
 input_shapes_json = "[[128,256]]"
 input_dtypes_json = "[\"float32\"]"
 

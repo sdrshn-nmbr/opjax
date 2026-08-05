@@ -9,7 +9,7 @@
     "selected_per_family": 4
   },
   "kind": "pallas_g42_task_release",
-  "release_sha256": "9c156595fdad7a5ad648223da520ec7a48a0b9b42fd0340d3991eaa5cbaf1426",
+  "release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
   "schema_version": 1,
   "source_dataset_sha256": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
   "source_release_sha256": "b6113016d873da0676c34df226299a87a9423b316e259e142e630775d085473c",
@@ -44,7 +44,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:maximum-512x512:sft",
       "task_id": "g42-binary-elementwise-04-incomplete-compute",
-      "task_sha256": "615ac378244bd4a9009e84736582b9d8ccee6bc9e29795abeb63b42aa2823f5c"
+      "task_sha256": "b50f0b9314de8e421e544181b3b7f19e19692250960e890493c660a361896c35"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -76,7 +76,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-square-256x384:sft",
       "task_id": "g42-transpose-02-incomplete-compute",
-      "task_sha256": "426124eb3847f8a6336a0e762f5d571db27e56f090b2715abbc377253b231a14"
+      "task_sha256": "98fc95e27facd19fe550d13eb807d65a8a77813a23d4d9fcdf9322da59533f4e"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -95,12 +95,12 @@
       "task_sha256": "1f8223c27dbbecae56e2dadb087111e5391cf9e87cce916d631da6c1d4829c25"
     },
     {
-      "expected_initial_failure_stage": "full_shape_correctness",
+      "expected_initial_failure_stage": "runtime_safety",
       "family": "matmul",
       "mutation": "unsafe_grid_index",
       "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-relu-256x128x256:sft",
       "task_id": "g42-matmul-02-unsafe-grid-index",
-      "task_sha256": "d4e08c3bdb684acdc92d2dc3c00fcb1ff9d0765a40e34583bfc367b44749e6ff"
+      "task_sha256": "41f0f9516e3fd3b0bee9b899f48e1f096f63e3ef14625b144f4d7140e328af4d"
     },
     {
       "expected_initial_failure_stage": "full_shape_correctness",
@@ -108,7 +108,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-square-128x256x256:sft",
       "task_id": "g42-matmul-03-incomplete-compute",
-      "task_sha256": "908a2bfd2863c40e82a3167f88085b5d2e5efe7fc95efe13409b9604691c734c"
+      "task_sha256": "14499cbf8824e94ecbc7dbb3b110c7ad98da13386ca65fb772cd21108cd18044"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -140,7 +140,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:square-512x512:sft",
       "task_id": "g42-activation-04-incomplete-compute",
-      "task_sha256": "38bc2edbc7ddca8980c104b60122bb8f6fb672f964d3cb8cf164d625f23079e4"
+      "task_sha256": "357ca8753c61bf4fd25fd3be38d5e50c2d32c6a0b328c0b2c314a0ecb44bf255"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -159,12 +159,12 @@
       "task_sha256": "87ff1940ea99ba078b4e274389c99629bf2c99fa225618c54c2df05d72efeaf9"
     },
     {
-      "expected_initial_failure_stage": "full_shape_correctness",
+      "expected_initial_failure_stage": "runtime_safety",
       "family": "normalization",
       "mutation": "unsafe_grid_index",
       "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
       "task_id": "g42-normalization-01-unsafe-grid-index",
-      "task_sha256": "5944adede78dc2046993610e5abbc81a59910a8d6a2556a5ba9308ceb9aea5c1"
+      "task_sha256": "e6c5ced81793c9416bdd210a1149cc269a5fbeb0b0a3fa1df1d4855e952e692e"
     },
     {
       "expected_initial_failure_stage": "full_shape_correctness",
@@ -172,7 +172,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:layernorm-128x256:sft",
       "task_id": "g42-normalization-02-incomplete-compute",
-      "task_sha256": "12622e8b6d3ef2babf1f2209a60c9770d61d069eeaf1b4d978d4c1f4bad7d6fa"
+      "task_sha256": "69ad0744ce5bf210ac2be24a81f2fc6ea9562e439304b0ec9457a2a49100b26b"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -191,12 +191,12 @@
       "task_sha256": "5a2b4c5f5188efc78db56b976150e0deb65290452cc692d1deffde679f45ef44"
     },
     {
-      "expected_initial_failure_stage": "full_shape_correctness",
+      "expected_initial_failure_stage": "runtime_safety",
       "family": "softmax",
       "mutation": "unsafe_grid_index",
       "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:log-softmax-96x128:sft",
       "task_id": "g42-softmax-02-unsafe-grid-index",
-      "task_sha256": "f1f548a7c66b6348d46f5cf59581db0dac135aaf3b57c79583d4ac83d8cbb5d0"
+      "task_sha256": "cd41ef8602a606cd0a9398264f6e4e9c4211d213d8817bb39ff4ea8f288f29f6"
     },
     {
       "expected_initial_failure_stage": "full_shape_correctness",
@@ -204,7 +204,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmin-96x256:sft",
       "task_id": "g42-softmax-03-incomplete-compute",
-      "task_sha256": "e69db2d4595c28ef4264294ce0316cc8bed1ba65a13f9db89da1027830edfddf"
+      "task_sha256": "dbbe6276d4633e399f6968a95d99516c6df830e9721d9c6429ce090d0d6b0a44"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -236,7 +236,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:tanh-gate-384x256:sft",
       "task_id": "g42-gated-activation-04-incomplete-compute",
-      "task_sha256": "83733448416c82723cc1c47890c674faf6e85767cd96a93cb67a0c512082a304"
+      "task_sha256": "5db08bd14e05fb7204548c388c9cfb12e346133fa2b047b21238c13412003c88"
     },
     {
       "expected_initial_failure_stage": "pallas_api",
@@ -255,12 +255,12 @@
       "task_sha256": "a693d24c3c665fd45bc2804538f09c38a04205d354fae1d7dccbd610002523aa"
     },
     {
-      "expected_initial_failure_stage": "full_shape_correctness",
+      "expected_initial_failure_stage": "runtime_safety",
       "family": "row_reduction",
       "mutation": "unsafe_grid_index",
       "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-mean-96x128:sft",
       "task_id": "g42-row-reduction-03-unsafe-grid-index",
-      "task_sha256": "218da1befa4bcdc405f5bcf8be7dfe77d11cc18ef2706b1e3773451844d487b1"
+      "task_sha256": "3cbd7f8e5ca544c6f6ae4d83ec45a56c6c124ceeeff1797b3b31ac0af09d4cd8"
     },
     {
       "expected_initial_failure_stage": "full_shape_correctness",
@@ -268,7 +268,7 @@
       "mutation": "incomplete_compute",
       "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-min-96x256:sft",
       "task_id": "g42-row-reduction-04-incomplete-compute",
-      "task_sha256": "d5b52114de640c575d063a4c1a88d327cac598fc79327e0686f5add4f0ffddba"
+      "task_sha256": "7d6ce1e91c1624e2823c6afab756d2fdd6e0786a4cd6eb2b522f73ac7b568acb"
     },
     {
       "expected_initial_failure_stage": "pallas_api",

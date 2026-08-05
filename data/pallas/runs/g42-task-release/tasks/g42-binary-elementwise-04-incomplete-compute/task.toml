@@ -12,7 +12,7 @@ mode = "curriculum"
 family = "binary_elementwise"
 source_row_id = "jax:tests/pallas/tpu_pallas_test.py:maximum-512x512:sft"
 mutation = "incomplete_compute"
-task_sha256 = "615ac378244bd4a9009e84736582b9d8ccee6bc9e29795abeb63b42aa2823f5c"
+task_sha256 = "b50f0b9314de8e421e544181b3b7f19e19692250960e890493c660a361896c35"
 input_shapes_json = "[[512,512],[512,512]]"
 input_dtypes_json = "[\"float32\",\"float32\"]"
 
