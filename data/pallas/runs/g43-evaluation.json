@@ -1,0 +1,108 @@
+{
+  "admission_release_sha256": "c6751950420b7aef43b85156403badbb60d60228dfd388381487103ad2f0ba19",
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "config_sha256": "d508b40124ae463fdc1b89f0e543806f6efee1a8877fc4ecb6d3d39ebce2e2b0",
+  "evaluation_seed": 0,
+  "experiment_id": "pallas-g43-learning-curve-inkling-small-v5e",
+  "headroom_task_ids": [
+    "g43-benchmark-transpose-abs-384x640"
+  ],
+  "kind": "pallas_g43_evaluation_config",
+  "learning_curve_release_sha256": "20386c3921d3e6d058e449701dde04534965820a7008c4c576cd2683c4e260e7",
+  "max_sampling_workers": 4,
+  "models": [
+    {
+      "checkpoint": null,
+      "checkpoint_run_sha256": null,
+      "group": "control",
+      "model_id": "inkling-small-base",
+      "training_seed": null,
+      "trajectory_count": 0
+    },
+    {
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "64b3adbfb7402dd3f5c74a5286e0783422785f608a585a61acaa6dba4a8b9b60",
+      "group": "control",
+      "model_id": "g42-repair-sft",
+      "training_seed": 0,
+      "trajectory_count": 32
+    },
+    {
+      "checkpoint": "tinker://b77afd55-024e-509c-b17a-dcdd7d5d0722:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "eac80186f9d92f83a69571ebf95f59b1bddca2682134868858abf5fe36c321a4",
+      "group": "learning_curve",
+      "model_id": "g43-n8-seed0",
+      "training_seed": 0,
+      "trajectory_count": 8
+    },
+    {
+      "checkpoint": "tinker://c007215a-a4f9-53f9-81ba-33d3d38fbc80:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "bb3f0f07cfae71736628794d19c747144c5dc047f6d23dfacc12aaa1aa1833c2",
+      "group": "learning_curve",
+      "model_id": "g43-n8-seed1",
+      "training_seed": 1,
+      "trajectory_count": 8
+    },
+    {
+      "checkpoint": "tinker://a801fc97-3cdc-5784-afe6-88832ffcad7f:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "1e8de41863e089e97cf36158c2f476533ce559d0b298c47b08a2bf7d362102ba",
+      "group": "learning_curve",
+      "model_id": "g43-n8-seed2",
+      "training_seed": 2,
+      "trajectory_count": 8
+    },
+    {
+      "checkpoint": "tinker://3f373c81-cb61-5a54-9a61-78ca2fe2642b:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "3cc682021d88c74674d78b812a26489c74bcc8d636f83dbeca6a47f143a737bf",
+      "group": "learning_curve",
+      "model_id": "g43-n16-seed0",
+      "training_seed": 0,
+      "trajectory_count": 16
+    },
+    {
+      "checkpoint": "tinker://908300d7-8e9d-5867-b644-2f0f2585be7d:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "741c719418011c5ae5a8b58a1f29e108c9e23a74253838585468e1fc3266f123",
+      "group": "learning_curve",
+      "model_id": "g43-n16-seed1",
+      "training_seed": 1,
+      "trajectory_count": 16
+    },
+    {
+      "checkpoint": "tinker://889d2afa-1441-5535-bb81-e6760ab6f60a:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "954554214448664bfc7ba272a11fa1988a19aca2800713cf73482bb1eb412007",
+      "group": "learning_curve",
+      "model_id": "g43-n16-seed2",
+      "training_seed": 2,
+      "trajectory_count": 16
+    },
+    {
+      "checkpoint": "tinker://2368e923-a353-5985-872f-5910b5214894:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "f8b7da66e25263bfec7dbae3f057bccac1d95c32e190a6e6771ac87ab95e0ca5",
+      "group": "learning_curve",
+      "model_id": "g43-n32-seed0",
+      "training_seed": 0,
+      "trajectory_count": 32
+    },
+    {
+      "checkpoint": "tinker://9dd8a6d7-2812-5f94-8888-2260c48fde9d:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "cd9bbf5f159c84222fddd802919508ef8c8203d034ae58517869d6b3c364625d",
+      "group": "learning_curve",
+      "model_id": "g43-n32-seed1",
+      "training_seed": 1,
+      "trajectory_count": 32
+    },
+    {
+      "checkpoint": "tinker://5a95dd71-4a4c-5c98-beac-0a4c6c15afed:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "5c596f9bc2437b4c4dc04cf92a620ef10c6fe11e90800f70a67bed91b5d810d7",
+      "group": "learning_curve",
+      "model_id": "g43-n32-seed2",
+      "training_seed": 2,
+      "trajectory_count": 32
+    }
+  ],
+  "schema_version": 1,
+  "snapshot_turns": [
+    3
+  ],
+  "turn_limit": 3
+}
