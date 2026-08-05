@@ -15,6 +15,7 @@ import chex
 import jax
 
 from opjax.pallas.corpus import _generate_inputs, _semantic_oracle
+from opjax.pallas.lowering import capture_lowering_case
 from opjax.pallas.scoring import inspect_pallas_source
 
 
@@ -47,7 +48,9 @@ def _hardware() -> dict[str, Any]:
     }
 
 
-def evaluate_task(*, task: dict[str, Any], kernel_path: Path) -> dict[str, Any]:
+def evaluate_task(
+    *, task: dict[str, Any], kernel_path: Path, evidence_dir: Path | None = None
+) -> dict[str, Any]:
     hardware = _hardware()
     source = kernel_path.read_text(encoding="utf-8")
     inspection = inspect_pallas_source(source)
@@ -109,6 +112,33 @@ def evaluate_task(*, task: dict[str, Any], kernel_path: Path) -> dict[str, Any]:
             "hardware": hardware,
             "kernel_sha256": _sha256_file(kernel_path),
         }
+    if evidence_dir is None:
+        return {
+            "passed": False,
+            "stage": "profile",
+            "error": "PROFILE_EVIDENCE_MISSING",
+            "hardware": hardware,
+            "kernel_sha256": _sha256_file(kernel_path),
+        }
+    try:
+        profile = capture_lowering_case(
+            label="candidate",
+            function=workload,
+            inputs=inputs,
+            out_dir=evidence_dir,
+            repetitions=3,
+            expected_output=expected,
+            rtol=float(tolerance["rtol"]),
+            atol=float(tolerance["atol"]),
+        )
+    except Exception as exc:
+        return {
+            "passed": False,
+            "stage": "profile",
+            "error": f"{type(exc).__name__}: {exc}",
+            "hardware": hardware,
+            "kernel_sha256": _sha256_file(kernel_path),
+        }
     return {
         "passed": True,
         "stage": "verified",
@@ -116,10 +146,11 @@ def evaluate_task(*, task: dict[str, Any], kernel_path: Path) -> dict[str, Any]:
         "hardware": hardware,
         "kernel_sha256": _sha256_file(kernel_path),
         "executable_tpu_custom_call": True,
+        "profile": profile,
     }
 
 
-def evaluate_repair_run(run_dir: Path) -> dict[str, Any]:
+def evaluate_repair_run(run_dir: Path, evidence_dir: Path | None) -> dict[str, Any]:
     rows = [
         json.loads(line)
         for line in (run_dir / "results.jsonl").read_text(encoding="utf-8").splitlines()
@@ -131,6 +162,11 @@ def evaluate_repair_run(run_dir: Path) -> dict[str, Any]:
         result = evaluate_task(
             task=row["task"],
             kernel_path=run_dir / final_attempt["kernel_path"],
+            evidence_dir=(
+                evidence_dir / row["task"]["task_id"]
+                if evidence_dir is not None
+                else None
+            ),
         )
         results.append(
             {
@@ -152,17 +188,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--task", type=Path)
     parser.add_argument("--kernel", type=Path)
     parser.add_argument("--repair-run", type=Path)
+    parser.add_argument("--evidence-dir", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.repair_run is not None:
             if args.task is not None or args.kernel is not None:
                 raise EnvironmentRunnerError("RUNNER_ARGUMENT_CONFLICT")
-            result = evaluate_repair_run(args.repair_run)
+            result = evaluate_repair_run(args.repair_run, args.evidence_dir)
         else:
             if args.task is None or args.kernel is None:
                 raise EnvironmentRunnerError("TASK_AND_KERNEL_REQUIRED")
             task = json.loads(args.task.read_text(encoding="utf-8"))
-            result = evaluate_task(task=task, kernel_path=args.kernel)
+            result = evaluate_task(
+                task=task,
+                kernel_path=args.kernel,
+                evidence_dir=args.evidence_dir,
+            )
     except Exception as exc:
         result = {"passed": False, "stage": "runner", "error": f"{type(exc).__name__}: {exc}"}
     print(json.dumps(result, sort_keys=True))
