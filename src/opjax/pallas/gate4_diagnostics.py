@@ -8,6 +8,7 @@ import asyncio
 import hashlib
 import importlib.metadata
 import json
+import re
 import subprocess
 import sys
 from datetime import datetime, timezone
@@ -87,10 +88,11 @@ def _package_version(name: str) -> str | None:
         return None
 
 
-def _blockspec_order(source: str) -> tuple[int, int]:
+def _blockspec_order(source: str) -> tuple[int, int, int]:
     tree = ast.parse(source)
     total = 0
     reversed_calls = 0
+    unknown_calls = 0
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call) or len(node.args) < 2:
             continue
@@ -101,16 +103,16 @@ def _blockspec_order(source: str) -> tuple[int, int]:
         ):
             continue
         total += 1
-        if isinstance(node.args[0], (ast.Lambda, ast.Name)) and isinstance(
-            node.args[1], (ast.Tuple, ast.List)
-        ):
+        if isinstance(node.args[0], ast.Lambda):
             reversed_calls += 1
-    return total, reversed_calls
+        elif not isinstance(node.args[1], ast.Lambda):
+            unknown_calls += 1
+    return total, reversed_calls, unknown_calls
 
 
 def _source_audit(source: str) -> dict[str, Any]:
     inspection = inspect_pallas_source(source)
-    blockspec_calls, reversed_calls = _blockspec_order(source)
+    blockspec_calls, reversed_calls, unknown_calls = _blockspec_order(source)
     tree = ast.parse(source)
     imports = {
         alias.asname or alias.name.split(".")[0]
@@ -130,6 +132,7 @@ def _source_audit(source: str) -> dict[str, Any]:
         "authenticity_reasons": list(inspection.reasons),
         "blockspec_calls": blockspec_calls,
         "reversed_blockspec_calls": reversed_calls,
+        "unknown_blockspec_order_calls": unknown_calls,
         "has_placeholder_ellipsis": any(
             isinstance(node, ast.Expr)
             and isinstance(node.value, ast.Constant)
@@ -137,6 +140,11 @@ def _source_audit(source: str) -> dict[str, Any]:
             for node in ast.walk(tree)
         ),
         "imports": sorted(imports),
+        "defines_workload": any(
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name == "workload"
+            for node in tree.body
+        ),
     }
 
 
@@ -150,6 +158,7 @@ def audit_supervision(
     )
     row_audits: list[dict[str, Any]] = []
     for row, datum in zip(rows, datums, strict=True):
+        prompt = row["messages"][0]["content"]
         source = row["messages"][-1]["content"]
         weights = datum.loss_fn_inputs["weights"].tolist()
         positive = [index for index, weight in enumerate(weights) if float(weight) > 0]
@@ -167,6 +176,13 @@ def audit_supervision(
                 "supervision_reaches_end": positive[-1] == len(weights) - 1,
                 "rendered_prefix": tokenizer.decode(rendered_tokens[: min(16, len(rendered_tokens))]),
                 "target_tail": tokenizer.decode(target_tokens[-min(16, len(target_tokens)):]),
+                "prompt_contract": {
+                    "requires_workload_name": bool(
+                        re.search(r"\bworkload\b", prompt, re.IGNORECASE)
+                    ),
+                    "requires_self_contained_module": "self-contained" in prompt.lower(),
+                    "forbids_incomplete_kernel": "incomplete" in prompt.lower(),
+                },
                 "source": _source_audit(source),
             }
         )
@@ -189,12 +205,111 @@ def audit_supervision(
             "rows_without_end_supervision": sum(not row["supervision_reaches_end"] for row in row_audits),
             "blockspec_calls": sum(row["source"]["blockspec_calls"] for row in row_audits),
             "reversed_blockspec_calls": sum(row["source"]["reversed_blockspec_calls"] for row in row_audits),
+            "unknown_blockspec_order_calls": sum(
+                row["source"]["unknown_blockspec_order_calls"]
+                for row in row_audits
+            ),
             "rows_with_placeholder_ellipsis": sum(
                 row["source"]["has_placeholder_ellipsis"] for row in row_audits
             ),
             "authentic_rows": sum(row["source"]["authentic"] for row in row_audits),
+            "prompts_requiring_workload_name": sum(
+                row["prompt_contract"]["requires_workload_name"]
+                for row in row_audits
+            ),
+            "prompts_requiring_self_contained_module": sum(
+                row["prompt_contract"]["requires_self_contained_module"]
+                for row in row_audits
+            ),
+            "prompts_forbidding_incomplete_kernel": sum(
+                row["prompt_contract"]["forbids_incomplete_kernel"]
+                for row in row_audits
+            ),
         },
         "rows": row_audits,
+    }
+    report["sha256"] = _canonical_sha256(report)
+    _write_json(output, report)
+    return report
+
+
+_FENCED_CODE = re.compile(r"```(?:python|py)?\n(.*?)```", re.DOTALL)
+
+
+def _analysis_code(completion: str) -> str | None:
+    for candidate in reversed(_FENCED_CODE.findall(completion)):
+        source = candidate.strip() + "\n"
+        if parses(source):
+            return source
+    return None
+
+
+def audit_sample_run(*, run_dir: Path, output: Path) -> dict[str, Any]:
+    manifest = _load_json(run_dir / "manifest.json")
+    if manifest.get("status") != "sampled":
+        raise DiagnosticError(f"DIAGNOSTIC_SAMPLE_RUN_INCOMPLETE: {run_dir}")
+    rows = _load_rows(run_dir / "samples.jsonl")
+    audited: list[dict[str, Any]] = []
+    for row in rows:
+        completion = row.get("completion")
+        if not isinstance(completion, str):
+            raise DiagnosticError("DIAGNOSTIC_COMPLETION_MISSING")
+        contract_code = extract_code(completion)
+        analysis_code = _analysis_code(completion)
+        audit = _source_audit(analysis_code) if analysis_code else None
+        contract_met = bool(contract_code and parses(contract_code))
+        blockspec_valid = bool(
+            audit
+            and audit["blockspec_calls"] > 0
+            and audit["reversed_blockspec_calls"] == 0
+            and audit["unknown_blockspec_order_calls"] == 0
+        )
+        complete = bool(
+            contract_met
+            and audit
+            and audit["defines_workload"]
+            and not audit["has_placeholder_ellipsis"]
+            and blockspec_valid
+        )
+        audited.append(
+            {
+                "task_id": row["task"]["task_id"],
+                "tier": row["task"]["tier"],
+                "n_tokens": row["n_tokens"],
+                "stop_reason": row["stop_reason"],
+                "analysis_code_present": analysis_code is not None,
+                "analysis_code_sha256": (
+                    source_sha256(analysis_code) if analysis_code else None
+                ),
+                "workload_contract_met": contract_met,
+                "blockspec_valid": blockspec_valid,
+                "complete_candidate": complete,
+                "source_audit": audit,
+            }
+        )
+
+    def metrics(selected: list[dict[str, Any]]) -> dict[str, int]:
+        return {
+            "n": len(selected),
+            "analysis_code_present": sum(row["analysis_code_present"] for row in selected),
+            "workload_contract_met": sum(row["workload_contract_met"] for row in selected),
+            "blockspec_valid": sum(row["blockspec_valid"] for row in selected),
+            "complete_candidate": sum(row["complete_candidate"] for row in selected),
+            "length_truncated": sum(row["stop_reason"] == "length" for row in selected),
+        }
+
+    tiers = list(dict.fromkeys(row["tier"] for row in audited))
+    report = {
+        "schema_version": 1,
+        "kind": "gate4_sample_audit",
+        "created_at": _utc_now(),
+        "source_fingerprint_sha256": manifest["fingerprint"]["sha256"],
+        "overall": metrics(audited),
+        "by_tier": {
+            tier: metrics([row for row in audited if row["tier"] == tier])
+            for tier in tiers
+        },
+        "rows": audited,
     }
     report["sha256"] = _canonical_sha256(report)
     _write_json(output, report)
@@ -372,6 +487,9 @@ def build_parser() -> argparse.ArgumentParser:
     sample.add_argument("--out-dir", type=Path, required=True)
     sample.add_argument("--arm", choices=["A", "B"], required=True)
     sample.add_argument("--model-path")
+    audit_samples = commands.add_parser("audit-samples")
+    audit_samples.add_argument("--run-dir", type=Path, required=True)
+    audit_samples.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -380,14 +498,22 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "audit-supervision":
             result = audit_supervision(config_root=args.config_root, corpus_root=args.corpus_root, repo_root=args.repo_root, output=args.output)
-        else:
+        elif args.command == "sample":
             result = asyncio.run(sample_ladder(config_root=args.config_root, corpus_root=args.corpus_root, diagnostic_path=args.diagnostic, repo_root=args.repo_root, out_dir=args.out_dir, arm=args.arm, model_path=args.model_path))
+        else:
+            result = audit_sample_run(run_dir=args.run_dir, output=args.output)
     except (DiagnosticError, ValueError) as exc:
         print(f"G4_DIAGNOSTIC_ERROR {exc}", file=sys.stderr)
         return 2
     printable = result
     if args.command == "audit-supervision":
         printable = {"sha256": result["sha256"], "summary": result["summary"]}
+    elif args.command == "audit-samples":
+        printable = {
+            "sha256": result["sha256"],
+            "overall": result["overall"],
+            "by_tier": result["by_tier"],
+        }
     print(json.dumps(printable, indent=2, sort_keys=True))
     return 0
 
