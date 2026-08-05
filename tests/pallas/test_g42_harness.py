@@ -147,6 +147,26 @@ def test_materialize_submission_applies_patch_to_fresh_task_base(task_release: P
     assert not (tmp_path / "verifier-workspace" / "tests").exists()
 
 
+def test_materialize_submission_accepts_unchanged_noop_patch(
+    task_release: Path, tmp_path: Path
+) -> None:
+    manifest = json.loads((task_release / "manifest.json").read_text())
+    task = load_task_package(task_release / manifest["tasks"][0])
+    empty_patch = tmp_path / "empty.patch"
+    empty_patch.write_bytes(b"")
+
+    materialized = materialize_submission(
+        task=task,
+        patch_path=empty_patch,
+        destination=tmp_path / "verifier-workspace",
+    )
+
+    assert materialized["patch_sha256"] == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    assert Path(materialized["kernel_path"]).read_bytes() == (
+        task.root / "environment" / "starter" / "kernel.py"
+    ).read_bytes()
+
+
 def test_task_tampering_is_rejected(task_release: Path) -> None:
     manifest = json.loads((task_release / "manifest.json").read_text())
     task_root = task_release / manifest["tasks"][0]

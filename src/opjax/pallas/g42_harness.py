@@ -288,15 +288,16 @@ def materialize_submission(*, task: TaskPackage, patch_path: Path, destination: 
     workspace_record = create_agent_workspace(task, destination)
     patch_bytes = patch_path.read_bytes()
     patch_sha256 = hashlib.sha256(patch_bytes).hexdigest()
-    applied = subprocess.run(
-        ["git", "-C", str(destination), "apply", "--whitespace=error-all", "-"],
-        input=patch_bytes,
-        capture_output=True,
-    )
-    if applied.returncode != 0:
-        raise G42HarnessError(
-            f"PATCH_APPLY_FAILED: {applied.stderr.decode(errors='replace').strip()}"
+    if patch_bytes:
+        applied = subprocess.run(
+            ["git", "-C", str(destination), "apply", "--whitespace=error-all", "-"],
+            input=patch_bytes,
+            capture_output=True,
         )
+        if applied.returncode != 0:
+            raise G42HarnessError(
+                f"PATCH_APPLY_FAILED: {applied.stderr.decode(errors='replace').strip()}"
+            )
     kernel_path = destination / "kernel.py"
     _require(kernel_path.is_file() and not kernel_path.is_symlink(), "KERNEL_ARTIFACT_INVALID", str(kernel_path))
     for forbidden in FORBIDDEN_WORKSPACE_NAMES:
