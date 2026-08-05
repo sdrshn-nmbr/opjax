@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "events.jsonl": "bf1c00034ebf5ea63f7520df60c58ffdcf38b82fcd847670737d2c93d010f5b0",
+    "preparation.json": "e1c5567a252e3a8b403967af707f2930f9533ce95e78fb17c2e9d1c7a65941a1"
+  },
+  "base_model": "thinkingmachines/Inkling-Small",
+  "checkpoint": {
+    "response": {
+      "path": "tinker://889d2afa-1441-5535-bb81-e6760ab6f60a:train:0/weights/step-0024",
+      "type": "save_weights"
+    },
+    "step": 24
+  },
+  "completed_at": "2026-08-05T23:34:06.692889+00:00",
+  "completed_steps": 24,
+  "contract_sha256": "56acb14a7c85ea9d33268c445db5ca17d794e568c6edd664f55975319b9e5caa",
+  "corpus_release_sha256": "be534b1f4ed3dba2d0af86ce2fcdcaee00a3fe000a0e1b515c63b0990a359b38",
+  "dataset_sha256": "9e17b05e393e9441e2f2904d288223d1497d5c36755f6b29ecd888cb45bafd38",
+  "experiment_id": "pallas-g43-learning-curve-inkling-small-v5e-n16-seed2",
+  "final_state": {
+    "path": "tinker://889d2afa-1441-5535-bb81-e6760ab6f60a:train:0/weights/final",
+    "type": "save_weights"
+  },
+  "kind": "pallas_sft_run",
+  "preparation_sha256": "ed66d87106dae7f821bfb7b31afbf106a1c23233154abc93aed4c5612a03067e",
+  "run_sha256": "954554214448664bfc7ba272a11fa1988a19aca2800713cf73482bb1eb412007",
+  "sampler_weights": {
+    "path": "tinker://889d2afa-1441-5535-bb81-e6760ab6f60a:train:0/sampler_weights/final",
+    "type": null
+  },
+  "schema_version": 1,
+  "started_at": "2026-08-05T23:30:00.311277+00:00",
+  "status": "completed",
+  "total_steps": 24,
+  "training_client": {
+    "is_lora": true,
+    "lora_rank": 64,
+    "model_data": {
+      "arch": null,
+      "model_name": "thinkingmachines/Inkling-Small",
+      "tokenizer_id": "thinkingmachines/Inkling-Small"
+    },
+    "model_id": "889d2afa-1441-5535-bb81-e6760ab6f60a:train:0",
+    "model_name": null,
+    "type": "get_info"
+  }
+}
