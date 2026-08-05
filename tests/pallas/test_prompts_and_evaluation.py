@@ -18,6 +18,7 @@ from opjax.pallas.evaluation import (
     _parse_json_output,
     _rescore_result_rows,
     _result_compiled,
+    _run_jaxbench_once,
     probe_runtime_hardware,
     validate_sample_run,
 )
@@ -351,6 +352,54 @@ def test_compilation_is_separate_from_correctness() -> None:
     assert _result_compiled({"status": "runtime_error"}) is False
 
 
+def test_jaxbench_retries_transient_tpu_runtime_lock(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    responses = [
+        subprocess.CompletedProcess(
+            [],
+            1,
+            stdout=json.dumps(
+                {
+                    "status": "error",
+                    "error": "TPU is already in use by process with pid 123",
+                }
+            ),
+            stderr="",
+        ),
+        subprocess.CompletedProcess(
+            [],
+            0,
+            stdout=json.dumps({"status": "incorrect"}),
+            stderr="",
+        ),
+    ]
+    sleeps: list[float] = []
+    monkeypatch.setattr(
+        "opjax.pallas.evaluation.subprocess.run",
+        lambda *_args, **_kwargs: responses.pop(0),
+    )
+    monkeypatch.setattr(
+        "opjax.pallas.evaluation.time.sleep",
+        lambda duration: sleeps.append(duration),
+    )
+
+    result = _run_jaxbench_once(
+        jaxbench_root=tmp_path,
+        workload="8p_GEMM",
+        kernel=tmp_path / "kernel.py",
+        tpu="v5e",
+        num_warmup=1,
+        num_iters=1,
+        timeout_seconds=30,
+    )
+
+    assert result["result"]["status"] == "incorrect"
+    assert len(result["transient_attempts"]) == 1
+    assert sleeps == [1.0]
+
+
 def test_rescore_removes_interpret_mode_pallas_credit(tmp_path: Path) -> None:
     baseline_dir = (
         tmp_path
@@ -422,7 +471,6 @@ def workload(x):
 
 def test_oracle_summary_quantifies_seed_variation(tmp_path: Path) -> None:
     bundle = load_contracts(CONFIG_ROOT)
-    source = "def workload(x):\n    return x\n"
     candidates = tuple(
         SampleCandidate(
             sample_id=f"1p_Flash_Attention::seed={seed}",

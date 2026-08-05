@@ -10,6 +10,7 @@ import platform
 import re
 import subprocess
 import sys
+import time
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -488,41 +489,76 @@ def _run_jaxbench_once(
     environment["PYTHONPATH"] = (
         f"{jaxbench_root}{os.pathsep}{python_path}" if python_path else str(jaxbench_root)
     )
-    try:
-        process = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            env=environment,
-            timeout=timeout_seconds,
-            check=False,
-        )
-    except subprocess.TimeoutExpired as exc:
-        return {
-            "returncode": None,
-            "result": {
+    deadline = time.monotonic() + timeout_seconds
+    transient_attempts: list[dict[str, Any]] = []
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return {
+                "returncode": None,
+                "result": {
+                    "workload": workload,
+                    "status": "error",
+                    "error_code": "TPU_LOCK_RETRY_TIMEOUT",
+                    "error": "TPU runtime lock did not clear before the deadline",
+                },
+                "stdout_tail": "",
+                "stderr_tail": "",
+                "transient_attempts": transient_attempts,
+            }
+        try:
+            process = subprocess.run(
+                command,
+                capture_output=True,
+                text=True,
+                env=environment,
+                timeout=remaining,
+                check=False,
+            )
+        except subprocess.TimeoutExpired as exc:
+            return {
+                "returncode": None,
+                "result": {
+                    "workload": workload,
+                    "status": "error",
+                    "error_code": "EVALUATION_TIMEOUT",
+                    "error": str(exc),
+                },
+                "stdout_tail": "",
+                "stderr_tail": "",
+                "transient_attempts": transient_attempts,
+            }
+        parsed = _parse_json_output(process.stdout)
+        if parsed is None:
+            parsed = {
                 "workload": workload,
                 "status": "error",
-                "error_code": "EVALUATION_TIMEOUT",
-                "error": str(exc),
-            },
-            "stdout_tail": "",
-            "stderr_tail": "",
-        }
-    parsed = _parse_json_output(process.stdout)
-    if parsed is None:
-        parsed = {
-            "workload": workload,
-            "status": "error",
-            "error_code": "JAXBENCH_JSON_MISSING",
-            "error": (process.stderr or process.stdout or "no output")[-1000:],
-        }
-    return {
-        "returncode": process.returncode,
-        "result": parsed,
-        "stdout_tail": process.stdout[-2000:],
-        "stderr_tail": process.stderr[-2000:],
-    }
+                "error_code": "JAXBENCH_JSON_MISSING",
+                "error": (process.stderr or process.stdout or "no output")[-1000:],
+            }
+        combined_output = f"{process.stdout}\n{process.stderr}"
+        if "TPU is already in use by process" not in combined_output:
+            return {
+                "returncode": process.returncode,
+                "result": parsed,
+                "stdout_tail": process.stdout[-2000:],
+                "stderr_tail": process.stderr[-2000:],
+                "transient_attempts": transient_attempts,
+            }
+        transient_attempts.append(
+            {
+                "returncode": process.returncode,
+                "result": parsed,
+                "stdout_tail": process.stdout[-2000:],
+                "stderr_tail": process.stderr[-2000:],
+            }
+        )
+        print(
+            "PALLAS_EVAL_TPU_LOCK_RETRY "
+            f"workload={workload} attempt={len(transient_attempts)}",
+            flush=True,
+        )
+        time.sleep(min(1.0, max(0.0, deadline - time.monotonic())))
 
 
 def _result_correct(value: dict[str, Any]) -> bool:
