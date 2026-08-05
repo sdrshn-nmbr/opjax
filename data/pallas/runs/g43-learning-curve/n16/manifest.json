@@ -1,0 +1,38 @@
+{
+  "dataset_sha256": "9e17b05e393e9441e2f2904d288223d1497d5c36755f6b29ecd888cb45bafd38",
+  "family_counts": {
+    "activation": 2,
+    "binary_elementwise": 2,
+    "gated_activation": 2,
+    "matmul": 2,
+    "normalization": 2,
+    "row_reduction": 2,
+    "softmax": 2,
+    "transpose": 2
+  },
+  "kind": "pallas_g43_trace_subset_release",
+  "prefix_sft_rows": 96,
+  "release_sha256": "be534b1f4ed3dba2d0af86ce2fcdcaee00a3fe000a0e1b515c63b0990a359b38",
+  "schema_version": 1,
+  "source_task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "source_trace_release_sha256": "db5526b9fb2562faac0433add044950732385daa66b83b931610efa99487672b",
+  "task_ids": [
+    "g42-activation-01-reversed-blockspec",
+    "g42-activation-02-illegal-block-geometry",
+    "g42-binary-elementwise-01-reversed-blockspec",
+    "g42-binary-elementwise-02-illegal-block-geometry",
+    "g42-gated-activation-01-reversed-blockspec",
+    "g42-gated-activation-02-illegal-block-geometry",
+    "g42-matmul-01-illegal-block-geometry",
+    "g42-matmul-02-unsafe-grid-index",
+    "g42-normalization-01-unsafe-grid-index",
+    "g42-normalization-02-incomplete-compute",
+    "g42-row-reduction-01-reversed-blockspec",
+    "g42-row-reduction-02-illegal-block-geometry",
+    "g42-softmax-01-illegal-block-geometry",
+    "g42-softmax-02-unsafe-grid-index",
+    "g42-transpose-01-unsafe-grid-index",
+    "g42-transpose-02-incomplete-compute"
+  ],
+  "trajectory_count": 16
+}

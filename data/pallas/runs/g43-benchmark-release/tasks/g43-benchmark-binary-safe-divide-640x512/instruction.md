@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `safe_divide` in the `binary_elementwise` family with input shapes [[640, 512], [640, 512]] and dtypes ['float32', 'float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. Hidden tests use three input seeds and profile execution against the semantic XLA oracle.

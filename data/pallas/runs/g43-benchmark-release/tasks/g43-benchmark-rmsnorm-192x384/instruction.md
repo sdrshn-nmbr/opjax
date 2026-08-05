@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `rmsnorm` in the `normalization` family with input shapes [[192, 384]] and dtypes ['float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. Hidden tests use three input seeds and profile execution against the semantic XLA oracle.

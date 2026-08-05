@@ -19,6 +19,7 @@ from opjax.pallas.g42_harness import (
     parse_action,
     snapshot_workspace,
     summarize_horizons,
+    validate_horizon_contract,
     validate_task_release,
     write_verifier_artifacts,
 )
@@ -42,6 +43,15 @@ def test_action_parser_requires_exactly_one_nonempty_action() -> None:
         parse_action("no action")
     with pytest.raises(G42HarnessError, match="ACTION_COUNT_INVALID"):
         parse_action("```mswea_bash_command\na\n```\n```mswea_bash_command\nb\n```")
+
+
+def test_horizon_contract_accepts_g42_and_g43_prefixes() -> None:
+    validate_horizon_contract(turn_limit=3, snapshot_turns=(3,))
+    validate_horizon_contract(turn_limit=6, snapshot_turns=(3, 6))
+    with pytest.raises(G42HarnessError, match="HORIZON_CONTRACT_INVALID"):
+        validate_horizon_contract(turn_limit=3, snapshot_turns=(3, 2))
+    with pytest.raises(G42HarnessError, match="HORIZON_CONTRACT_INVALID"):
+        validate_horizon_contract(turn_limit=3, snapshot_turns=(4,))
 
 
 def test_release_is_balanced_and_preserves_all_source_rows(task_release: Path) -> None:

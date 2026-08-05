@@ -1,0 +1,30 @@
+{
+  "arm": "G4.3-n32-seed1",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "batch_size": 4,
+  "checkpoint_every_steps": 12,
+  "dataset_sha256": "51d9457405a1c1b3ff930ae66ed3d8795207bbaf1fe4ee04d2726e447ca5898f",
+  "experiment_id": "pallas-g43-learning-curve-inkling-small-v5e-n32-seed1",
+  "learning_rate": 0.0001,
+  "lora_rank": 64,
+  "loss_fn": "cross_entropy",
+  "lr_schedule": "constant",
+  "max_length": 8192,
+  "num_epochs": 1,
+  "optimizer": {
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "eps": 1e-08,
+    "grad_clip_norm": 0.0,
+    "name": "adam",
+    "weight_decay": 0.0
+  },
+  "prefix_sft_rows": 192,
+  "renderer": "tml_v0",
+  "schema_version": 1,
+  "shuffle_seed": 1,
+  "trace_release_sha256": "4d0363300dd422b1b077750e95efa48aab680bfdbcbf8337eea8a4e75fefba50",
+  "train_on": "last_assistant_message",
+  "training_seed": 1,
+  "verified_trajectories": 32
+}

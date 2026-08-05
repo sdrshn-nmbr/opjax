@@ -102,6 +102,22 @@ def parse_action(content: str) -> dict[str, str]:
     return {"command": actions[0]}
 
 
+def validate_horizon_contract(
+    *, turn_limit: int, snapshot_turns: tuple[int, ...]
+) -> None:
+    valid = (
+        turn_limit > 0
+        and bool(snapshot_turns)
+        and tuple(sorted(set(snapshot_turns))) == snapshot_turns
+        and snapshot_turns[-1] <= turn_limit
+    )
+    _require(
+        valid,
+        "HORIZON_CONTRACT_INVALID",
+        f"limit={turn_limit} snapshots={snapshot_turns}",
+    )
+
+
 def load_task_package(root: Path) -> TaskPackage:
     root = root.resolve()
     manifest_path = root / "task.toml"

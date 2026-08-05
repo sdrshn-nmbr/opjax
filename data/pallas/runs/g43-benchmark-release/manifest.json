@@ -1,0 +1,208 @@
+{
+  "counts": {
+    "families": 8,
+    "tasks": 16,
+    "tasks_per_family": 2
+  },
+  "kind": "pallas_g43_benchmark_release",
+  "release_sha256": "ff99de0fdce776f37c35b6159ce2881ee30f2758596036a159a80c0a7e8e618b",
+  "schema_version": 1,
+  "source_config_sha256": "cdae97231fd8670d9076cdc993ac41ff960b16302efbf99838dc5851f5229afa",
+  "task_records": [
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "binary_elementwise",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:binary-add-768x384",
+      "task_id": "g43-benchmark-binary-add-768x384",
+      "task_sha256": "f82441dc2add295986e042eb021eb4f19270bba16e06d41bdaf7efb90477e0a8"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "binary_elementwise",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:binary-safe-divide-640x512",
+      "task_id": "g43-benchmark-binary-safe-divide-640x512",
+      "task_sha256": "bf68ce14c360ced84b9440f5bdebb0bc81579e9aa981a6f64e395ef6af1f72d3"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "transpose",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:transpose-square-256x512",
+      "task_id": "g43-benchmark-transpose-square-256x512",
+      "task_sha256": "50814f8d0c5b3aaee3916cfde24ad96580ef0dc82801a07a12340190a0dd6e86"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "transpose",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:transpose-abs-384x640",
+      "task_id": "g43-benchmark-transpose-abs-384x640",
+      "task_sha256": "63b54cfdd90879cdc7be861cf52d29921f7fd0cb739228a6f3c854a7c9ef7133"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "matmul",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:matmul-relu-256x384x512",
+      "task_id": "g43-benchmark-matmul-relu-256x384x512",
+      "task_sha256": "8f136d6ef1236bda04f778644dd786404912a3c4a4da5b8395cd0d8c4b30d40e"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "matmul",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:matmul-square-384x256x384",
+      "task_id": "g43-benchmark-matmul-square-384x256x384",
+      "task_sha256": "9604d9943672ba30426365cef26c4e03b2fbcc80e56effa07c14f48b2ca93577"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "activation",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:activation-relu-768x512",
+      "task_id": "g43-benchmark-activation-relu-768x512",
+      "task_sha256": "b689fd3226e02a0c8d0530d2c1b210132282ef80bdf719d509715237e03f0107"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "activation",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:activation-exp-640x384",
+      "task_id": "g43-benchmark-activation-exp-640x384",
+      "task_sha256": "5e8c10357928f905091dc9beaa6a18da0a75930b2f0d014370a0143c2de951cd"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "normalization",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:rmsnorm-192x384",
+      "task_id": "g43-benchmark-rmsnorm-192x384",
+      "task_sha256": "e7588e9d6ddabfabf6357f4be38681da1f602dad005dc9054b5b2a5046a4d567"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "normalization",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:layernorm-320x512",
+      "task_id": "g43-benchmark-layernorm-320x512",
+      "task_sha256": "53baaca5d7dd9fd4c67ee9576920ccafa6de42885c6fa552877f891ecd63ef52"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "softmax",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:softmax-192x384",
+      "task_id": "g43-benchmark-softmax-192x384",
+      "task_sha256": "37961ffcdf125767eec3a5815cab7881724f24c29d338ff35a78c1a7d8a49e79"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "softmax",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:log-softmax-320x256",
+      "task_id": "g43-benchmark-log-softmax-320x256",
+      "task_sha256": "6e7109652c6b12a01f9ac460ba50789bb68280afa6fad0f586381feb42c5eb4b"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "gated_activation",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:silu-gate-512x384",
+      "task_id": "g43-benchmark-silu-gate-512x384",
+      "task_sha256": "b950f1d9dbb2415f258086da6cb804f9b74e08d74ac0e7fbb223601487c93662"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "gated_activation",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:gelu-gate-640x512",
+      "task_id": "g43-benchmark-gelu-gate-640x512",
+      "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "row_reduction",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:row-sum-192x384",
+      "task_id": "g43-benchmark-row-sum-192x384",
+      "task_sha256": "c1087a55ff26ff1ff2b7d0253b87e196cfb824fbc0ab2d030aff3af504647cd4"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "row_reduction",
+      "mutation": "missing_implementation",
+      "source_row_id": "g43-independent:row-max-320x512",
+      "task_id": "g43-benchmark-row-max-320x512",
+      "task_sha256": "c9bd3a80329bf152b01e07aa852259de756e3d04416c131579065737451c33ea"
+    }
+  ],
+  "task_signatures": [
+    "150b7abf8a91f1bbd46312f97314f5b2b96898db4ff7c0a4b914d5b9fe57ea45",
+    "b0abeabe3981edf0d1c4e123a21419f90a61343e589e131175e5c96dc1eb1df6",
+    "8ab07d95adecab9de4559669454cbf8ce84f9881322287a5faec5e8f2160ce41",
+    "e4fb530a5a7cefe095694908cec12cb069a0877af5b5cd79b47f638ad4d6361a",
+    "93d6be4661a16888ee837aee70c5ef032a8d7ae746417a30b14d1ba19f871c27",
+    "62270aebc847062f582b44eeaf874c39df78eb464e495b4b3c675a17b178d747",
+    "8085814a76e1cf9780b29f43283e19430a48985de6855e888bf59b2bd9a0a090",
+    "150280d60676ceae11ebaba10ef6f0314888e89469b27d14413f375ec704795a",
+    "40f6c570994fcd25af0feb79de9aa3a9a074476fca0c19ac6d0c47c7e44f2492",
+    "4a5e104dac14daeca01fa553d20a0533f42ec36fb26d56c98c08b39d1abd7189",
+    "53f1e490a42fc6dadbbcb4e9d974a4c0ffebff2939791b1bc4517e4615a684f5",
+    "8a55d07f01aff4c544186ebd5f7576dea735a787098975e6e92c0ea133e3919f",
+    "1012800dfd4ec27913d48d5966d193e35c67ae8611df85cc66c66a34f83697b0",
+    "47b7419aa673f5aa926563f0d52fb79db6933b7effc0bce1b6895cc88250ae97",
+    "77b727a0f4a6b20024f287d57802add962f457d113c7e44bb5f4ce48d4a25935",
+    "8d42c00dd4c581fa8d210253866f36c81a165c0d3c5ee571db5e4873c87d26c8"
+  ],
+  "tasks": [
+    "tasks/g43-benchmark-binary-add-768x384",
+    "tasks/g43-benchmark-binary-safe-divide-640x512",
+    "tasks/g43-benchmark-transpose-square-256x512",
+    "tasks/g43-benchmark-transpose-abs-384x640",
+    "tasks/g43-benchmark-matmul-relu-256x384x512",
+    "tasks/g43-benchmark-matmul-square-384x256x384",
+    "tasks/g43-benchmark-activation-relu-768x512",
+    "tasks/g43-benchmark-activation-exp-640x384",
+    "tasks/g43-benchmark-rmsnorm-192x384",
+    "tasks/g43-benchmark-layernorm-320x512",
+    "tasks/g43-benchmark-softmax-192x384",
+    "tasks/g43-benchmark-log-softmax-320x256",
+    "tasks/g43-benchmark-silu-gate-512x384",
+    "tasks/g43-benchmark-gelu-gate-640x512",
+    "tasks/g43-benchmark-row-sum-192x384",
+    "tasks/g43-benchmark-row-max-320x512"
+  ],
+  "training_task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "training_task_signatures": [
+    "0d85c825cfd02710360fe6f737625fc313c69805055ba59234f270d425b2fa70",
+    "0e274abaeeda34386628ea44ceac12540430562c3b65bfef1578cec9d9fc125b",
+    "0eecf4ace6262a9308b980e1ac06ccafd8f445ae8f7a714b836efad11bebdf96",
+    "1d97987f62c3dcecb43f18161869178cbafed38899f6d963978d3f22398fdf5b",
+    "28111879955f79e311315272224383eb9482dca85c61f129ab610070b9ef63ba",
+    "2c3da6970ba82ffabc4d550551a80897a3313931a0885d539595479d52936f6a",
+    "2f151a16e556d990fe1eed9d9768e36d9406d5dd05eb51bf7b2911646f7dd727",
+    "3479d32f96dc259a3dbc1a56afea50afd6da663b5206ee1d97ca9c7ca490154a",
+    "349ae2c307a07cfdb993239805b925d9377097ad155a576b1382110b1e2324a8",
+    "3930782368ff2cca9e6cfab1e581e1deeeb2a6e118147ddd09d4656cb7f299e5",
+    "3a64ab0a5864c743cd332764f66b5cca6065ca9683a80354eb2e30df4d3975c8",
+    "4979950e5ba00d61b95deb645670816c4e23f27c041f2a7cb477f2e2716e2687",
+    "4da98b3435e79ec243aba0b1627dd86ef00361c63b622a6e31169e66a8838992",
+    "4f640f1a3525be1a586ba9ad85408c6fd78b96fc29fc494a80a375214261f467",
+    "5b13143897c22c0554c2b303f74d39d51218dace4146c8cd05be92f60ce8ade8",
+    "646d3d8365e7de8781938dede1b3ab73bb2582dcf9a5e85d87e188218c54418b",
+    "7401ed25c4cce97921a3f70c30eaaa7fcbe838e024fa29e23448264b186f080b",
+    "78f6d26ce3812176e7bab5b16a5ca38227147618b4ae2ed126c243ad46cfaad3",
+    "883a6c81743580a6ccce54117bdabb22dba18ab3562441bdef7b0eaa1add92cc",
+    "8f5e768823a971d90d8217f284f57638ba32c6969e38f7cb90cca99b66d92bf4",
+    "9e53ef8ed845a2ed4231189069b93df14ce52f170dfe4801c43cdd343c093fa2",
+    "ba7ba37a755025a44cc3c6413065c4342dc1cff31e0cbe649db4cf6fdd4c982b",
+    "bcf18c3a3756504a6ff0ef584cfa2be050d2df531631adb0802274f5385bc7f7",
+    "d3243563058b661e445a1c8907bd39598dcd64bee8de7d022511dd15d2006b0b",
+    "d770225028a574110decfad2eab413d5e47b419d6ce4c0000d3f940e9fdfac58",
+    "e5dc5909e9a73c9b20186e73c39427d9ec2e6d43de115cea536bcb1671e1b22f",
+    "f6b16be71e72947ac5aaec14845b9f9fd520274dcbcf9798d80ab227f15b9431",
+    "f7de248e50538a8000bc3fc92ef49202d98620a5a80c264435b5ebe3d1afc0ba"
+  ]
+}

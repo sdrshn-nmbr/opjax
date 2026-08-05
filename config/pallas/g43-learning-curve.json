@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g43-learning-curve-inkling-small-v5e",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "renderer": "tml_v0",
+  "train_on": "last_assistant_message",
+  "trajectory_counts": [8, 16, 32],
+  "training_seeds": [0, 1, 2],
+  "evaluation_seed": 0,
+  "turn_limit": 3,
+  "snapshot_turns": [3],
+  "max_sampling_workers": 4,
+  "training": {
+    "lora_rank": 64,
+    "batch_size": 4,
+    "num_epochs": 1,
+    "max_length": 8192,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "optimizer": {
+      "name": "adam",
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "eps": 1e-8,
+      "weight_decay": 0.0,
+      "grad_clip_norm": 0.0
+    },
+    "loss_fn": "cross_entropy",
+    "checkpoint_every_steps": 12
+  },
+  "benchmark_tasks": [
+    {
+      "task_id": "binary-add-768x384",
+      "family": "binary_elementwise",
+      "operation": "add",
+      "input_shapes": [[768, 384], [768, 384]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "binary-safe-divide-640x512",
+      "family": "binary_elementwise",
+      "operation": "safe_divide",
+      "input_shapes": [[640, 512], [640, 512]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "transpose-square-256x512",
+      "family": "transpose",
+      "operation": "transpose_square",
+      "input_shapes": [[256, 512]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "transpose-abs-384x640",
+      "family": "transpose",
+      "operation": "transpose_abs",
+      "input_shapes": [[384, 640]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "matmul-relu-256x384x512",
+      "family": "matmul",
+      "operation": "matmul_relu",
+      "input_shapes": [[256, 384], [384, 512]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "matmul-square-384x256x384",
+      "family": "matmul",
+      "operation": "matmul_square",
+      "input_shapes": [[384, 256], [256, 384]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "activation-relu-768x512",
+      "family": "activation",
+      "operation": "relu",
+      "input_shapes": [[768, 512]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "activation-exp-640x384",
+      "family": "activation",
+      "operation": "exp",
+      "input_shapes": [[640, 384]],
+      "input_dtypes": ["float32"],
+      "input_ranges": [[-2.0, 2.0]]
+    },
+    {
+      "task_id": "rmsnorm-192x384",
+      "family": "normalization",
+      "operation": "rmsnorm",
+      "input_shapes": [[192, 384]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "layernorm-320x512",
+      "family": "normalization",
+      "operation": "layernorm",
+      "input_shapes": [[320, 512]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "softmax-192x384",
+      "family": "softmax",
+      "operation": "softmax",
+      "input_shapes": [[192, 384]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "log-softmax-320x256",
+      "family": "softmax",
+      "operation": "log_softmax",
+      "input_shapes": [[320, 256]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "silu-gate-512x384",
+      "family": "gated_activation",
+      "operation": "silu_gate",
+      "input_shapes": [[512, 384], [512, 384]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "gelu-gate-640x512",
+      "family": "gated_activation",
+      "operation": "gelu_gate",
+      "input_shapes": [[640, 512], [640, 512]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "row-sum-192x384",
+      "family": "row_reduction",
+      "operation": "row_sum",
+      "input_shapes": [[192, 384]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "row-max-320x512",
+      "family": "row_reduction",
+      "operation": "max",
+      "input_shapes": [[320, 512]],
+      "input_dtypes": ["float32"]
+    }
+  ]
+}

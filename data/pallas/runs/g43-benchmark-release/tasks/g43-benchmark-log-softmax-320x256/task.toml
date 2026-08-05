@@ -1,0 +1,39 @@
+schema_version = "1.3"
+artifacts = ["/logs/artifacts/model.patch"]
+
+[task]
+name = "opjax/g43-benchmark-log-softmax-320x256"
+description = "Repair one authentic Pallas kernel"
+
+[metadata]
+task_id = "g43-benchmark-log-softmax-320x256"
+split = "near_heldout"
+mode = "benchmark"
+family = "softmax"
+source_row_id = "g43-independent:log-softmax-320x256"
+mutation = "missing_implementation"
+task_sha256 = "6e7109652c6b12a01f9ac460ba50789bb68280afa6fad0f586381feb42c5eb4b"
+input_shapes_json = "[[320,256]]"
+input_dtypes_json = "[\"float32\"]"
+
+[verifier]
+network_mode = "no-network"
+environment_mode = "separate"
+timeout_sec = 900.0
+
+[verifier.environment]
+cpus = 2
+memory_mb = 8192
+storage_mb = 20480
+
+[agent]
+network_mode = "no-network"
+timeout_sec = 900.0
+
+[environment]
+docker_image = "python:3.12-slim"
+os = "linux"
+cpus = 2
+memory_mb = 4096
+storage_mb = 4096
+gpus = 0

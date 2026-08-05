@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `log_softmax` in the `softmax` family with input shapes [[320, 256]] and dtypes ['float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. Hidden tests use three input seeds and profile execution against the semantic XLA oracle.

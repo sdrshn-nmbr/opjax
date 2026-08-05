@@ -26,6 +26,7 @@ from opjax.pallas.g42_harness import (
     load_task_package,
     parse_action,
     snapshot_workspace,
+    validate_horizon_contract,
 )
 from opjax.pallas.sampling import _sampling_client
 
@@ -183,8 +184,7 @@ async def run_tinker_agent(
     output_dir = output_dir.resolve()
     if output_dir.exists():
         raise G42HarnessError(f"RUN_OUTPUT_EXISTS: {output_dir}")
-    if turn_limit != 6 or snapshot_turns != (3, 6):
-        raise G42HarnessError(f"HORIZON_CONTRACT_INVALID: limit={turn_limit} snapshots={snapshot_turns}")
+    validate_horizon_contract(turn_limit=turn_limit, snapshot_turns=snapshot_turns)
     task = load_task_package(task_dir)
     bundle = load_contracts(config_root)
     output_dir.mkdir(parents=True)

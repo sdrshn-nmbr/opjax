@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "softmax",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      320,
+      256
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "log_softmax",
+  "reference_kernel_sha256": "e2aa922c5134b2f2d4fb2566c00b710be22623f17afd044cc86702cbefffd797",
+  "source_task_id": "log-softmax-320x256",
+  "task_id": "g43-benchmark-log-softmax-320x256"
+}

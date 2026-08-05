@@ -1,0 +1,30 @@
+{
+  "dataset_sha256": "67bac66ffe43313f57379554a0a92c6bf6dbabfb5fdbbfd226355daf138144b4",
+  "family_counts": {
+    "activation": 1,
+    "binary_elementwise": 1,
+    "gated_activation": 1,
+    "matmul": 1,
+    "normalization": 1,
+    "row_reduction": 1,
+    "softmax": 1,
+    "transpose": 1
+  },
+  "kind": "pallas_g43_trace_subset_release",
+  "prefix_sft_rows": 48,
+  "release_sha256": "951b420e9ac371dc5ae2cdf4a2696bba12326200d44d6b85958db729a9a674dc",
+  "schema_version": 1,
+  "source_task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "source_trace_release_sha256": "db5526b9fb2562faac0433add044950732385daa66b83b931610efa99487672b",
+  "task_ids": [
+    "g42-activation-01-reversed-blockspec",
+    "g42-binary-elementwise-01-reversed-blockspec",
+    "g42-gated-activation-01-reversed-blockspec",
+    "g42-matmul-01-illegal-block-geometry",
+    "g42-normalization-01-unsafe-grid-index",
+    "g42-row-reduction-01-reversed-blockspec",
+    "g42-softmax-01-illegal-block-geometry",
+    "g42-transpose-01-unsafe-grid-index"
+  ],
+  "trajectory_count": 8
+}

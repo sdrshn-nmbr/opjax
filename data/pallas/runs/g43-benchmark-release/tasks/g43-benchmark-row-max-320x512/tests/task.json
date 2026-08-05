@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "row_reduction",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      320,
+      512
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "max",
+  "reference_kernel_sha256": "034071c8394befe3b97a3791e8a6464b9544f969b108a47ffbcc06fd37554c75",
+  "source_task_id": "row-max-320x512",
+  "task_id": "g43-benchmark-row-max-320x512"
+}

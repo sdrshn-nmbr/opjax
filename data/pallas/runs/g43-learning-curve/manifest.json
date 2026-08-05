@@ -1,0 +1,101 @@
+{
+  "kind": "pallas_g43_learning_curve_release",
+  "release_sha256": "20386c3921d3e6d058e449701dde04534965820a7008c4c576cd2683c4e260e7",
+  "schema_version": 1,
+  "source_config_sha256": "cdae97231fd8670d9076cdc993ac41ff960b16302efbf99838dc5851f5229afa",
+  "source_task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "source_trace_release_sha256": "db5526b9fb2562faac0433add044950732385daa66b83b931610efa99487672b",
+  "subsets": [
+    {
+      "dataset_sha256": "67bac66ffe43313f57379554a0a92c6bf6dbabfb5fdbbfd226355daf138144b4",
+      "path": "n8",
+      "release_sha256": "951b420e9ac371dc5ae2cdf4a2696bba12326200d44d6b85958db729a9a674dc",
+      "task_ids": [
+        "g42-activation-01-reversed-blockspec",
+        "g42-binary-elementwise-01-reversed-blockspec",
+        "g42-gated-activation-01-reversed-blockspec",
+        "g42-matmul-01-illegal-block-geometry",
+        "g42-normalization-01-unsafe-grid-index",
+        "g42-row-reduction-01-reversed-blockspec",
+        "g42-softmax-01-illegal-block-geometry",
+        "g42-transpose-01-unsafe-grid-index"
+      ],
+      "trajectory_count": 8
+    },
+    {
+      "dataset_sha256": "9e17b05e393e9441e2f2904d288223d1497d5c36755f6b29ecd888cb45bafd38",
+      "path": "n16",
+      "release_sha256": "be534b1f4ed3dba2d0af86ce2fcdcaee00a3fe000a0e1b515c63b0990a359b38",
+      "task_ids": [
+        "g42-activation-01-reversed-blockspec",
+        "g42-activation-02-illegal-block-geometry",
+        "g42-binary-elementwise-01-reversed-blockspec",
+        "g42-binary-elementwise-02-illegal-block-geometry",
+        "g42-gated-activation-01-reversed-blockspec",
+        "g42-gated-activation-02-illegal-block-geometry",
+        "g42-matmul-01-illegal-block-geometry",
+        "g42-matmul-02-unsafe-grid-index",
+        "g42-normalization-01-unsafe-grid-index",
+        "g42-normalization-02-incomplete-compute",
+        "g42-row-reduction-01-reversed-blockspec",
+        "g42-row-reduction-02-illegal-block-geometry",
+        "g42-softmax-01-illegal-block-geometry",
+        "g42-softmax-02-unsafe-grid-index",
+        "g42-transpose-01-unsafe-grid-index",
+        "g42-transpose-02-incomplete-compute"
+      ],
+      "trajectory_count": 16
+    },
+    {
+      "dataset_sha256": "51d9457405a1c1b3ff930ae66ed3d8795207bbaf1fe4ee04d2726e447ca5898f",
+      "path": "n32",
+      "release_sha256": "4d0363300dd422b1b077750e95efa48aab680bfdbcbf8337eea8a4e75fefba50",
+      "task_ids": [
+        "g42-activation-01-reversed-blockspec",
+        "g42-activation-02-illegal-block-geometry",
+        "g42-activation-03-unsafe-grid-index",
+        "g42-activation-04-incomplete-compute",
+        "g42-binary-elementwise-01-reversed-blockspec",
+        "g42-binary-elementwise-02-illegal-block-geometry",
+        "g42-binary-elementwise-03-unsafe-grid-index",
+        "g42-binary-elementwise-04-incomplete-compute",
+        "g42-gated-activation-01-reversed-blockspec",
+        "g42-gated-activation-02-illegal-block-geometry",
+        "g42-gated-activation-03-unsafe-grid-index",
+        "g42-gated-activation-04-incomplete-compute",
+        "g42-matmul-01-illegal-block-geometry",
+        "g42-matmul-02-unsafe-grid-index",
+        "g42-matmul-03-incomplete-compute",
+        "g42-matmul-04-reversed-blockspec",
+        "g42-normalization-01-unsafe-grid-index",
+        "g42-normalization-02-incomplete-compute",
+        "g42-normalization-03-reversed-blockspec",
+        "g42-normalization-04-reversed-blockspec",
+        "g42-row-reduction-01-reversed-blockspec",
+        "g42-row-reduction-02-illegal-block-geometry",
+        "g42-row-reduction-03-unsafe-grid-index",
+        "g42-row-reduction-04-incomplete-compute",
+        "g42-softmax-01-illegal-block-geometry",
+        "g42-softmax-02-unsafe-grid-index",
+        "g42-softmax-03-incomplete-compute",
+        "g42-softmax-04-reversed-blockspec",
+        "g42-transpose-01-unsafe-grid-index",
+        "g42-transpose-02-incomplete-compute",
+        "g42-transpose-03-reversed-blockspec",
+        "g42-transpose-04-reversed-blockspec"
+      ],
+      "trajectory_count": 32
+    }
+  ],
+  "training_configs": [
+    "configs/n8-seed0.json",
+    "configs/n8-seed1.json",
+    "configs/n8-seed2.json",
+    "configs/n16-seed0.json",
+    "configs/n16-seed1.json",
+    "configs/n16-seed2.json",
+    "configs/n32-seed0.json",
+    "configs/n32-seed1.json",
+    "configs/n32-seed2.json"
+  ]
+}
