@@ -1,0 +1,91 @@
+[
+  {
+    "name": "4p_Sparse_Attention",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "llama3_70b_sparse_attention",
+      "model": "Llama-3.1-70B",
+      "operator": "sparse_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128
+    },
+    "input_shapes": [
+      [
+        64,
+        4096,
+        128
+      ],
+      [
+        8,
+        4096,
+        128
+      ],
+      [
+        8,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 275968425984,
+    "timing_method": "device_profiler",
+    "median_ms": 7.3845,
+    "mean_ms": 7.3843,
+    "std_ms": 0.0013,
+    "min_ms": 7.3822,
+    "wall_clock_median_ms": 7.5332,
+    "tflops": 37.37,
+    "utilization_pct": 19.0,
+    "output_shape": [
+      64,
+      4096,
+      128
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "4p_Sparse_Attention",
+    "variant": "optimized",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_splash_attention_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "pallas_splash_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "atol": 0.003,
+      "rtol": 0.003
+    },
+    "input_shapes": [
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        8,
+        4096,
+        128
+      ],
+      [
+        4,
+        8,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 2199023255552,
+    "error": "RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:\nRan out of memory in memory space vmem while allocating on stack for %splash_mha_fwd_no_residuals_block_kv_2048_block_kv_compute_1024_block_kv_dkv_None_block_kv_dkv_compute_None_block_kv_dq_None_block_q_2048_block_q_dkv_None_block_q_dq_None_k_layo",
+    "traceback": "k_q_dkv=None_block_q_dq=None_k_layout=1_q_layout=1_use_fused_bwd_kernel=False_v_layout=1/pallas_call\" stack_frame_id=21}. Scoped allocation with size 22.54M and limit 16.00M exceeded scoped vmem limit by 6.54M. It should not be possible to run out of scoped vmem - \nSee https://openxla.org/xla/errors/error_1001 for more details.\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  }
+]

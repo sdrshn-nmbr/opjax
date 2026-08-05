@@ -1,0 +1,22 @@
+{
+  "workload": "3p_MLA_Attention",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "deepseek_v3_mla",
+    "model": "DeepSeek-V3-671B",
+    "operator": "mla_attention",
+    "batch": 4,
+    "seq_len": 2048,
+    "emb_dim": 7168,
+    "num_heads": 128,
+    "q_lora_rank": 1536,
+    "kv_lora_rank": 512,
+    "qk_nope_head_dim": 128,
+    "qk_rope_head_dim": 64,
+    "v_head_dim": 128,
+    "rope_theta": 10000
+  },
+  "error": "loop() got an unexpected keyword argument 'step'",
+  "traceback": "JAXBench/benchmark/3p_MLA_Attention/optimized.py\", line 385, in _flash_attention_kernel_single_batch\n    def run():\n  File \"/home/sudarshan/.local/lib/python3.10/site-packages/jax/_src/pallas/helpers.py\", line 70, in _wrapped\n    jax.lax.cond(condition, f, lambda: None)\n  File \"/home/sudarshan/accelerator-agents/JAXBench/benchmark/3p_MLA_Attention/optimized.py\", line 386, in run\n    @pl.loop(0, block_k_major, step=block_k, unroll=True)\nTypeError: loop() got an unexpected keyword argument 'step'\n"
+}

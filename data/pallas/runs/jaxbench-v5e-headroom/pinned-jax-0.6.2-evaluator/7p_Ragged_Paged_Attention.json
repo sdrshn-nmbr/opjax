@@ -1,0 +1,19 @@
+{
+  "workload": "7p_Ragged_Paged_Attention",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "ragged_paged_attention_llama70b",
+    "model": "Llama-3.1-70B",
+    "operator": "ragged_paged_attention",
+    "max_num_batched_tokens": 4096,
+    "max_num_seqs": 64,
+    "num_q_heads": 64,
+    "num_kv_heads": 8,
+    "head_dim": 128,
+    "page_size": 16,
+    "pages_per_seq": 256
+  },
+  "error": "module 'jax._src.dtypes' has no attribute 'itemsize_bits'",
+  "traceback": "q_heads_per_blk, num_combined_kv_heads_per_blk = get_min_heads_per_blk(\n  File \"/home/sudarshan/accelerator-agents/JAXBench/benchmark/7p_Ragged_Paged_Attention/optimized.py\", line 687, in get_min_heads_per_blk\n    q_packing = get_dtype_packing(q_dtype)\n  File \"/home/sudarshan/accelerator-agents/JAXBench/benchmark/7p_Ragged_Paged_Attention/optimized.py\", line 680, in get_dtype_packing\n    bits = dtypes.itemsize_bits(dtype)\nAttributeError: module 'jax._src.dtypes' has no attribute 'itemsize_bits'\n"
+}

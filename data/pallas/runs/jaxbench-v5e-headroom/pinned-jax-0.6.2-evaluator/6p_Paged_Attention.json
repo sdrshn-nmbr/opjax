@@ -1,0 +1,19 @@
+{
+  "workload": "6p_Paged_Attention",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "llama3_70b_paged_attention",
+    "model": "Llama-3.1-70B",
+    "operator": "paged_attention",
+    "num_seqs": 64,
+    "max_seq_len": 4096,
+    "num_query_heads": 64,
+    "num_kv_heads": 8,
+    "head_dim": 128,
+    "page_size": 16,
+    "pages_per_seq": 256
+  },
+  "error": "workload() takes 5 positional arguments but 6 were given",
+  "traceback": "jax.errors.SimplifiedTraceback: For simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/sudarshan/accelerator-agents/JAXBench/harness/evaluator.py\", line 100, in evaluate_kernel\n    test_output = run_kernel(*inputs)\nTypeError: workload() takes 5 positional arguments but 6 were given\n"
+}

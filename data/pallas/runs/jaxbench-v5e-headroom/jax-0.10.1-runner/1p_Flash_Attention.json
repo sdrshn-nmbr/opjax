@@ -1,0 +1,93 @@
+[
+  {
+    "name": "1p_Flash_Attention",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "flash_attention_baseline",
+      "model": "Baseline-MHA",
+      "operator": "causal_mha",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_heads": 64,
+      "head_dim": 128
+    },
+    "input_shapes": [
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        64,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 1121003241472,
+    "timing_method": "device_profiler",
+    "median_ms": 29.3753,
+    "mean_ms": 29.3766,
+    "std_ms": 0.0053,
+    "min_ms": 29.37,
+    "wall_clock_median_ms": 29.5549,
+    "tflops": 38.16,
+    "utilization_pct": 19.4,
+    "output_shape": [
+      4,
+      64,
+      4096,
+      128
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "1p_Flash_Attention",
+    "variant": "optimized",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_flash_attention_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "pallas_flash_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_heads": 64,
+      "head_dim": 128,
+      "atol": 0.002,
+      "rtol": 0.002
+    },
+    "input_shapes": [
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        64,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 2199023255552,
+    "error": "RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:\nRan out of memory in memory space vmem while allocating on stack for %flash_attention.1 = bf16[4,64,4096,128]{3,2,1,0:T(8,128)(2,1)} custom-call(%q.1, %k.1, %v.1), custom_call_target=\"tpu_custom_call\", operand_layout_constraints={bf16[4,64,4096,12",
+    "traceback": "nd_attributes={kernel_metadata={}}, metadata={op_name=\"jit(workload)/jit(flash_attention)/pallas_call\" stack_frame_id=7}. Scoped allocation with size 19.94M and limit 16.00M exceeded scoped vmem limit by 3.94M. It should not be possible to run out of scoped vmem - \nSee https://openxla.org/xla/errors/error_1001 for more details.\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  }
+]

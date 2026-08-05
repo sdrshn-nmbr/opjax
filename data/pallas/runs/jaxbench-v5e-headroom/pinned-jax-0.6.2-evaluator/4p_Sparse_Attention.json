@@ -1,0 +1,17 @@
+{
+  "workload": "4p_Sparse_Attention",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "llama3_70b_sparse_attention",
+    "model": "Llama-3.1-70B",
+    "operator": "sparse_attention",
+    "batch": 4,
+    "seq_len": 4096,
+    "num_query_heads": 64,
+    "num_kv_heads": 8,
+    "head_dim": 128
+  },
+  "error": "not enough values to unpack (expected 4, got 3)",
+  "traceback": "AX_TRACEBACK_FILTERING=off to include these.\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/home/sudarshan/accelerator-agents/JAXBench/harness/evaluator.py\", line 100, in evaluate_kernel\n    test_output = run_kernel(*inputs)\n  File \"/home/sudarshan/accelerator-agents/JAXBench/benchmark/4p_Sparse_Attention/optimized.py\", line 2585, in workload\n    B, H_q, S, D = q.shape\nValueError: not enough values to unpack (expected 4, got 3)\n"
+}

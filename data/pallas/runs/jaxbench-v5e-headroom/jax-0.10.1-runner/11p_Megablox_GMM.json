@@ -1,0 +1,82 @@
+[
+  {
+    "name": "11p_Megablox_GMM",
+    "variant": "baseline",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "megablox_gmm_qwen3_235b",
+      "model": "Qwen3-235B-A22B",
+      "operator": "grouped_matmul",
+      "num_experts": 128,
+      "num_experts_per_tok": 8,
+      "emb_dim": 4096,
+      "moe_mlp_dim": 1536,
+      "seq_len": 4096
+    },
+    "input_shapes": [
+      [
+        32768,
+        4096
+      ],
+      [
+        128,
+        4096,
+        1536
+      ],
+      [
+        128
+      ],
+      "<class 'int'>"
+    ],
+    "xla_flops": 412316860416,
+    "error": "Shapes must be 1D sequences of concrete values of integer type, got (JitTracer(~int32[]), 1536).\nIf using `jit`, try using `static_argnums` or applying `jit` to smaller subfunctions.\nThe error occurred while tracing the function workload at /home/sudarshan/accelerator-agents/JAXBench/benchmark/11p_M",
+    "traceback": "ing `static_argnums` or applying `jit` to smaller subfunctions.\nThe error occurred while tracing the function workload at /home/sudarshan/accelerator-agents/JAXBench/benchmark/11p_Megablox_GMM/baseline.py:43 for jit. This concrete value was not available in Python because it depends on the value of the argument max_expert_size.\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  },
+  {
+    "name": "11p_Megablox_GMM",
+    "variant": "optimized",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_megablox_gmm_qwen3_235b",
+      "model": "Qwen3-235B-A22B",
+      "operator": "pallas_gmm",
+      "num_experts": 128,
+      "num_experts_per_tok": 8,
+      "emb_dim": 4096,
+      "moe_mlp_dim": 1536,
+      "seq_len": 4096,
+      "atol": 0.001,
+      "rtol": 0.01
+    },
+    "input_shapes": [
+      [
+        32768,
+        4096
+      ],
+      [
+        128,
+        4096,
+        1536
+      ],
+      [
+        128
+      ]
+    ],
+    "xla_flops": 412316860416,
+    "timing_method": "device_profiler",
+    "median_ms": 3.6478,
+    "mean_ms": 3.6479,
+    "std_ms": 0.0007,
+    "min_ms": 3.6464,
+    "wall_clock_median_ms": 3.7838,
+    "tflops": 113.03,
+    "utilization_pct": 57.4,
+    "output_shape": [
+      32768,
+      1536
+    ],
+    "num_iters": 10
+  }
+]

@@ -1,0 +1,69 @@
+[
+  {
+    "name": "8p_GEMM",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "gemm_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "dense_matmul",
+      "M": 8192,
+      "K": 8192,
+      "N": 28672
+    },
+    "input_shapes": [
+      [
+        8192,
+        8192
+      ],
+      [
+        8192,
+        28672
+      ]
+    ],
+    "xla_flops": 3848290697216,
+    "timing_method": "device_profiler",
+    "median_ms": 20.5112,
+    "mean_ms": 20.5111,
+    "std_ms": 0.0005,
+    "min_ms": 20.5099,
+    "wall_clock_median_ms": 20.6517,
+    "tflops": 187.62,
+    "utilization_pct": 95.2,
+    "output_shape": [
+      8192,
+      28672
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "8p_GEMM",
+    "variant": "optimized",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_matmul_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "pallas_matmul",
+      "M": 8192,
+      "K": 8192,
+      "N": 28672,
+      "atol": 0.001,
+      "rtol": 0.01
+    },
+    "input_shapes": [
+      [
+        8192,
+        8192
+      ],
+      [
+        8192,
+        28672
+      ]
+    ],
+    "xla_flops": 3848290697216,
+    "error": "RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:\nRan out of memory in memory space vmem while allocating on stack for %matmul.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} custom-call(%x.1, %y.1), custom_call_target=\"tpu_custom_call\", operand_layout_constraints={bf16[8192,8192]{1,0}, bf16[8192,28672]{",
+    "traceback": ", frontend_attributes={kernel_metadata={}}, metadata={op_name=\"jit(workload)/jit(matmul)/pallas_call\" stack_frame_id=3}. Scoped allocation with size 28.00M and limit 16.00M exceeded scoped vmem limit by 12.00M. It should not be possible to run out of scoped vmem - \nSee https://openxla.org/xla/errors/error_1001 for more details.\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  }
+]

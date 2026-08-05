@@ -1,0 +1,18 @@
+{
+  "workload": "2p_GQA_Attention",
+  "status": "error",
+  "tpu": "v5e",
+  "config": {
+    "name": "llama3_405b_gqa",
+    "model": "Llama-3.1-405B",
+    "operator": "gqa_attention",
+    "batch": 4,
+    "seq_len": 4096,
+    "num_query_heads": 128,
+    "num_kv_heads": 8,
+    "head_dim": 128,
+    "emb_dim": 16384
+  },
+  "error": "RESOURCE_EXHAUSTED: XLA:TPU compile permanent error. Ran out of memory in memory space hbm. Used 16.50G of 15.75G hbm. Exceeded hbm capacity by 770.02M.\n\nTotal hbm usage >= 16.75G:\n    reserved        258.00M \n    program          16.50G \n    arguments            0B \n\nOutput size 0B; shares 0B with ",
+  "traceback": "28]{3,1,2,0:T(8,128)(2,1)}\n     Unpadded size: 512.00M\n     XLA label: fusion.8 = fusion(bitcast.remat.1, fusion.5.remat2), kind=kOutput, calls=fused_computation.9\n     Allocation type: HLO temp\n     ==========================\n\n  3. Size: 512B\n     Shape: (bf16[4,4096,8,128]{3,2,1,0:T(8,128)(2,1)S(1)}, bf16[4,4096,8,128]{3,2,1,0:T(8,128)(2,1)}, u32[]{:S(2)})\n     Unpadded size: 512B\n     XLA label: copy-start = copy-start(Arg_2.3)\n     Allocation type: HLO temp\n     ==========================\n\n\n"
+}

@@ -1,0 +1,110 @@
+[
+  {
+    "name": "7p_Ragged_Paged_Attention",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "ragged_paged_attention_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "ragged_paged_attention",
+      "max_num_batched_tokens": 4096,
+      "max_num_seqs": 64,
+      "num_q_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "page_size": 16,
+      "pages_per_seq": 256
+    },
+    "input_shapes": [
+      [
+        4096,
+        64,
+        128
+      ],
+      [
+        16384,
+        16,
+        16,
+        128
+      ],
+      [
+        64
+      ],
+      [
+        64,
+        256
+      ],
+      [
+        65
+      ],
+      [
+        1
+      ]
+    ],
+    "xla_flops": 549755813888,
+    "timing_method": "device_profiler",
+    "median_ms": 35.2304,
+    "mean_ms": 35.2303,
+    "std_ms": 0.0119,
+    "min_ms": 35.2138,
+    "wall_clock_median_ms": 35.4243,
+    "tflops": 15.6,
+    "utilization_pct": 7.9,
+    "output_shape": [
+      4096,
+      64,
+      128
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "7p_Ragged_Paged_Attention",
+    "variant": "optimized",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_ragged_paged_attention_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "pallas_ragged_paged_attention",
+      "max_num_batched_tokens": 4096,
+      "max_num_seqs": 64,
+      "num_q_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "page_size": 16,
+      "pages_per_seq": 256,
+      "atol": 0.2,
+      "rtol": 0.2
+    },
+    "input_shapes": [
+      [
+        4096,
+        64,
+        128
+      ],
+      [
+        16384,
+        16,
+        16,
+        128
+      ],
+      [
+        64
+      ],
+      [
+        64,
+        256
+      ],
+      [
+        65
+      ],
+      [
+        1
+      ]
+    ],
+    "xla_flops": 549755813888,
+    "error": "module 'jax.experimental.pallas.tpu' has no attribute 'ANY'",
+    "traceback": "kSpec(memory_space=pltpu.ANY),\n                              ^^^^^^^^^\n  File \"/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/deprecations.py\", line 57, in getattr\n    raise AttributeError(f\"module {module!r} has no attribute {name!r}\")\nAttributeError: module 'jax.experimental.pallas.tpu' has no attribute 'ANY'\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  }
+]

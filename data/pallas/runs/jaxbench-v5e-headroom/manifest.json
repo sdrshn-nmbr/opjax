@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "purpose": "Measure default-shape XLA versus bundled optimized-reference headroom before selecting JAXBench performance tasks.",
+  "observed_at": "2026-08-05",
+  "source": {
+    "repository": "https://github.com/AI-Hypercomputer/accelerator-agents",
+    "revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+    "optimized_workloads": [
+      "1p_Flash_Attention",
+      "2p_GQA_Attention",
+      "3p_MLA_Attention",
+      "4p_Sparse_Attention",
+      "6p_Paged_Attention",
+      "7p_Ragged_Paged_Attention",
+      "8p_GEMM",
+      "11p_Megablox_GMM"
+    ]
+  },
+  "hardware": {
+    "accelerator": "v5litepod-1",
+    "device_kind": "TPU v5 lite",
+    "device_count": 1,
+    "zone": "us-west4-a",
+    "runtime_version": "v2-alpha-tpuv5-lite"
+  },
+  "lanes": {
+    "project_pinned": {
+      "python": "3.10.12",
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "interface": "JAXBench evaluate",
+      "warmup_iterations": 2,
+      "timed_iterations": 10,
+      "result": "0 of 8 bundled optimized references produced a correctness-and-timing comparison",
+      "evidence_directory": "pinned-jax-0.6.2-evaluator"
+    },
+    "reference_compatibility": {
+      "python": "3.11.13",
+      "jax": "0.10.1",
+      "jaxlib": "0.10.1",
+      "libtpu": "0.0.41",
+      "interface": "JAXBench run, followed by an explicit correctness adapter for Megablox",
+      "preflight_warmup_iterations": 2,
+      "preflight_timed_iterations": 10,
+      "result": "1 of 8 references admitted to a repeat-level correctness-and-timing comparison",
+      "evidence_directory": "jax-0.10.1-runner"
+    }
+  },
+  "preflight": {
+    "1p_Flash_Attention": {
+      "xla": "success",
+      "xla_median_ms": 29.3753,
+      "optimized": "compile_time_vmem_oom"
+    },
+    "2p_GQA_Attention": {
+      "xla": "compile_time_hbm_oom",
+      "optimized": "compile_time_vmem_oom"
+    },
+    "3p_MLA_Attention": {
+      "xla": "success",
+      "xla_median_ms": 39.7046,
+      "optimized": "compile_time_vmem_oom"
+    },
+    "4p_Sparse_Attention": {
+      "xla": "success",
+      "xla_median_ms": 7.3845,
+      "optimized": "compile_time_vmem_oom"
+    },
+    "6p_Paged_Attention": {
+      "xla": "success",
+      "xla_median_ms": 11.8045,
+      "optimized": "missing_pallas_tpu_any_api"
+    },
+    "7p_Ragged_Paged_Attention": {
+      "xla": "success",
+      "xla_median_ms": 35.2304,
+      "optimized": "missing_pallas_tpu_any_api"
+    },
+    "8p_GEMM": {
+      "xla": "success",
+      "xla_median_ms": 20.5112,
+      "optimized": "compile_time_vmem_oom"
+    },
+    "11p_Megablox_GMM": {
+      "xla": "generic_runner_missing_static_argument",
+      "optimized": "success",
+      "optimized_median_ms": 3.6478
+    }
+  },
+  "megablox_corrected_comparison": {
+    "adapter": "Bind baseline max_expert_size returned by create_inputs as a static closure argument. Kernel bodies, shapes, values, and tolerances are unchanged.",
+    "correct_repeats": 3,
+    "repeat_count": 3,
+    "warmup_iterations_per_repeat": 3,
+    "timed_iterations_per_repeat": 20,
+    "timing_method": "device_profiler",
+    "max_absolute_difference": 1.9149720871525222e-17,
+    "xla_median_ms_by_repeat": [4.1862, 4.1864, 4.1867],
+    "optimized_median_ms_by_repeat": [3.6496, 3.6499, 3.6494],
+    "speedup_by_repeat": [
+      1.1470298114861903,
+      1.1469903285021508,
+      1.1472296815914946
+    ],
+    "median_speedup": 1.1470298114861903,
+    "minimum_speedup": 1.1469903285021508,
+    "passes_stability_rule": true,
+    "evidence": [
+      "jax-0.10.1-runner/11p_Megablox_GMM.adapted.repeat0.json",
+      "jax-0.10.1-runner/11p_Megablox_GMM.adapted.repeat1.json",
+      "jax-0.10.1-runner/11p_Megablox_GMM.adapted.repeat2.json"
+    ]
+  },
+  "stability_rule": {
+    "correct_repeats_required": 3,
+    "required_timing_method": "device_profiler",
+    "minimum_median_speedup": 1.05,
+    "minimum_repeat_speedup_exclusive": 1.0
+  },
+  "decision": {
+    "strict_project_runtime_subset": [],
+    "compatibility_lane_candidate_subset": ["11p_Megablox_GMM"],
+    "freeze_performance_subset": false,
+    "reason": "The bundled reference set has no single declared runtime contract and seven references are not measurable at their default shapes on v5e. Megablox has stable headroom only after a transparent baseline static-argument adapter and a newer JAX lane. Integrate and independently verify that contract before freezing it as evaluation."
+  }
+}

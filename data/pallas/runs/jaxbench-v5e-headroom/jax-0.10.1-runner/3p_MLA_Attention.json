@@ -1,0 +1,124 @@
+[
+  {
+    "name": "3p_MLA_Attention",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "deepseek_v3_mla",
+      "model": "DeepSeek-V3-671B",
+      "operator": "mla_attention",
+      "batch": 4,
+      "seq_len": 2048,
+      "emb_dim": 7168,
+      "num_heads": 128,
+      "q_lora_rank": 1536,
+      "kv_lora_rank": 512,
+      "qk_nope_head_dim": 128,
+      "qk_rope_head_dim": 64,
+      "v_head_dim": 128,
+      "rope_theta": 10000
+    },
+    "input_shapes": [
+      [
+        4,
+        2048,
+        7168
+      ],
+      [
+        7168,
+        1536
+      ],
+      [
+        1536,
+        24576
+      ],
+      [
+        7168,
+        576
+      ],
+      [
+        512,
+        16384
+      ],
+      [
+        512,
+        16384
+      ],
+      [
+        16384,
+        7168
+      ]
+    ],
+    "xla_flops": 3903861293056,
+    "timing_method": "device_profiler",
+    "median_ms": 39.7046,
+    "mean_ms": 39.703,
+    "std_ms": 0.0056,
+    "min_ms": 39.6922,
+    "wall_clock_median_ms": 39.8726,
+    "tflops": 98.32,
+    "utilization_pct": 49.9,
+    "output_shape": [
+      4,
+      2048,
+      7168
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "3p_MLA_Attention",
+    "variant": "optimized",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "deepseek_v3_mla_optimized",
+      "model": "DeepSeek-V3-671B",
+      "operator": "mla_attention",
+      "batch": 4,
+      "seq_len": 2048,
+      "emb_dim": 7168,
+      "num_heads": 128,
+      "q_lora_rank": 1536,
+      "kv_lora_rank": 512,
+      "qk_nope_head_dim": 128,
+      "qk_rope_head_dim": 64,
+      "v_head_dim": 128,
+      "rope_theta": 10000
+    },
+    "input_shapes": [
+      [
+        4,
+        2048,
+        7168
+      ],
+      [
+        7168,
+        1536
+      ],
+      [
+        1536,
+        24576
+      ],
+      [
+        7168,
+        576
+      ],
+      [
+        512,
+        16384
+      ],
+      [
+        512,
+        16384
+      ],
+      [
+        16384,
+        7168
+      ]
+    ],
+    "xla_flops": 0,
+    "error": "RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:\nRan out of memory in memory space vmem while allocating on stack for %flash_attention.1 = f32[4,128,2048,256]{3,2,1,0:T(8,128)} custom-call(%fusion.1, %fusion, %pad_bitcast_fusion), custom_call_target=\"tpu_custom_call\", operand_layout_constraints=",
+    "traceback": "_attributes={kernel_metadata={}}, metadata={op_name=\"jit(workload)/jit(flash_attention)/pallas_call\" stack_frame_id=62}. Scoped allocation with size 33.55M and limit 16.00M exceeded scoped vmem limit by 17.55M. It should not be possible to run out of scoped vmem - \nSee https://openxla.org/xla/errors/error_1001 for more details.\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "workload": "1p_Flash_Attention",
+  "status": "runtime_error",
+  "tpu": "v5e",
+  "config": {
+    "name": "flash_attention_baseline",
+    "model": "Baseline-MHA",
+    "operator": "causal_mha",
+    "batch": 4,
+    "seq_len": 4096,
+    "num_heads": 64,
+    "head_dim": 128
+  },
+  "error": "loop() got an unexpected keyword argument 'step'",
+  "traceback": "ench/benchmark/1p_Flash_Attention/optimized.py\", line 385, in _flash_attention_kernel_single_batch\n    def run():\n  File \"/home/sudarshan/.local/lib/python3.10/site-packages/jax/_src/pallas/helpers.py\", line 70, in _wrapped\n    jax.lax.cond(condition, f, lambda: None)\n  File \"/home/sudarshan/accelerator-agents/JAXBench/benchmark/1p_Flash_Attention/optimized.py\", line 386, in run\n    @pl.loop(0, block_k_major, step=block_k, unroll=True)\nTypeError: loop() got an unexpected keyword argument 'step'\n"
+}
