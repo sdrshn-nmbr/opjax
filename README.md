@@ -65,6 +65,10 @@ The agent harness also builds on
 [Tinker](https://tinker-docs.thinkingmachines.ai/). These are implementation
 references, not corpus rows.
 
+The multi-turn kernel-training reference is
+[Kevin](https://arxiv.org/abs/2507.11948); a local Markdown extraction is kept
+in [`kevin32b.md`](kevin32b.md) beside the existing Composer 2 notes.
+
 The project is deliberately narrow. A generated program only counts when it:
 
 1. satisfies an independently defined numerical specification;
@@ -178,10 +182,12 @@ JAXBench contamination checks.
 | [`environments/pallas-eval`](environments/pallas-eval) | Isolated TPU evaluation environment |
 | [`data/pallas/runs`](data/pallas/runs) | Committed manifests and evidence for accepted runs |
 | [`docs/model-factory`](docs/model-factory) | Earlier model-factory work and the experiments that led to the Pallas pivot |
+| [`archive`](archive) | Superseded project plans, references, and work logs retained for provenance |
 
 The active implementation is under `src/opjax/pallas`. Earlier broad plans in
-`opjax.md`, `composer2.md`, and the model-factory documents are historical
-research context. They are not the current execution plan.
+[`archive/opjax.md`](archive/opjax.md), `composer2.md`, and the model-factory
+documents are historical research context. They are not the current execution
+plan.
 
 ## Local use
 
