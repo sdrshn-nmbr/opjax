@@ -18,6 +18,7 @@ from opjax.pallas.environment import verify_static
 
 SCHEMA_VERSION = 1
 TASK_SCHEMA_VERSION = "1.3"
+AGENT_IMAGE = "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052"
 ACTION_PATTERN = re.compile(r"```mswea_bash_command\s*\n(.*?)\n```", re.DOTALL)
 MANDATORY_STAGES = (
     "artifact_contract",

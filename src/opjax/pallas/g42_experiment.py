@@ -13,9 +13,9 @@ from pathlib import Path
 from typing import Any
 
 from opjax.pallas.contracts import git_revision
-from opjax.pallas.g42_agent import AGENT_IMAGE, run_tinker_agent
 from opjax.pallas.g42_curriculum import validate_benchmark_release
 from opjax.pallas.g42_harness import (
+    AGENT_IMAGE,
     canonical_sha256,
     file_sha256,
     load_task_package,
@@ -90,6 +90,8 @@ def sample_experiment(
     repo_root: Path,
     out_dir: Path,
 ) -> dict[str, Any]:
+    from opjax.pallas.g42_agent import run_tinker_agent
+
     if _tracked_dirty(repo_root):
         raise G42ExperimentError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
     config = _load(config_path)

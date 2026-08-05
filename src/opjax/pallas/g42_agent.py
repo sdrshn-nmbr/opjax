@@ -20,6 +20,7 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 from opjax.pallas.contracts import load_contracts
 from opjax.pallas.g42_harness import (
+    AGENT_IMAGE,
     G42HarnessError,
     create_agent_workspace,
     load_task_package,
@@ -48,9 +49,6 @@ Start by reading instruction.md, PALLAS_API.md, kernel.py, and dev_check.py.
 OBSERVATION_TEMPLATE = """<returncode>{{returncode}}</returncode>
 <output>{{output}}</output>
 {% if exception_info %}<exception>{{exception_info}}</exception>{% endif %}"""
-
-AGENT_IMAGE = "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052"
-
 
 class TinkerMiniSWEModel:
     """mini-swe Model protocol implementation using a pinned Tinker sampler."""
