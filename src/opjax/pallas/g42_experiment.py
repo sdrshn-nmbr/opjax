@@ -71,8 +71,6 @@ def sample_experiment(
 ) -> dict[str, Any]:
     if _tracked_dirty(repo_root):
         raise G42ExperimentError(f"OPJAX_TRACKED_DIRTY: {repo_root}")
-    if out_dir.exists():
-        raise G42ExperimentError(f"OUTPUT_EXISTS: {out_dir}")
     config = _load(config_path)
     models = _validate_config(config, benchmark_root)
     benchmark_manifest = _load(benchmark_root / "manifest.json")
@@ -83,7 +81,40 @@ def sample_experiment(
         for task in tasks
         for seed in config["seeds"]
     ]
-    out_dir.mkdir(parents=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    def completed_record(model: dict[str, Any], task: Any, seed: int) -> dict[str, Any] | None:
+        run_root = out_dir / "runs" / model["model_id"] / task.task_id / f"seed-{seed}"
+        manifest_path = run_root / "manifest.json"
+        if not manifest_path.is_file():
+            if run_root.exists():
+                failed_root = out_dir / "failed-attempts"
+                failed_root.mkdir(parents=True, exist_ok=True)
+                attempt = failed_root / f"{model['model_id']}--{task.task_id}--seed-{seed}"
+                suffix = 1
+                while attempt.exists():
+                    suffix += 1
+                    attempt = failed_root / f"{model['model_id']}--{task.task_id}--seed-{seed}--{suffix}"
+                run_root.rename(attempt)
+            return None
+        manifest = _load(manifest_path)
+        if (
+            manifest.get("task_sha256") != task.task_sha256
+            or manifest.get("checkpoint") != model["checkpoint"]
+            or manifest.get("seed") != seed
+            or sorted(int(turn) for turn in manifest.get("snapshots", {})) != [3, 6]
+        ):
+            raise G42ExperimentError(f"COMPLETED_RUN_INVALID: {run_root}")
+        return {
+            "model_id": model["model_id"],
+            "checkpoint": model["checkpoint"],
+            "task_id": task.task_id,
+            "task_sha256": task.task_sha256,
+            "seed": seed,
+            "run_path": str(run_root.relative_to(out_dir)),
+            "submitted": manifest["submitted"],
+            "snapshots": manifest["snapshots"],
+        }
 
     def run(job: tuple[dict[str, Any], Any, int]) -> dict[str, Any]:
         model, task, seed = job
@@ -111,8 +142,16 @@ def sample_experiment(
         }
 
     records = []
+    pending = []
+    for job in jobs:
+        previous = completed_record(*job)
+        if previous is None:
+            pending.append(job)
+        else:
+            records.append(previous)
+    print(f"G42_SAMPLE resumed={len(records)} pending={len(pending)}", flush=True)
     with ThreadPoolExecutor(max_workers=config["max_workers"]) as executor:
-        futures = {executor.submit(run, job): job for job in jobs}
+        futures = {executor.submit(run, job): job for job in pending}
         for future in as_completed(futures):
             records.append(future.result())
             print(f"G42_SAMPLE completed={len(records)}/{len(jobs)}", flush=True)

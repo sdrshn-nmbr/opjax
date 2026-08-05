@@ -5,7 +5,7 @@
   "seeds": [0, 1, 2],
   "turn_limit": 6,
   "snapshot_turns": [3, 6],
-  "max_workers": 4,
+  "max_workers": 1,
   "models": [
     {
       "model_id": "inkling-small-base",
