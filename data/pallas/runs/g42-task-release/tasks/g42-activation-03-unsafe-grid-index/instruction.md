@@ -1,0 +1,1 @@
+Repair the Pallas kernel in kernel.py for `sigmoid` with input shapes [[512, 256]] and dtypes ['float32']. The starter contains one known `unsafe_grid_index` defect. Preserve the workload interface, run public checks, and submit a complete authentic normally lowered Pallas kernel. Do not use interpret mode or a plain-JAX fallback.

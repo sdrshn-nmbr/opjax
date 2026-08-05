@@ -1,0 +1,1 @@
+Repair the Pallas kernel in kernel.py for `tanh` with input shapes [[256, 512]] and dtypes ['float32']. The starter contains one known `illegal_block_geometry` defect. Preserve the workload interface, run public checks, and submit a complete authentic normally lowered Pallas kernel. Do not use interpret mode or a plain-JAX fallback.

@@ -1,0 +1,378 @@
+{
+  "counts": {
+    "pool": 36,
+    "source_rows": 32,
+    "training_selection": 32
+  },
+  "family_policy": {
+    "families": 8,
+    "selected_per_family": 4
+  },
+  "kind": "pallas_g42_task_release",
+  "release_sha256": "9c156595fdad7a5ad648223da520ec7a48a0b9b42fd0340d3991eaa5cbaf1426",
+  "schema_version": 1,
+  "source_dataset_sha256": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
+  "source_release_sha256": "b6113016d873da0676c34df226299a87a9423b316e259e142e630775d085473c",
+  "task_records": [
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "binary_elementwise",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "task_id": "g42-binary-elementwise-01-reversed-blockspec",
+      "task_sha256": "0ea4d4d9e0e36a40e32f52fdd65a181d75a1afd63240c5d51e7a53074c02944b"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "binary_elementwise",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:multiply-256x512:sft",
+      "task_id": "g42-binary-elementwise-02-illegal-block-geometry",
+      "task_sha256": "d3adc2b8b5ddcd4ed52bfa244d2a312f9b7fbee96e2e4279e0c6a53e7f057fac"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "binary_elementwise",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:subtract-512x256:sft",
+      "task_id": "g42-binary-elementwise-03-unsafe-grid-index",
+      "task_sha256": "7087ccf2febafdc63f7e175df6636afd1abbdfbf3b0209732240b76371a6b902"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "binary_elementwise",
+      "mutation": "incomplete_compute",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:maximum-512x512:sft",
+      "task_id": "g42-binary-elementwise-04-incomplete-compute",
+      "task_sha256": "615ac378244bd4a9009e84736582b9d8ccee6bc9e29795abeb63b42aa2823f5c"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "binary_elementwise",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:minimum-256x384:sft",
+      "task_id": "g42-binary-elementwise-05-reversed-blockspec",
+      "task_sha256": "009483e4da46468b7d4418f04e83661f332323e48acaebb5d3e03b1e04870451"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "binary_elementwise",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:safe-divide-384x256:sft",
+      "task_id": "g42-binary-elementwise-06-illegal-block-geometry",
+      "task_sha256": "2c00661cb44840ff7626f6eefc8492368f018b50e2cf98fc31419d5a053003d5"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "transpose",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-128x128:sft",
+      "task_id": "g42-transpose-01-unsafe-grid-index",
+      "task_sha256": "1f5ea03c24693cfd5ee27cdceed3edfa05c2c54b51f79fe14044fc8789da7ddd"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "transpose",
+      "mutation": "incomplete_compute",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-square-256x384:sft",
+      "task_id": "g42-transpose-02-incomplete-compute",
+      "task_sha256": "426124eb3847f8a6336a0e762f5d571db27e56f090b2715abbc377253b231a14"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "transpose",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-abs-384x256:sft",
+      "task_id": "g42-transpose-03-reversed-blockspec",
+      "task_sha256": "7e099ab40d124f5b818f0277e54b545ff69bbdb6e5a388eb49c5982d18ef1503"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "matmul",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "task_id": "g42-matmul-01-illegal-block-geometry",
+      "task_sha256": "1f8223c27dbbecae56e2dadb087111e5391cf9e87cce916d631da6c1d4829c25"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "matmul",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-relu-256x128x256:sft",
+      "task_id": "g42-matmul-02-unsafe-grid-index",
+      "task_sha256": "d4e08c3bdb684acdc92d2dc3c00fcb1ff9d0765a40e34583bfc367b44749e6ff"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "matmul",
+      "mutation": "incomplete_compute",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-square-128x256x256:sft",
+      "task_id": "g42-matmul-03-incomplete-compute",
+      "task_sha256": "908a2bfd2863c40e82a3167f88085b5d2e5efe7fc95efe13409b9604691c734c"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "activation",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:relu-256x256:sft",
+      "task_id": "g42-activation-01-reversed-blockspec",
+      "task_sha256": "97bf0854e2342308fd0c7ec3a1205f3af81607df5a84d261a6e288d4fa602169"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "activation",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:tanh-256x512:sft",
+      "task_id": "g42-activation-02-illegal-block-geometry",
+      "task_sha256": "b2b5913cf542a577648d39708006442ae731cf207cedf75f5ad83a58c5349c50"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "activation",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:sigmoid-512x256:sft",
+      "task_id": "g42-activation-03-unsafe-grid-index",
+      "task_sha256": "00b79bc009be5dad67f45f93651ca641e18fc3f985de9d6a7678d7c4e501a328"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "activation",
+      "mutation": "incomplete_compute",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:square-512x512:sft",
+      "task_id": "g42-activation-04-incomplete-compute",
+      "task_sha256": "38bc2edbc7ddca8980c104b60122bb8f6fb672f964d3cb8cf164d625f23079e4"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "activation",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:absolute-256x384:sft",
+      "task_id": "g42-activation-05-reversed-blockspec",
+      "task_sha256": "9b13fdf84fe0b60322e780437612df4f07832af31a722d38ed70f1eeb698a92f"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "activation",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:exp-384x256:sft",
+      "task_id": "g42-activation-06-illegal-block-geometry",
+      "task_sha256": "87ff1940ea99ba078b4e274389c99629bf2c99fa225618c54c2df05d72efeaf9"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "normalization",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "task_id": "g42-normalization-01-unsafe-grid-index",
+      "task_sha256": "5944adede78dc2046993610e5abbc81a59910a8d6a2556a5ba9308ceb9aea5c1"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "normalization",
+      "mutation": "incomplete_compute",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:layernorm-128x256:sft",
+      "task_id": "g42-normalization-02-incomplete-compute",
+      "task_sha256": "12622e8b6d3ef2babf1f2209a60c9770d61d069eeaf1b4d978d4c1f4bad7d6fa"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "normalization",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:l2norm-96x256:sft",
+      "task_id": "g42-normalization-03-reversed-blockspec",
+      "task_sha256": "ebfbc35334f8522a65838322fe265e340a349e2a131fd43098c298a1f2f38c91"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "softmax",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmax-128x128:sft",
+      "task_id": "g42-softmax-01-illegal-block-geometry",
+      "task_sha256": "5a2b4c5f5188efc78db56b976150e0deb65290452cc692d1deffde679f45ef44"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "softmax",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:log-softmax-96x128:sft",
+      "task_id": "g42-softmax-02-unsafe-grid-index",
+      "task_sha256": "f1f548a7c66b6348d46f5cf59581db0dac135aaf3b57c79583d4ac83d8cbb5d0"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "softmax",
+      "mutation": "incomplete_compute",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmin-96x256:sft",
+      "task_id": "g42-softmax-03-incomplete-compute",
+      "task_sha256": "e69db2d4595c28ef4264294ce0316cc8bed1ba65a13f9db89da1027830edfddf"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "gated_activation",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:silu-gate-256x256:sft",
+      "task_id": "g42-gated-activation-01-reversed-blockspec",
+      "task_sha256": "08105f257353d74b922ea459ba1aa9f882a84228ef38c606b7b84abdc9143919"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "gated_activation",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:gelu-gate-512x256:sft",
+      "task_id": "g42-gated-activation-02-illegal-block-geometry",
+      "task_sha256": "c2aed030ffced965eb2ffa035513224c6ad75f1c106967113ac6b384b3058b71"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "gated_activation",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:relu-gate-256x384:sft",
+      "task_id": "g42-gated-activation-03-unsafe-grid-index",
+      "task_sha256": "3452ae742aad15d75b3a7cd20de81fa3842ec906089f356ed2eceb6619fc61b5"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "gated_activation",
+      "mutation": "incomplete_compute",
+      "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:tanh-gate-384x256:sft",
+      "task_id": "g42-gated-activation-04-incomplete-compute",
+      "task_sha256": "83733448416c82723cc1c47890c674faf6e85767cd96a93cb67a0c512082a304"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "row_reduction",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "task_id": "g42-row-reduction-01-reversed-blockspec",
+      "task_sha256": "e4cbedb3dae4dcb9817a58cc44ba1d651eb13df60003e7c8d2b3fdcb157838a8"
+    },
+    {
+      "expected_initial_failure_stage": "tpu_compile",
+      "family": "row_reduction",
+      "mutation": "illegal_block_geometry",
+      "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-max-128x128:sft",
+      "task_id": "g42-row-reduction-02-illegal-block-geometry",
+      "task_sha256": "a693d24c3c665fd45bc2804538f09c38a04205d354fae1d7dccbd610002523aa"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "row_reduction",
+      "mutation": "unsafe_grid_index",
+      "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-mean-96x128:sft",
+      "task_id": "g42-row-reduction-03-unsafe-grid-index",
+      "task_sha256": "218da1befa4bcdc405f5bcf8be7dfe77d11cc18ef2706b1e3773451844d487b1"
+    },
+    {
+      "expected_initial_failure_stage": "full_shape_correctness",
+      "family": "row_reduction",
+      "mutation": "incomplete_compute",
+      "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-min-96x256:sft",
+      "task_id": "g42-row-reduction-04-incomplete-compute",
+      "task_sha256": "d5b52114de640c575d063a4c1a88d327cac598fc79327e0686f5add4f0ffddba"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "matmul",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "task_id": "g42-matmul-04-reversed-blockspec",
+      "task_sha256": "dd48b3e4e3b73f488b548496eac18bb4dce808107567227af1f5f612b038cc95"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "normalization",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "task_id": "g42-normalization-04-reversed-blockspec",
+      "task_sha256": "acbcb97c807d4196441d23cb9298db19aa9b238aff94e4f6dd4f03f2cd26b943"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "softmax",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmax-128x128:sft",
+      "task_id": "g42-softmax-04-reversed-blockspec",
+      "task_sha256": "26451dd9dc95d02ae90d1de552579e5d4aea895be7ba908f611f0f7986745602"
+    },
+    {
+      "expected_initial_failure_stage": "pallas_api",
+      "family": "transpose",
+      "mutation": "reversed_blockspec",
+      "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-128x128:sft",
+      "task_id": "g42-transpose-04-reversed-blockspec",
+      "task_sha256": "615c8409de8e9f0905c045b52c0d1dec4ee41f50d91500e6ce774d36f371ebac"
+    }
+  ],
+  "tasks": [
+    "tasks/g42-binary-elementwise-01-reversed-blockspec",
+    "tasks/g42-binary-elementwise-02-illegal-block-geometry",
+    "tasks/g42-binary-elementwise-03-unsafe-grid-index",
+    "tasks/g42-binary-elementwise-04-incomplete-compute",
+    "tasks/g42-binary-elementwise-05-reversed-blockspec",
+    "tasks/g42-binary-elementwise-06-illegal-block-geometry",
+    "tasks/g42-transpose-01-unsafe-grid-index",
+    "tasks/g42-transpose-02-incomplete-compute",
+    "tasks/g42-transpose-03-reversed-blockspec",
+    "tasks/g42-matmul-01-illegal-block-geometry",
+    "tasks/g42-matmul-02-unsafe-grid-index",
+    "tasks/g42-matmul-03-incomplete-compute",
+    "tasks/g42-activation-01-reversed-blockspec",
+    "tasks/g42-activation-02-illegal-block-geometry",
+    "tasks/g42-activation-03-unsafe-grid-index",
+    "tasks/g42-activation-04-incomplete-compute",
+    "tasks/g42-activation-05-reversed-blockspec",
+    "tasks/g42-activation-06-illegal-block-geometry",
+    "tasks/g42-normalization-01-unsafe-grid-index",
+    "tasks/g42-normalization-02-incomplete-compute",
+    "tasks/g42-normalization-03-reversed-blockspec",
+    "tasks/g42-softmax-01-illegal-block-geometry",
+    "tasks/g42-softmax-02-unsafe-grid-index",
+    "tasks/g42-softmax-03-incomplete-compute",
+    "tasks/g42-gated-activation-01-reversed-blockspec",
+    "tasks/g42-gated-activation-02-illegal-block-geometry",
+    "tasks/g42-gated-activation-03-unsafe-grid-index",
+    "tasks/g42-gated-activation-04-incomplete-compute",
+    "tasks/g42-row-reduction-01-reversed-blockspec",
+    "tasks/g42-row-reduction-02-illegal-block-geometry",
+    "tasks/g42-row-reduction-03-unsafe-grid-index",
+    "tasks/g42-row-reduction-04-incomplete-compute",
+    "tasks/g42-matmul-04-reversed-blockspec",
+    "tasks/g42-normalization-04-reversed-blockspec",
+    "tasks/g42-softmax-04-reversed-blockspec",
+    "tasks/g42-transpose-04-reversed-blockspec"
+  ],
+  "training_selection": [
+    "g42-activation-01-reversed-blockspec",
+    "g42-activation-02-illegal-block-geometry",
+    "g42-activation-03-unsafe-grid-index",
+    "g42-activation-04-incomplete-compute",
+    "g42-binary-elementwise-01-reversed-blockspec",
+    "g42-binary-elementwise-02-illegal-block-geometry",
+    "g42-binary-elementwise-03-unsafe-grid-index",
+    "g42-binary-elementwise-04-incomplete-compute",
+    "g42-gated-activation-01-reversed-blockspec",
+    "g42-gated-activation-02-illegal-block-geometry",
+    "g42-gated-activation-03-unsafe-grid-index",
+    "g42-gated-activation-04-incomplete-compute",
+    "g42-matmul-01-illegal-block-geometry",
+    "g42-matmul-02-unsafe-grid-index",
+    "g42-matmul-03-incomplete-compute",
+    "g42-matmul-04-reversed-blockspec",
+    "g42-normalization-01-unsafe-grid-index",
+    "g42-normalization-02-incomplete-compute",
+    "g42-normalization-03-reversed-blockspec",
+    "g42-normalization-04-reversed-blockspec",
+    "g42-row-reduction-01-reversed-blockspec",
+    "g42-row-reduction-02-illegal-block-geometry",
+    "g42-row-reduction-03-unsafe-grid-index",
+    "g42-row-reduction-04-incomplete-compute",
+    "g42-softmax-01-illegal-block-geometry",
+    "g42-softmax-02-unsafe-grid-index",
+    "g42-softmax-03-incomplete-compute",
+    "g42-softmax-04-reversed-blockspec",
+    "g42-transpose-01-unsafe-grid-index",
+    "g42-transpose-02-incomplete-compute",
+    "g42-transpose-03-reversed-blockspec",
+    "g42-transpose-04-reversed-blockspec"
+  ]
+}

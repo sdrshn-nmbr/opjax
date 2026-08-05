@@ -1,0 +1,77 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "full_shape_correctness",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "gated_activation",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      256,
+      384
+    ],
+    [
+      256,
+      384
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the relu-gate-256x384 operation. Compute relu_gate for full-shape inputs [[256, 384], [256, 384]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[256, 384], [256, 384]] and dtypes ['float32', 'float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "gated",
+  "max_attempts": 3,
+  "mutation": "unsafe_grid_index",
+  "operation": "relu_gate",
+  "reference_kernel_sha256": "951bdb1c2e936f25e8977cca0f1c4884cf0b82479b87eeddb9f182534a449d80",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:relu-gate-256x384:sft",
+  "split": "train",
+  "task_id": "g42-gated-activation-03-unsafe-grid-index",
+  "task_sha256": "28433466cf53265ccc9586b9389cfa61dad994beee83ba6b60d4f95b88921821",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "d62dbfbbe522fb9ba8fffcf6a672af53c4fcb26d46fc57926bfcefc2292d0302",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/0ac89deb880cfbce",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "b025e280d5065d9fa78012793df69dcaba6873293f148abcfcb14e554f193e61",
+    "kernel_sha256": "951bdb1c2e936f25e8977cca0f1c4884cf0b82479b87eeddb9f182534a449d80",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "2d115bd361d7a9fae569d8a4035c1337d015fced494501e1e668f3bcec35624d"
+  }
+}

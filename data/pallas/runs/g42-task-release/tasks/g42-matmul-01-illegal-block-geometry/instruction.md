@@ -1,0 +1,1 @@
+Repair the Pallas kernel in kernel.py for `matmul` with input shapes [[128, 128], [128, 128]] and dtypes ['bfloat16', 'bfloat16']. The starter contains one known `illegal_block_geometry` defect. Preserve the workload interface, run public checks, and submit a complete authentic normally lowered Pallas kernel. Do not use interpret mode or a plain-JAX fallback.

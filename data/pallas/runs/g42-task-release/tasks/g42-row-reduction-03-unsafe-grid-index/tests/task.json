@@ -1,0 +1,72 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "full_shape_correctness",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "row_reduction",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      96,
+      128
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the row-mean-96x128 operation. Compute mean for full-shape inputs [[96, 128]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[96, 128]] and dtypes ['float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "reduction",
+  "max_attempts": 3,
+  "mutation": "unsafe_grid_index",
+  "operation": "mean",
+  "reference_kernel_sha256": "bcdc833704eeb2aeb23c263de2cf9b83ca37b14871024da74e242b3e407f66fc",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-mean-96x128:sft",
+  "split": "train",
+  "task_id": "g42-row-reduction-03-unsafe-grid-index",
+  "task_sha256": "58d1f2d237d4d538ee5b8f642a786c59f61e9b253689ce4149fc3deb1a79484c",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "100ebee8a6579ce0d10e33c7263cbd4bf40fa90e4058551607e1a12defe6519f",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/a24cccd555ba90c8",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "d065df99a54dcd0d87ec6cf7fe63923c4bb0f41bdb5d462040679f1960ef7588",
+    "kernel_sha256": "bcdc833704eeb2aeb23c263de2cf9b83ca37b14871024da74e242b3e407f66fc",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "e95798bf294741167bf6a7ca8f640ce600571e3fde4f461ded5a64ccbc6d7912"
+  }
+}

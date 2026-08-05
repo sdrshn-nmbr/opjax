@@ -1,0 +1,72 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "pallas_api",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "transpose",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      256
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the transpose-abs-384x256 operation. Compute transpose_abs for full-shape inputs [[384, 256]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[384, 256]] and dtypes ['float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "transpose",
+  "max_attempts": 3,
+  "mutation": "reversed_blockspec",
+  "operation": "transpose_abs",
+  "reference_kernel_sha256": "c5a7895260fd82c825380fad0a4cb352bf317b4c91ee8557d74650e6d0560273",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-abs-384x256:sft",
+  "split": "train",
+  "task_id": "g42-transpose-03-reversed-blockspec",
+  "task_sha256": "88a39c218693011bf9e55a7d4b706f6f1a0af81648c330e09f8e278e4a44a39e",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "6382c06e1d7b2e6e6ed17f7fbd73be3e774716ff165b7d3aff17df051aa4e59e",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/6470ab38dc9a24a1",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "da3690bd6cf6fb43f13b7255464cd26faef3f07876c938968c918f1f47109854",
+    "kernel_sha256": "c5a7895260fd82c825380fad0a4cb352bf317b4c91ee8557d74650e6d0560273",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "3bfee4a805daae312b8c5557813e03399c6b354d77f00a35195804ac79a205ba"
+  }
+}

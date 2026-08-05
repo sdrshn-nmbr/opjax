@@ -1,0 +1,72 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "full_shape_correctness",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "activation",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      512,
+      256
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the sigmoid-512x256 operation. Compute sigmoid for full-shape inputs [[512, 256]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[512, 256]] and dtypes ['float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "unary",
+  "max_attempts": 3,
+  "mutation": "unsafe_grid_index",
+  "operation": "sigmoid",
+  "reference_kernel_sha256": "8e69d5919251a5ae11d2dd7eef5e33b8b3f6af8461d850196458b2e0f4a133ee",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:sigmoid-512x256:sft",
+  "split": "train",
+  "task_id": "g42-activation-03-unsafe-grid-index",
+  "task_sha256": "e8dc35d748f1edaf87bd1380cf79bce859dfaa5e0996d51c43f8f53e97eb2d84",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "e0cac99e99de23832ddafb33b9b9cf0dc4c2b4955599f6e57ecad7bd93f020da",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/d1d75450b6f68aeb",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "3bf8bdcb7755c4fddc7d70df6a85b64cc6b56f3cacd5383757c794a9bf9ca7a5",
+    "kernel_sha256": "8e69d5919251a5ae11d2dd7eef5e33b8b3f6af8461d850196458b2e0f4a133ee",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "6cbfa1ffc58fc2831b40d57abfce16903fdb58ca433eaebca7d307366aacac00"
+  }
+}

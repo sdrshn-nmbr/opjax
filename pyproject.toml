@@ -28,12 +28,16 @@ opjax-pallas-g4-diagnostic = "opjax.pallas.gate4_diagnostics:main"
 opjax-pallas-environment-corpus = "opjax.pallas.environment_corpus:main"
 opjax-pallas-environment-runner = "opjax.pallas.environment_runner:main"
 opjax-pallas-environment-sample = "opjax.pallas.environment_sampling:main"
+opjax-pallas-g42-agent = "opjax.pallas.g42_agent:main"
+opjax-pallas-g42-curriculum = "opjax.pallas.g42_curriculum:main"
 
 [dependency-groups]
 dev = [
     "pytest==9.0.3",
 ]
 tinker = [
+    "litellm==1.75.5.post2",
+    "mini-swe-agent==2.4.6",
     "tinker==0.24.0",
     "tinker-cookbook[inkling]==0.5.3",
 ]

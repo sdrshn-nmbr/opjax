@@ -1,0 +1,77 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "pallas_api",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "binary_elementwise",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      256,
+      256
+    ],
+    [
+      256,
+      256
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the add-256x256 operation. Compute add for full-shape inputs [[256, 256], [256, 256]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[256, 256], [256, 256]] and dtypes ['float32', 'float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "binary",
+  "max_attempts": 3,
+  "mutation": "reversed_blockspec",
+  "operation": "add",
+  "reference_kernel_sha256": "f364d93b57d300ce54ae494bf7e93f341d99a00bc498bc88722eeb55dee4b229",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+  "split": "train",
+  "task_id": "g42-binary-elementwise-01-reversed-blockspec",
+  "task_sha256": "e658eee99b90f49f8b413ea296f1ce334785ededae8351b02f84d84434b45ba1",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "9335d3ec8245995f65828eaa135d68d309ab9c6797696fd081316c71efeaa8dc",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/516be173860b05cb",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "c96dd0737e9b7b74a9cb4c85f781ee22921a6797b2ffda54a71f09eaa9ed9131",
+    "kernel_sha256": "f364d93b57d300ce54ae494bf7e93f341d99a00bc498bc88722eeb55dee4b229",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "f2a9326fec14f55ccea307dd2bde60a04e1afd9e7bbd783c3d897581bea1f582"
+  }
+}

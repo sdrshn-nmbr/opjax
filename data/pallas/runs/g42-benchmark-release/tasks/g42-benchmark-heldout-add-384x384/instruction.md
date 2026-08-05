@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `add` with input shapes [[384, 384], [384, 384]] and dtypes ['float32', 'float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. The TPU verifier is hidden.

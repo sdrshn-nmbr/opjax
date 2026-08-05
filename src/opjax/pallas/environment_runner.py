@@ -7,6 +7,7 @@ import hashlib
 import importlib.util
 import json
 import sys
+import time
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -21,6 +22,37 @@ from opjax.pallas.scoring import inspect_pallas_source
 
 class EnvironmentRunnerError(RuntimeError):
     pass
+
+
+def _failed(
+    *,
+    stage: str,
+    error: str,
+    hardware: dict[str, Any],
+    kernel_sha256: str,
+    stages: dict[str, bool],
+) -> dict[str, Any]:
+    return {
+        "passed": False,
+        "stage": stage,
+        "error": error,
+        "hardware": hardware,
+        "kernel_sha256": kernel_sha256,
+        "stages": stages,
+        "authentic": stages.get("pallas_api", False),
+        "correct": stages.get("full_shape_correctness", False),
+        "normal_lowered": stages.get("normal_lowering", False),
+        "infrastructure_error": False,
+    }
+
+
+def _time_compiled(compiled: Any, inputs: tuple[Any, ...], *, warmups: int = 3, iterations: int = 20) -> float:
+    for _ in range(warmups):
+        jax.block_until_ready(compiled(*inputs))
+    started = time.perf_counter()
+    for _ in range(iterations):
+        jax.block_until_ready(compiled(*inputs))
+    return (time.perf_counter() - started) * 1000 / iterations
 
 
 def _sha256_file(path: Path) -> str:
@@ -52,99 +84,139 @@ def evaluate_task(
     *, task: dict[str, Any], kernel_path: Path, evidence_dir: Path | None = None
 ) -> dict[str, Any]:
     hardware = _hardware()
+    kernel_sha256 = _sha256_file(kernel_path)
+    stages = {
+        "artifact_contract": True,
+        "pallas_api": False,
+        "tpu_compile": False,
+        "full_shape_correctness": False,
+        "normal_lowering": False,
+        "runtime_safety": False,
+        "profile": False,
+    }
     source = kernel_path.read_text(encoding="utf-8")
     inspection = inspect_pallas_source(source)
     if not inspection.authentic:
-        return {
-            "passed": False,
-            "stage": "pallas_api",
-            "error": ",".join(inspection.reasons),
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
-        }
+        return _failed(
+            stage="pallas_api",
+            error=",".join(inspection.reasons),
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
+        )
+    stages["pallas_api"] = True
+    correctness_seeds = tuple(task.get("correctness_seeds", (0, 1, 2)))
+    if correctness_seeds != (0, 1, 2):
+        raise EnvironmentRunnerError(f"CORRECTNESS_SEEDS_INVALID: {correctness_seeds}")
+    compiled = None
+    profile_inputs = None
+    profile_expected = None
+    tolerance = task.get("correctness_tolerance", {"rtol": 1e-3, "atol": 1e-3})
     try:
         module = _load_module(kernel_path)
-        workload = getattr(module, "workload")
+        workload = module.workload
         operation = task["operation"]
         if operation == "row_sum":
             operation = "sum"
-        inputs = _generate_inputs(
-            task["input_shapes"],
-            task.get("input_dtypes"),
-            task.get("input_ranges"),
-            seed=int(task.get("seed", 0)),
+        seed_results = []
+        for seed in correctness_seeds:
+            inputs = _generate_inputs(
+                task["input_shapes"],
+                task.get("input_dtypes"),
+                task.get("input_ranges"),
+                seed=seed,
+            )
+            expected = _semantic_oracle(operation, *inputs)
+            lowered = jax.jit(workload).lower(*inputs)
+            compiled = lowered.compile()
+            stages["tpu_compile"] = True
+            actual = compiled(*inputs)
+            jax.block_until_ready(actual)
+            chex.assert_trees_all_close(
+                actual,
+                expected,
+                rtol=float(tolerance["rtol"]),
+                atol=float(tolerance["atol"]),
+            )
+            seed_results.append({"seed": seed, "passed": True})
+            if seed == correctness_seeds[0]:
+                profile_inputs = inputs
+                profile_expected = expected
+    except Exception as exc:  # noqa: BLE001 - candidate code can raise any exception
+        stage = "full_shape_correctness" if stages["tpu_compile"] else "tpu_compile"
+        return _failed(
+            stage=stage,
+            error=f"{type(exc).__name__}: {exc}",
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
         )
-        expected = _semantic_oracle(operation, *inputs)
-        lowered = jax.jit(workload).lower(*inputs)
-        compiled = lowered.compile()
-    except Exception as exc:
-        return {
-            "passed": False,
-            "stage": "tpu_compile",
-            "error": f"{type(exc).__name__}: {exc}",
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
-        }
-    try:
-        actual = compiled(*inputs)
-        jax.block_until_ready(actual)
-        tolerance = task.get("correctness_tolerance", {"rtol": 1e-3, "atol": 1e-3})
-        chex.assert_trees_all_close(
-            actual,
-            expected,
-            rtol=float(tolerance["rtol"]),
-            atol=float(tolerance["atol"]),
-        )
-    except Exception as exc:
-        return {
-            "passed": False,
-            "stage": "full_shape_correctness",
-            "error": f"{type(exc).__name__}: {exc}",
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
-        }
+    stages["full_shape_correctness"] = True
+    stages["runtime_safety"] = True
+    assert compiled is not None and profile_inputs is not None and profile_expected is not None
     executable = compiled.as_text()
     if "tpu_custom_call" not in executable:
-        return {
-            "passed": False,
-            "stage": "normal_lowering",
-            "error": "TPU_CUSTOM_CALL_MISSING",
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
-        }
+        return _failed(
+            stage="normal_lowering",
+            error="TPU_CUSTOM_CALL_MISSING",
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
+        )
+    stages["normal_lowering"] = True
     if evidence_dir is None:
-        return {
-            "passed": False,
-            "stage": "profile",
-            "error": "PROFILE_EVIDENCE_MISSING",
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
-        }
+        return _failed(
+            stage="profile",
+            error="PROFILE_EVIDENCE_MISSING",
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
+        )
     try:
         profile = capture_lowering_case(
             label="candidate",
             function=workload,
-            inputs=inputs,
+            inputs=profile_inputs,
             out_dir=evidence_dir,
             repetitions=3,
-            expected_output=expected,
+            expected_output=profile_expected,
             rtol=float(tolerance["rtol"]),
             atol=float(tolerance["atol"]),
         )
-    except Exception as exc:
-        return {
-            "passed": False,
-            "stage": "profile",
-            "error": f"{type(exc).__name__}: {exc}",
-            "hardware": hardware,
-            "kernel_sha256": _sha256_file(kernel_path),
+        baseline = jax.jit(lambda *values: _semantic_oracle(operation, *values)).lower(*profile_inputs).compile()
+        candidate_samples = [_time_compiled(compiled, profile_inputs) for _ in range(3)]
+        baseline_samples = [_time_compiled(baseline, profile_inputs) for _ in range(3)]
+        candidate_median = sorted(candidate_samples)[1]
+        baseline_median = sorted(baseline_samples)[1]
+        profile["timing"] = {
+            "candidate_ms": candidate_samples,
+            "baseline_ms": baseline_samples,
+            "candidate_median_ms": candidate_median,
+            "baseline_median_ms": baseline_median,
+            "speedup": baseline_median / candidate_median if candidate_median > 0 else None,
         }
+        profile["speedup"] = profile["timing"]["speedup"]
+    except Exception as exc:  # noqa: BLE001 - profiler/runtime failures are evidence
+        return _failed(
+            stage="profile",
+            error=f"{type(exc).__name__}: {exc}",
+            hardware=hardware,
+            kernel_sha256=kernel_sha256,
+            stages=stages,
+        )
+    stages["profile"] = True
     return {
         "passed": True,
         "stage": "verified",
         "error": None,
         "hardware": hardware,
-        "kernel_sha256": _sha256_file(kernel_path),
+        "kernel_sha256": kernel_sha256,
+        "stages": stages,
+        "authentic": True,
+        "correct": True,
+        "normal_lowered": True,
+        "infrastructure_error": False,
+        "seed_results": seed_results,
         "executable_tpu_custom_call": True,
         "profile": profile,
     }
@@ -204,8 +276,13 @@ def main(argv: list[str] | None = None) -> int:
                 kernel_path=args.kernel,
                 evidence_dir=args.evidence_dir,
             )
-    except Exception as exc:
-        result = {"passed": False, "stage": "runner", "error": f"{type(exc).__name__}: {exc}"}
+    except Exception as exc:  # noqa: BLE001 - CLI must preserve infrastructure failures
+        result = {
+            "passed": False,
+            "stage": "infrastructure",
+            "error": f"{type(exc).__name__}: {exc}",
+            "infrastructure_error": True,
+        }
     print(json.dumps(result, sort_keys=True))
     return 0 if result["passed"] else 2
 

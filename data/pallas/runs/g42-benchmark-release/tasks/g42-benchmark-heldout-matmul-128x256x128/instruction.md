@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `matmul` with input shapes [[128, 256], [256, 128]] and dtypes ['float32', 'float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. The TPU verifier is hidden.

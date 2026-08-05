@@ -1,0 +1,1 @@
+Implement an authentic normally lowered Pallas kernel in kernel.py for `row_sum` with input shapes [[128, 256]] and dtypes ['float32']. Run public checks. Do not use interpret mode or a plain-JAX fallback. The TPU verifier is hidden.

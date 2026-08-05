@@ -1,0 +1,39 @@
+schema_version = "1.3"
+artifacts = ["/logs/artifacts/model.patch"]
+
+[task]
+name = "opjax/g42-benchmark-heldout-rmsnorm-256x128"
+description = "Repair one authentic Pallas kernel"
+
+[metadata]
+task_id = "g42-benchmark-heldout-rmsnorm-256x128"
+split = "near_heldout"
+mode = "benchmark"
+family = "rmsnorm"
+source_row_id = "near-heldout:heldout-rmsnorm-256x128"
+mutation = "missing_implementation"
+task_sha256 = "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+input_shapes_json = "[[256,128]]"
+input_dtypes_json = "[\"float32\"]"
+
+[verifier]
+network_mode = "no-network"
+environment_mode = "separate"
+timeout_sec = 900.0
+
+[verifier.environment]
+cpus = 2
+memory_mb = 8192
+storage_mb = 20480
+
+[agent]
+network_mode = "no-network"
+timeout_sec = 900.0
+
+[environment]
+docker_image = "python:3.12-slim"
+os = "linux"
+cpus = 2
+memory_mb = 4096
+storage_mb = 4096
+gpus = 0

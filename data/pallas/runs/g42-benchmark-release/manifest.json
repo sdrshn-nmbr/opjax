@@ -1,0 +1,49 @@
+{
+  "counts": {
+    "tasks": 4
+  },
+  "kind": "pallas_g42_benchmark_release",
+  "release_sha256": "adbae9894d42936924df1fc2d8ffdcf85585075f66e27d5bb796c69883f9bfbe",
+  "schema_version": 1,
+  "source_config_sha256": "0eefc1f1598a0f02e2a998c47df91404d2687d29f1bd525d892539da6a44a7d6",
+  "task_records": [
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "add",
+      "mutation": "missing_implementation",
+      "source_row_id": "near-heldout:heldout-add-384x384",
+      "task_id": "g42-benchmark-heldout-add-384x384",
+      "task_sha256": "fcf7430a42af6cd0d604a97e895bdc346f2eb9961a58e73471d5801736636e4d"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "matmul",
+      "mutation": "missing_implementation",
+      "source_row_id": "near-heldout:heldout-matmul-128x256x128",
+      "task_id": "g42-benchmark-heldout-matmul-128x256x128",
+      "task_sha256": "7e3a696bbb8daecedb2cc183b0f2e964aa68d1d1c5570089e02fe608afede92e"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "rmsnorm",
+      "mutation": "missing_implementation",
+      "source_row_id": "near-heldout:heldout-rmsnorm-256x128",
+      "task_id": "g42-benchmark-heldout-rmsnorm-256x128",
+      "task_sha256": "d2e8afb92603a0a28b56bcbb5d7ab5f2c004f63e97b086ace561e7c7597551fb"
+    },
+    {
+      "expected_initial_failure_stage": "artifact_contract",
+      "family": "row_sum",
+      "mutation": "missing_implementation",
+      "source_row_id": "near-heldout:heldout-row-sum-128x256",
+      "task_id": "g42-benchmark-heldout-row-sum-128x256",
+      "task_sha256": "027ef6031c54da42d3ebb9c427bf668807aa5fcdd304b03976d8ffe944db773f"
+    }
+  ],
+  "tasks": [
+    "tasks/g42-benchmark-heldout-add-384x384",
+    "tasks/g42-benchmark-heldout-matmul-128x256x128",
+    "tasks/g42-benchmark-heldout-rmsnorm-256x128",
+    "tasks/g42-benchmark-heldout-row-sum-128x256"
+  ]
+}

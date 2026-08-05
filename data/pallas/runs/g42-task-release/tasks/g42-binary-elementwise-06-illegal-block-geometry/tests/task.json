@@ -1,0 +1,77 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "tpu_compile",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "binary_elementwise",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      256
+    ],
+    [
+      384,
+      256
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the safe-divide-384x256 operation. Compute safe_divide for full-shape inputs [[384, 256], [384, 256]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[384, 256], [384, 256]] and dtypes ['float32', 'float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "binary",
+  "max_attempts": 3,
+  "mutation": "illegal_block_geometry",
+  "operation": "safe_divide",
+  "reference_kernel_sha256": "3cfd1f5360baa40daccead0b1b9b26502a3cbc1f5513277d8b0711078cba15b3",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "jax:tests/pallas/tpu_pallas_test.py:safe-divide-384x256:sft",
+  "split": "train",
+  "task_id": "g42-binary-elementwise-06-illegal-block-geometry",
+  "task_sha256": "96b97bf84b0c003b24a706f79a8a3161eb3d07cb1293dbeb821314a8f1b71d19",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "498a8876cba4b451cdcf120bd233c03f948e3d0b5b93a78b3dff0da5741829fd",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/85490febcaec3c0c",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "cfd0de63f11cf1c9ef8155702a8f8506f6e0305656663d33fa22139a9c216f4a",
+    "kernel_sha256": "3cfd1f5360baa40daccead0b1b9b26502a3cbc1f5513277d8b0711078cba15b3",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "9bb3f36d49361b1d9491d3aa6db78111a3abfe6b5babbdee36fda839c60e48e7"
+  }
+}

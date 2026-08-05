@@ -1,0 +1,39 @@
+schema_version = "1.3"
+artifacts = ["/logs/artifacts/model.patch"]
+
+[task]
+name = "opjax/g42-normalization-01-unsafe-grid-index"
+description = "Repair one authentic Pallas kernel"
+
+[metadata]
+task_id = "g42-normalization-01-unsafe-grid-index"
+split = "train"
+mode = "curriculum"
+family = "normalization"
+source_row_id = "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft"
+mutation = "unsafe_grid_index"
+task_sha256 = "5944adede78dc2046993610e5abbc81a59910a8d6a2556a5ba9308ceb9aea5c1"
+input_shapes_json = "[[128,128]]"
+input_dtypes_json = "[\"float32\"]"
+
+[verifier]
+network_mode = "no-network"
+environment_mode = "separate"
+timeout_sec = 900.0
+
+[verifier.environment]
+cpus = 2
+memory_mb = 8192
+storage_mb = 20480
+
+[agent]
+network_mode = "no-network"
+timeout_sec = 900.0
+
+[environment]
+docker_image = "python:3.12-slim"
+os = "linux"
+cpus = 2
+memory_mb = 4096
+storage_mb = 4096
+gpus = 0

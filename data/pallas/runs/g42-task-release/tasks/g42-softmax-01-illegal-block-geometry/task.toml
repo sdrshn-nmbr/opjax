@@ -1,0 +1,39 @@
+schema_version = "1.3"
+artifacts = ["/logs/artifacts/model.patch"]
+
+[task]
+name = "opjax/g42-softmax-01-illegal-block-geometry"
+description = "Repair one authentic Pallas kernel"
+
+[metadata]
+task_id = "g42-softmax-01-illegal-block-geometry"
+split = "train"
+mode = "curriculum"
+family = "softmax"
+source_row_id = "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmax-128x128:sft"
+mutation = "illegal_block_geometry"
+task_sha256 = "5a2b4c5f5188efc78db56b976150e0deb65290452cc692d1deffde679f45ef44"
+input_shapes_json = "[[128,128]]"
+input_dtypes_json = "[\"float32\"]"
+
+[verifier]
+network_mode = "no-network"
+environment_mode = "separate"
+timeout_sec = 900.0
+
+[verifier.environment]
+cpus = 2
+memory_mb = 8192
+storage_mb = 20480
+
+[agent]
+network_mode = "no-network"
+timeout_sec = 900.0
+
+[environment]
+docker_image = "python:3.12-slim"
+os = "linux"
+cpus = 2
+memory_mb = 4096
+storage_mb = 4096
+gpus = 0

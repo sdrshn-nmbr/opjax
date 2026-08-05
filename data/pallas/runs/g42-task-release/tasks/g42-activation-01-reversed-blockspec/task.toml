@@ -1,0 +1,39 @@
+schema_version = "1.3"
+artifacts = ["/logs/artifacts/model.patch"]
+
+[task]
+name = "opjax/g42-activation-01-reversed-blockspec"
+description = "Repair one authentic Pallas kernel"
+
+[metadata]
+task_id = "g42-activation-01-reversed-blockspec"
+split = "train"
+mode = "curriculum"
+family = "activation"
+source_row_id = "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:relu-256x256:sft"
+mutation = "reversed_blockspec"
+task_sha256 = "97bf0854e2342308fd0c7ec3a1205f3af81607df5a84d261a6e288d4fa602169"
+input_shapes_json = "[[256,256]]"
+input_dtypes_json = "[\"float32\"]"
+
+[verifier]
+network_mode = "no-network"
+environment_mode = "separate"
+timeout_sec = 900.0
+
+[verifier.environment]
+cpus = 2
+memory_mb = 8192
+storage_mb = 20480
+
+[agent]
+network_mode = "no-network"
+timeout_sec = 900.0
+
+[environment]
+docker_image = "python:3.12-slim"
+os = "linux"
+cpus = 2
+memory_mb = 4096
+storage_mb = 4096
+gpus = 0

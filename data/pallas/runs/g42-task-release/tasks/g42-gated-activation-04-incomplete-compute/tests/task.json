@@ -1,0 +1,77 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "full_shape_correctness",
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "family": "gated_activation",
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      256
+    ],
+    [
+      384,
+      256
+    ]
+  ],
+  "instruction": "Implement an authentic normal-lowering JAX Pallas kernel for the tanh-gate-384x256 operation. Compute tanh_gate for full-shape inputs [[384, 256], [384, 256]] with output semantics defined independently by the operation name. The callable must accept inputs with shapes [[384, 256], [384, 256]] and dtypes ['float32', 'float32']. It must match the independent semantic oracle at the full declared shapes. Do not use interpret mode or a plain-JAX fallback. Return exactly one self-contained Python module defining workload(*inputs). Use the current JAX API exactly: pl.BlockSpec(block_shape, index_map); block_shape is the first argument and index_map is the second. Include every required import and a complete kernel body. Do not return an incomplete kernel. Return only the Python module, with no prose.",
+  "kernel_kind": "gated",
+  "max_attempts": 3,
+  "mutation": "incomplete_compute",
+  "operation": "tanh_gate",
+  "reference_kernel_sha256": "24c6be0e6a5d1038cfb5fcbf081345d00f2258b98d9ddc5390889f75648fabdb",
+  "reference_solution_visible": false,
+  "schema_version": 1,
+  "source_row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:tanh-gate-384x256:sft",
+  "split": "train",
+  "task_id": "g42-gated-activation-04-incomplete-compute",
+  "task_sha256": "f3cb258c0e7c36e70ae7e5086bbb503642c42df98cb631693248de2e8a1ecb33",
+  "verification": {
+    "calibration_sha256": "4ed4ad012e7619fa591c9305f5b094de88e5b41cfc1985b036ed51bf6c5ff918",
+    "candidate_evidence_sha256": "5e552dca80ddb76dea3033c56b1bfc73ddeabdc447ae27648b04b3aa650a6cf1",
+    "correctness_seeds": [
+      0,
+      1,
+      2
+    ],
+    "evidence_relative_path": "evidence/candidates/3738e60cffdc422c",
+    "full_declared_shapes": true,
+    "input_spec_sha256": "cfd0de63f11cf1c9ef8155702a8f8506f6e0305656663d33fa22139a9c216f4a",
+    "kernel_sha256": "24c6be0e6a5d1038cfb5fcbf081345d00f2258b98d9ddc5390889f75648fabdb",
+    "target": {
+      "backend": "tpu",
+      "chex": "0.1.90",
+      "device_count": 1,
+      "device_kinds": [
+        "TPU v5 lite"
+      ],
+      "jax": "0.6.2",
+      "jaxlib": "0.6.2",
+      "libtpu": "0.0.17",
+      "platform": "Linux-5.19.0-1022-gcp-x86_64-with-glibc2.35",
+      "process_count": 1,
+      "process_index": 0,
+      "python": "3.10.12"
+    },
+    "verification_sha256": "69f7a690c5382fde9fb291557611238e2d832eeecbcfc717e8aa5f76cb6a2c23"
+  }
+}
