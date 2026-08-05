@@ -1,4 +1,8 @@
-from opjax.pallas.g42_verifier import classify_process_failure, sanitized_feedback
+from opjax.pallas.g42_verifier import (
+    classify_process_failure,
+    requires_worker_recovery,
+    sanitized_feedback,
+)
 
 
 def test_candidate_abort_and_timeout_are_runtime_safety_failures() -> None:
@@ -13,6 +17,19 @@ def test_unattributable_runner_failure_is_infrastructure() -> None:
     result = classify_process_failure(returncode=2, stderr="runner configuration missing", timed_out=False)
     assert result["stage"] == "infrastructure"
     assert result["infrastructure_error"] is True
+
+
+def test_structured_dma_failure_requires_worker_recovery() -> None:
+    assert requires_worker_recovery(
+        returncode=2,
+        stderr="",
+        result={"stage": "full_shape_correctness", "error": "Accelerator device halted during dma.hbm_to_vmem"},
+    ) is True
+    assert requires_worker_recovery(
+        returncode=2,
+        stderr="",
+        result={"stage": "full_shape_correctness", "error": "values differ"},
+    ) is False
 
 
 def test_curriculum_feedback_exposes_only_stage() -> None:

@@ -8,6 +8,11 @@
     "action_format": "mswea_bash_command",
     "actions_per_turn": 1
   },
+  "agent_environment": {
+    "image": "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+    "network": "none",
+    "mounts": ["workspace"]
+  },
   "model": {
     "base": "thinkingmachines/Inkling-Small",
     "renderer": "tml_v0",

@@ -323,7 +323,15 @@ def static_dev_result(kernel_path: Path) -> dict[str, Any]:
 def classify_verifier_result(result: dict[str, Any]) -> int:
     if result.get("infrastructure_error") is True:
         return -1
-    return int(result.get("passed") is True and result.get("stage") == "verified")
+    stages = result.get("stages")
+    if not isinstance(stages, dict):
+        return 0
+    mandatory_passed = all(stages.get(stage) is True for stage in MANDATORY_STAGES)
+    return int(
+        result.get("passed") is True
+        and result.get("stage") == "verified"
+        and mandatory_passed
+    )
 
 
 def write_verifier_artifacts(

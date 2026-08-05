@@ -49,6 +49,8 @@ OBSERVATION_TEMPLATE = """<returncode>{{returncode}}</returncode>
 <output>{{output}}</output>
 {% if exception_info %}<exception>{{exception_info}}</exception>{% endif %}"""
 
+AGENT_IMAGE = "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052"
+
 
 class TinkerMiniSWEModel:
     """mini-swe Model protocol implementation using a pinned Tinker sampler."""
@@ -208,7 +210,7 @@ async def run_tinker_agent(
         top_p=sampling["top_p"],
     )
     environment = DockerEnvironment(
-        image="python:3.12-slim",
+        image=AGENT_IMAGE,
         cwd="/workspace",
         timeout=120,
         run_args=["--rm", "--network", "none", "--mount", f"type=bind,src={workspace},dst=/workspace"],
@@ -252,6 +254,7 @@ async def run_tinker_agent(
                     "mode": task.mode,
                     "turn_limit": turn_limit,
                     "snapshot_turns": list(snapshot_turns),
+                    "agent_image": AGENT_IMAGE,
                     "submitted": submitted,
                     "workspace": workspace_record,
                     "snapshots": snapshots,
@@ -268,6 +271,7 @@ async def run_tinker_agent(
             "seed": seed,
             "turn_limit": turn_limit,
             "snapshot_turns": list(snapshot_turns),
+            "agent_image": AGENT_IMAGE,
             "submitted": submitted,
             "snapshots": snapshots,
             "trajectory_path": "trajectory.json",

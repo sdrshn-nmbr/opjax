@@ -1,4 +1,5 @@
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -82,6 +83,52 @@ def test_agent_workspace_excludes_hidden_material_and_snapshots_prefix(task_rele
     assert first["kernel_sha256"] == second["kernel_sha256"]
 
 
+def test_agent_container_cannot_see_hidden_material_host_or_network(
+    task_release: Path, tmp_path: Path
+) -> None:
+    if shutil.which("docker") is None:
+        pytest.skip("Docker is required for the isolation probe")
+    manifest = json.loads((task_release / "manifest.json").read_text())
+    task = load_task_package(task_release / manifest["tasks"][0])
+    workspace = tmp_path / "isolated-workspace"
+    create_agent_workspace(task, workspace)
+    probe = """import os, pathlib, socket
+assert not pathlib.Path('/tests').exists()
+assert not pathlib.Path('/solution').exists()
+assert not pathlib.Path('/Users/sudarshan/Code/opjax').exists()
+assert 'TINKER_API_KEY' not in os.environ
+s = socket.socket()
+s.settimeout(0.5)
+try:
+    s.connect(('1.1.1.1', 443))
+except OSError:
+    pass
+else:
+    raise AssertionError('network unexpectedly reachable')
+"""
+    process = subprocess.run(
+        [
+            "docker",
+            "run",
+            "--rm",
+            "--network",
+            "none",
+            "--mount",
+            f"type=bind,src={workspace},dst=/workspace",
+            "-w",
+            "/workspace",
+            "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+            "python",
+            "-c",
+            probe,
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert process.returncode == 0, process.stderr
+
+
 def test_materialize_submission_applies_patch_to_fresh_task_base(task_release: Path, tmp_path: Path) -> None:
     manifest = json.loads((task_release / "manifest.json").read_text())
     task = load_task_package(task_release / manifest["tasks"][0])
@@ -110,7 +157,22 @@ def test_task_tampering_is_rejected(task_release: Path) -> None:
 
 
 def test_verifier_reward_distinguishes_candidate_and_infrastructure_failures(tmp_path: Path) -> None:
-    assert classify_verifier_result({"passed": True, "stage": "verified"}) == 1
+    assert classify_verifier_result(
+        {
+            "passed": True,
+            "stage": "verified",
+            "stages": {
+                "artifact_contract": True,
+                "pallas_api": True,
+                "tpu_compile": True,
+                "full_shape_correctness": True,
+                "normal_lowering": True,
+                "runtime_safety": True,
+                "profile": True,
+            },
+        }
+    ) == 1
+    assert classify_verifier_result({"passed": True, "stage": "verified", "stages": {}}) == 0
     assert classify_verifier_result({"passed": False, "stage": "tpu_compile"}) == 0
     assert classify_verifier_result({"passed": False, "infrastructure_error": True}) == -1
     payload = write_verifier_artifacts(

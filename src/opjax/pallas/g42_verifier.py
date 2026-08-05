@@ -16,6 +16,22 @@ class G42VerifierError(RuntimeError):
     """The verifier could not produce an attributable result."""
 
 
+def requires_worker_recovery(*, returncode: int, stderr: str, result: dict[str, Any]) -> bool:
+    """Detect candidate failures that may leave a TPU runtime unsafe to reuse."""
+    detail = "\n".join((stderr, str(result.get("error", "")))).lower()
+    poison_markers = (
+        "core halted",
+        "device halted",
+        "dma.hbm_to_vmem",
+        "dma.vmem_to_hbm",
+        "sigabrt",
+        "segmentation fault",
+    )
+    return returncode < 0 or returncode in {134, 137, 139} or any(
+        marker in detail for marker in poison_markers
+    )
+
+
 def classify_process_failure(*, returncode: int, stderr: str, timed_out: bool) -> dict[str, Any]:
     lowered = stderr.lower()
     candidate_runtime_markers = (
@@ -104,6 +120,12 @@ def run_fresh_verifier(
             stderr=process.stderr,
             timed_out=timed_out,
         )
+    if not result.get("infrastructure_error") and requires_worker_recovery(
+        returncode=process.returncode,
+        stderr=process.stderr,
+        result=result,
+    ):
+        result["worker_recovery_required"] = True
     result["process"] = {
         "returncode": process.returncode,
         "timed_out": timed_out,
