@@ -25,6 +25,7 @@ def test_verify_release_writes_hashed_results(tmp_path: Path) -> None:
         "turn": 3,
         "patch_sha256": file_sha256(unit / "model.patch"),
         "kernel_sha256": file_sha256(unit / "kernel.py"),
+        "trajectory_sha256": file_sha256(unit / "trajectory.json"),
     }
     manifest = {
         "schema_version": 1,

@@ -361,6 +361,7 @@ def write_verifier_artifacts(
         "beats_xla": bool(isinstance(speedup, (int, float)) and speedup > 1.0),
         "failure_stage": None if reward == 1 else result.get("stage", "infrastructure"),
         "infrastructure_error": reward == -1,
+        "worker_recovery_required": bool(result.get("worker_recovery_required", False)),
     }
     cases = []
     failed_stage = payload["failure_stage"]
@@ -385,13 +386,25 @@ def summarize_horizons(rows: list[dict[str, Any]]) -> dict[str, Any]:
         key = (row["model_id"], row["task_id"], int(row["seed"]))
         keyed.setdefault(key, {})[int(row["turn"])] = row
     transitions = {"fail_to_pass": 0, "pass_to_pass": 0, "fail_to_fail": 0, "pass_to_fail": 0}
+    transitions_by_model: dict[str, dict[str, int]] = {}
     by_model: dict[str, dict[str, int]] = {}
     for (model_id, _, _), horizons in keyed.items():
         _require(set(horizons) == {3, 6}, "HORIZON_PAIR_INCOMPLETE", repr((model_id, horizons.keys())))
         before = horizons[3]["reward"] == 1
         after = horizons[6]["reward"] == 1
-        transitions[f"{'pass' if before else 'fail'}_to_{'pass' if after else 'fail'}"] += 1
+        transition = f"{'pass' if before else 'fail'}_to_{'pass' if after else 'fail'}"
+        transitions[transition] += 1
+        model_transitions = transitions_by_model.setdefault(
+            model_id,
+            {"fail_to_pass": 0, "pass_to_pass": 0, "fail_to_fail": 0, "pass_to_fail": 0},
+        )
+        model_transitions[transition] += 1
         counts = by_model.setdefault(model_id, {"k3_verified": 0, "k6_verified": 0})
         counts["k3_verified"] += int(before)
         counts["k6_verified"] += int(after)
-    return {"paired_units": len(keyed), "transitions": transitions, "models": by_model}
+    return {
+        "paired_units": len(keyed),
+        "transitions": transitions,
+        "transitions_by_model": transitions_by_model,
+        "models": by_model,
+    }

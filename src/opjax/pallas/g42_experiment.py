@@ -36,6 +36,14 @@ def _load(path: Path) -> dict[str, Any]:
     return value
 
 
+def _tree_file_hashes(root: Path) -> dict[str, str]:
+    return {
+        str(path.relative_to(root)): file_sha256(path)
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
 def _tracked_dirty(repo_root: Path) -> bool:
     result = subprocess.run(
         ["git", "-C", str(repo_root), "status", "--porcelain", "--untracked-files=no"],
@@ -192,6 +200,16 @@ def prepare_verifier_release(
         raise G42ExperimentError(f"OUTPUT_EXISTS: {out_dir}")
     sample_manifest = _load(sample_root / "manifest.json")
     benchmark_manifest = _load(benchmark_root / "manifest.json")
+    sample_payload = dict(sample_manifest)
+    expected_sample_sha = sample_payload.pop("release_sha256", None)
+    if sample_manifest.get("kind") != "pallas_g42_sample_matrix" or canonical_sha256(
+        sample_payload
+    ) != expected_sample_sha:
+        raise G42ExperimentError("SAMPLE_RELEASE_INVALID")
+    if validate_benchmark_release(benchmark_root)["release_sha256"] != benchmark_manifest.get(
+        "release_sha256"
+    ):
+        raise G42ExperimentError("BENCHMARK_RELEASE_INVALID")
     tasks = {
         package.task_id: package
         for package in (load_task_package(benchmark_root / relative) for relative in benchmark_manifest["tasks"])
@@ -226,10 +244,11 @@ def prepare_verifier_release(
                 "patch_sha256": materialized["patch_sha256"],
                 "kernel_sha256": materialized["kernel_sha256"],
             }
+            (unit_root / "trajectory.json").write_bytes((run_root / "trajectory.json").read_bytes())
+            metadata["trajectory_sha256"] = file_sha256(unit_root / "trajectory.json")
             (unit_root / "metadata.json").write_text(
                 json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8"
             )
-            (unit_root / "trajectory.json").write_bytes((run_root / "trajectory.json").read_bytes())
             records.append(metadata)
             (unit_root / "workspace").rename(unit_root / "materialized-workspace")
     manifest: dict[str, Any] = {
@@ -277,6 +296,10 @@ def verify_release(
     manifest = _load(verifier_root / "manifest.json")
     if manifest.get("kind") != "pallas_g42_verifier_input_release":
         raise G42ExperimentError("VERIFIER_RELEASE_KIND_INVALID")
+    manifest_payload = dict(manifest)
+    expected_manifest_sha = manifest_payload.pop("release_sha256", None)
+    if canonical_sha256(manifest_payload) != expected_manifest_sha:
+        raise G42ExperimentError("VERIFIER_RELEASE_HASH_MISMATCH")
     records = manifest.get("records", [])
     if manifest.get("counts", {}).get("units") != len(records):
         raise G42ExperimentError("VERIFIER_UNIT_COUNT_INVALID")
@@ -296,6 +319,10 @@ def verify_release(
             raise G42ExperimentError(f"VERIFIER_UNIT_ARTIFACT_MISSING: {record['unit_id']}")
         if file_sha256(kernel_path) != record["kernel_sha256"]:
             raise G42ExperimentError(f"VERIFIER_KERNEL_HASH_MISMATCH: {record['unit_id']}")
+        if file_sha256(unit_root / "model.patch") != record["patch_sha256"]:
+            raise G42ExperimentError(f"VERIFIER_PATCH_HASH_MISMATCH: {record['unit_id']}")
+        if file_sha256(trajectory_path) != record["trajectory_sha256"]:
+            raise G42ExperimentError(f"VERIFIER_TRAJECTORY_HASH_MISMATCH: {record['unit_id']}")
         output_dir = results_root / record["unit_id"]
         reward_path = output_dir / "reward.json"
         if reward_path.is_file():
@@ -328,6 +355,7 @@ def verify_release(
                 "reward": reward["reward"],
                 "reward_sha256": file_sha256(reward_path),
                 "ctrf_sha256": file_sha256(output_dir / "ctrf.json"),
+                "artifacts": _tree_file_hashes(output_dir),
             }
         )
         print(f"G42_VERIFY completed={index}/{len(records)} reward={reward['reward']}", flush=True)
@@ -402,17 +430,66 @@ def _family_gate(rows: list[dict[str, Any]]) -> dict[str, Any]:
     return {"horizon": 6, "families": by_family, "regressions_vs_base": regressions}
 
 
+def _stratified_stage_fractions(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for model_id in sorted({row["model_id"] for row in rows}):
+        result[model_id] = {}
+        for turn in (3, 6):
+            subset = [
+                row for row in rows if row["model_id"] == model_id and int(row["turn"]) == turn
+            ]
+            if not subset:
+                raise G42ExperimentError(f"STAGE_STRATUM_EMPTY: {model_id}:turn={turn}")
+            result[model_id][f"k{turn}"] = {
+                stage: sum(row["stage_fractions"].get(stage, 0.0) for row in subset)
+                / len(subset)
+                for stage in subset[0]["stage_fractions"]
+            }
+    return result
+
+
+def _verified_speedups(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for model_id in sorted({row["model_id"] for row in rows}):
+        result[model_id] = {}
+        for turn in (3, 6):
+            values = sorted(
+                float(row["speedup"])
+                for row in rows
+                if row["model_id"] == model_id
+                and int(row["turn"]) == turn
+                and row["reward"] == 1
+                and isinstance(row.get("speedup"), (int, float))
+            )
+            result[model_id][f"k{turn}"] = {
+                "count": len(values),
+                "values": values,
+                "median": statistics.median(values) if values else None,
+            }
+    return result
+
+
 def summarize_results(*, verifier_root: Path, out_path: Path) -> dict[str, Any]:
     manifest = _load(verifier_root / "manifest.json")
     verification = _load(verifier_root / "verification.json")
     if verification.get("input_release_sha256") != manifest.get("release_sha256"):
         raise G42ExperimentError("VERIFICATION_RELEASE_MISMATCH")
+    verification_payload = dict(verification)
+    expected_verification_sha = verification_payload.pop("release_sha256", None)
+    if canonical_sha256(verification_payload) != expected_verification_sha:
+        raise G42ExperimentError("VERIFICATION_RELEASE_HASH_MISMATCH")
+    verification_by_unit = {record["unit_id"]: record for record in verification.get("records", [])}
+    if set(verification_by_unit) != {record["unit_id"] for record in manifest.get("records", [])}:
+        raise G42ExperimentError("VERIFICATION_RECORD_SET_MISMATCH")
     rows = []
     failures: dict[str, int] = {}
     halts = 0
     speedups = []
     for record in manifest["records"]:
         reward = _load(verifier_root / "results" / record["unit_id"] / "reward.json")
+        result_root = verifier_root / "results" / record["unit_id"]
+        if _tree_file_hashes(result_root) != verification_by_unit[record["unit_id"]].get("artifacts"):
+            raise G42ExperimentError(f"RESULT_ARTIFACT_HASH_MISMATCH: {record['unit_id']}")
         if reward.get("kernel_sha256") != record["kernel_sha256"] or reward.get("task_id") != record["task_id"]:
             raise G42ExperimentError(f"RESULT_RECORD_MISMATCH: {record['unit_id']}")
         row = {**record, **reward}
@@ -420,7 +497,7 @@ def summarize_results(*, verifier_root: Path, out_path: Path) -> dict[str, Any]:
         if reward["reward"] != 1:
             stage = reward["failure_stage"]
             failures[stage] = failures.get(stage, 0) + 1
-            halts += int(stage == "runtime_safety")
+            halts += int(reward.get("worker_recovery_required") is True)
         elif isinstance(reward.get("speedup"), (int, float)):
             speedups.append(reward["speedup"])
     if not rows:
@@ -438,11 +515,13 @@ def summarize_results(*, verifier_root: Path, out_path: Path) -> dict[str, Any]:
         "summary": {
             **horizon,
             "stage_fractions": stage_fractions,
+            "stage_fractions_by_model_horizon": _stratified_stage_fractions(rows),
             "paired_model_deltas": _paired_model_deltas(rows),
             "family_gate": _family_gate(rows),
             "failure_stages": dict(sorted(failures.items())),
             "candidate_attributable_tpu_halts": halts,
             "verified_speedups": sorted(speedups),
+            "verified_speedups_by_model_horizon": _verified_speedups(rows),
         },
     }
     base_verified = sum(row["reward"] == 1 for row in rows if row["model_id"] == "inkling-small-base")

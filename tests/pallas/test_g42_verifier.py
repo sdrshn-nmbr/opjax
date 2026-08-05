@@ -3,6 +3,7 @@ from opjax.pallas.g42_verifier import (
     requires_worker_recovery,
     sanitized_feedback,
 )
+from opjax.pallas.environment_runner import _is_runtime_safety_failure
 
 
 def test_candidate_abort_and_timeout_are_runtime_safety_failures() -> None:
@@ -30,6 +31,13 @@ def test_structured_dma_failure_requires_worker_recovery() -> None:
         stderr="",
         result={"stage": "full_shape_correctness", "error": "values differ"},
     ) is False
+
+
+def test_environment_runner_routes_device_halts_to_runtime_safety() -> None:
+    assert _is_runtime_safety_failure(
+        RuntimeError("Core halted unexpectedly during BoundsCheck dma.hbm_to_vmem")
+    ) is True
+    assert _is_runtime_safety_failure(AssertionError("values differ")) is False
 
 
 def test_curriculum_feedback_exposes_only_stage() -> None:

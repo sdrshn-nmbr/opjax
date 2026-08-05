@@ -25,6 +25,23 @@ class EnvironmentRunnerError(RuntimeError):
     pass
 
 
+def _is_runtime_safety_failure(error: BaseException) -> bool:
+    detail = f"{type(error).__name__}: {error}".lower()
+    return any(
+        marker in detail
+        for marker in (
+            "core halted",
+            "device halted",
+            "boundscheck",
+            "out of bounds",
+            "dma.hbm_to_vmem",
+            "dma.vmem_to_hbm",
+            "sigabrt",
+            "segmentation fault",
+        )
+    )
+
+
 def _failed(
     *,
     stage: str,
@@ -154,7 +171,10 @@ def evaluate_task(
                 profile_inputs = inputs
                 profile_expected = expected
     except Exception as exc:  # noqa: BLE001 - candidate code can raise any exception
-        stage = "full_shape_correctness" if stages["tpu_compile"] else "tpu_compile"
+        if _is_runtime_safety_failure(exc):
+            stage = "runtime_safety"
+        else:
+            stage = "full_shape_correctness" if stages["tpu_compile"] else "tpu_compile"
         return _failed(
             stage=stage,
             error=f"{type(exc).__name__}: {exc}",
@@ -163,7 +183,6 @@ def evaluate_task(
             stages=stages,
         )
     stages["full_shape_correctness"] = True
-    stages["runtime_safety"] = True
     assert compiled is not None and profile_inputs is not None and profile_expected is not None
     executable = compiled.as_text()
     if "tpu_custom_call" not in executable:
@@ -175,6 +194,7 @@ def evaluate_task(
             stages=stages,
         )
     stages["normal_lowering"] = True
+    stages["runtime_safety"] = True
     if evidence_dir is None:
         return _failed(
             stage="profile",
