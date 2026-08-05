@@ -119,14 +119,50 @@ def evaluate_task(*, task: dict[str, Any], kernel_path: Path) -> dict[str, Any]:
     }
 
 
+def evaluate_repair_run(run_dir: Path) -> dict[str, Any]:
+    rows = [
+        json.loads(line)
+        for line in (run_dir / "results.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    results = []
+    for row in rows:
+        final_attempt = row["attempts"][-1]
+        result = evaluate_task(
+            task=row["task"],
+            kernel_path=run_dir / final_attempt["kernel_path"],
+        )
+        results.append(
+            {
+                "task_id": row["task"]["task_id"],
+                "attempt": final_attempt["attempt"],
+                **result,
+            }
+        )
+    return {
+        "passed": all(result["passed"] for result in results),
+        "verified": sum(result["passed"] for result in results),
+        "task_count": len(results),
+        "results": results,
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="opjax-pallas-environment-runner")
-    parser.add_argument("--task", type=Path, required=True)
-    parser.add_argument("--kernel", type=Path, required=True)
+    parser.add_argument("--task", type=Path)
+    parser.add_argument("--kernel", type=Path)
+    parser.add_argument("--repair-run", type=Path)
     args = parser.parse_args(argv)
     try:
-        task = json.loads(args.task.read_text(encoding="utf-8"))
-        result = evaluate_task(task=task, kernel_path=args.kernel)
+        if args.repair_run is not None:
+            if args.task is not None or args.kernel is not None:
+                raise EnvironmentRunnerError("RUNNER_ARGUMENT_CONFLICT")
+            result = evaluate_repair_run(args.repair_run)
+        else:
+            if args.task is None or args.kernel is None:
+                raise EnvironmentRunnerError("TASK_AND_KERNEL_REQUIRED")
+            task = json.loads(args.task.read_text(encoding="utf-8"))
+            result = evaluate_task(task=task, kernel_path=args.kernel)
     except Exception as exc:
         result = {"passed": False, "stage": "runner", "error": f"{type(exc).__name__}: {exc}"}
     print(json.dumps(result, sort_keys=True))
