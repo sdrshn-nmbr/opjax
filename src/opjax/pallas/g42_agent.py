@@ -166,6 +166,10 @@ def _write_json(path: Path, value: Any) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _close_service_holder(service: tinker.ServiceClient) -> None:
+    service.holder.close()
+
+
 async def run_tinker_agent(
     *,
     config_root: Path,
@@ -271,8 +275,13 @@ async def run_tinker_agent(
         _write_json(output_dir / "manifest.json", manifest)
         return manifest
     finally:
-        environment.cleanup()
-        await http_client.aclose()
+        try:
+            environment.cleanup()
+        finally:
+            try:
+                _close_service_holder(service)
+            finally:
+                await http_client.aclose()
 
 
 def main(argv: list[str] | None = None) -> int:

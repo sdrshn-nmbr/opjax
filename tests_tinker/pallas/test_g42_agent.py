@@ -3,7 +3,7 @@ from types import SimpleNamespace
 import pytest
 from minisweagent.exceptions import FormatError
 
-from opjax.pallas.g42_agent import TinkerMiniSWEModel
+from opjax.pallas.g42_agent import TinkerMiniSWEModel, _close_service_holder
 
 
 class _Future:
@@ -41,6 +41,14 @@ class _Tokenizer:
         return self.text
 
 
+class _Holder:
+    def __init__(self):
+        self.closed = False
+
+    def close(self):
+        self.closed = True
+
+
 def _model(text: str) -> TinkerMiniSWEModel:
     return TinkerMiniSWEModel(
         client=_Client(text),
@@ -69,3 +77,9 @@ def test_tinker_adapter_counts_malformed_response_as_a_call() -> None:
         model.query([{"role": "user", "content": "repair"}])
     assert model.calls == 1
     assert model.samples[0]["call"] == 1
+
+
+def test_tinker_service_holder_is_closed() -> None:
+    holder = _Holder()
+    _close_service_holder(SimpleNamespace(holder=holder))
+    assert holder.closed is True
