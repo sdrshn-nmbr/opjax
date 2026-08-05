@@ -1,0 +1,38 @@
+{
+  "completed_at": "2026-08-05T02:36:06.366446+00:00",
+  "created_at": "2026-08-05T02:33:56.999230+00:00",
+  "fingerprint": {
+    "arm": "A",
+    "base_model": "thinkingmachines/Inkling-Small",
+    "contract_sha256": "6d58c6ce1e24e763da39bb1032624bb2ee29f1712da986c789c724db46710409",
+    "diagnostic_sha256": "13f50a50d9f0fd2d740ef0a7df99a7e08da4ddb0e027544550e914b49339c8bd",
+    "experiment_id": "pallas-v2-inkling-small-v5e",
+    "model_path": null,
+    "opjax_revision": "ec7a9c9fa775c15077b26869968efdb5ada27a33",
+    "packages": {
+      "tinker": "0.24.0",
+      "tinker-cookbook": "0.5.3"
+    },
+    "renderer": "tml_v0",
+    "sampling": {
+      "max_tokens": 8192,
+      "seed": 0,
+      "temperature": 0.0,
+      "top_p": 1.0
+    },
+    "sha256": "f64785ed190eb15d33f5a7f545b173e94d4964c86a90222adf38c70df9f57c57",
+    "task_ids": [
+      "replay::jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "replay::jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "replay::tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "replay::maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "heldout-add-384x384",
+      "heldout-matmul-128x256x128",
+      "heldout-rmsnorm-256x128",
+      "heldout-row-sum-128x256"
+    ]
+  },
+  "n_samples": 8,
+  "schema_version": 1,
+  "status": "sampled"
+}

@@ -1,0 +1,197 @@
+{
+  "by_tier": {
+    "near_heldout": {
+      "analysis_code_present": 1,
+      "blockspec_calls": 3,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 4,
+      "n": 4,
+      "reversed_blockspec_calls": 3,
+      "workload_contract_met": 1
+    },
+    "training_replay": {
+      "analysis_code_present": 3,
+      "blockspec_calls": 5,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 2,
+      "n": 4,
+      "reversed_blockspec_calls": 5,
+      "workload_contract_met": 0
+    }
+  },
+  "created_at": "2026-08-05T02:47:52.726427+00:00",
+  "kind": "gate4_sample_audit",
+  "overall": {
+    "analysis_code_present": 4,
+    "blockspec_calls": 8,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": 6,
+    "n": 8,
+    "reversed_blockspec_calls": 8,
+    "workload_contract_met": 1
+  },
+  "rows": [
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "299089998d74926993c5d3894191f8693b69881a0c4d347ce15f682353b93dd0",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 3957,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 3,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "498180e013466d33d3de513ed6f0fe62cea9a72d6d45c81325e7bb99b4d5e7db",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 0,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "replay::tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "c731c18cfcf65a6649f07846531f9d9819c2ff849b1d9910861c255379b58e87",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 3390,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 2,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 2,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "418289ac3747e11df5b44ad6eaad0f86e792ac3e3968970478a47e57eae5b128",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 3,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "heldout-add-384x384",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-matmul-128x256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-rmsnorm-256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-row-sum-128x256",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "321976d7b2830828c7fdb875fba57fff2318242dcf110047299e6227fb29608c",
+  "source_fingerprint_sha256": "f64785ed190eb15d33f5a7f545b173e94d4964c86a90222adf38c70df9f57c57"
+}

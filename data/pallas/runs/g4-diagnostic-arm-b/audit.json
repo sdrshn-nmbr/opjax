@@ -1,0 +1,228 @@
+{
+  "by_tier": {
+    "near_heldout": {
+      "analysis_code_present": 2,
+      "blockspec_calls": 5,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 2,
+      "n": 4,
+      "reversed_blockspec_calls": 5,
+      "workload_contract_met": 2
+    },
+    "training_replay": {
+      "analysis_code_present": 4,
+      "blockspec_calls": 10,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 1,
+      "n": 4,
+      "reversed_blockspec_calls": 10,
+      "workload_contract_met": 0
+    }
+  },
+  "created_at": "2026-08-05T02:47:54.453351+00:00",
+  "kind": "gate4_sample_audit",
+  "overall": {
+    "analysis_code_present": 6,
+    "blockspec_calls": 15,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": 3,
+    "n": 8,
+    "reversed_blockspec_calls": 15,
+    "workload_contract_met": 2
+  },
+  "rows": [
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "651cbdbba7f93a92a83f77dda52146ab4578e2bb6c67981399b4b42f3a4d676f",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 5896,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 3,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "37d86d6b44e086158738add89bc7c4b368da00b819b4c995ef75c0340b653b04",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 3,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "82fc8396a8030a719160f62fb31669363f7b52b605363e5baa2f6bd91e9403e1",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 5652,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 2,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 2,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "21bbd09bb852c0abf71aaf0a77d0ceb9e6ac63b11428157257cf22aa3c51c9ce",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 3194,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 2,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 2,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "6eb10328364d7e19a42b753d2a93a6e14c59162bfd59bedd49d560e3176133bc",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 4137,
+      "source_audit": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 3,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "heldout-add-384x384",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-matmul-128x256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "8836c2038bcd1f2e5f3ee253a6492e95bdb4233c70a6370af9e7282048af4c9d",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 5453,
+      "source_audit": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 2,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 2,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "heldout-rmsnorm-256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-row-sum-128x256",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "8439d01d3099c8a917910b296129ec55274baa513b9c55fea4a125457f97fc79",
+  "source_fingerprint_sha256": "a1ee1a0c678de0f89df66f728bff7cfedd391e5067c87e076cdddaff248a34b9"
+}

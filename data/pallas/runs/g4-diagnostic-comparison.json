@@ -1,0 +1,51 @@
+{
+  "arm_a": {
+    "analysis_code_present": 4,
+    "blockspec_calls": 8,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": 6,
+    "n": 8,
+    "reversed_blockspec_calls": 8,
+    "workload_contract_met": 1
+  },
+  "arm_b": {
+    "analysis_code_present": 6,
+    "blockspec_calls": 15,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": 3,
+    "n": 8,
+    "reversed_blockspec_calls": 15,
+    "workload_contract_met": 2
+  },
+  "arm_b_minus_arm_a": {
+    "analysis_code_present": 2,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": -3,
+    "workload_contract_met": 1
+  },
+  "conclusion": {
+    "hidden_workload_contract_observed": true,
+    "renderer_corruption_observed": false,
+    "sft_complete_candidate_gain": 0,
+    "tpu_compile_probe_eligible_candidates": 0
+  },
+  "created_at": "2026-08-05T02:47:56.168697+00:00",
+  "kind": "gate4_diagnostic_comparison",
+  "renderer_integrity_pass": true,
+  "schema_version": 1,
+  "sha256": "97d86539704a462ab1a095144ee21993a695e630e8ead8ab08caa5b0d300776c",
+  "source_sha256": {
+    "arm_a": "321976d7b2830828c7fdb875fba57fff2318242dcf110047299e6227fb29608c",
+    "arm_b": "8439d01d3099c8a917910b296129ec55274baa513b9c55fea4a125457f97fc79",
+    "supervision": "4be226a46a2f6bcb9669b0f188c10b3e066de1edd4d31c10546de0a61595bdc9"
+  },
+  "training_prompt_contract": {
+    "prompts_forbidding_incomplete_kernel": 0,
+    "prompts_requiring_self_contained_module": 0,
+    "prompts_requiring_workload_name": 0,
+    "rows": 32
+  }
+}
