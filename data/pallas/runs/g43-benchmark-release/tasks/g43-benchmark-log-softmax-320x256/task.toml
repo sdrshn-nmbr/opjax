@@ -12,7 +12,7 @@ mode = "benchmark"
 family = "softmax"
 source_row_id = "g43-independent:log-softmax-320x256"
 mutation = "missing_implementation"
-task_sha256 = "6e7109652c6b12a01f9ac460ba50789bb68280afa6fad0f586381feb42c5eb4b"
+task_sha256 = "83e5626b1ce67b5956cf3d9cb3f89edc01e164a59501cb8f37b3abb1d7d95473"
 input_shapes_json = "[[320,256]]"
 input_dtypes_json = "[\"float32\"]"
 

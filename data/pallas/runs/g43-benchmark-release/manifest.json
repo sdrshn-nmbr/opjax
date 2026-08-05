@@ -5,7 +5,7 @@
     "tasks_per_family": 2
   },
   "kind": "pallas_g43_benchmark_release",
-  "release_sha256": "ff99de0fdce776f37c35b6159ce2881ee30f2758596036a159a80c0a7e8e618b",
+  "release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
   "schema_version": 1,
   "source_config_sha256": "cdae97231fd8670d9076cdc993ac41ff960b16302efbf99838dc5851f5229afa",
   "task_records": [
@@ -95,7 +95,7 @@
       "mutation": "missing_implementation",
       "source_row_id": "g43-independent:softmax-192x384",
       "task_id": "g43-benchmark-softmax-192x384",
-      "task_sha256": "37961ffcdf125767eec3a5815cab7881724f24c29d338ff35a78c1a7d8a49e79"
+      "task_sha256": "0bc1813e0d016c02a7f4c188c10e41fe7698837aab99255be86379a5994e2bd2"
     },
     {
       "expected_initial_failure_stage": "artifact_contract",
@@ -103,7 +103,7 @@
       "mutation": "missing_implementation",
       "source_row_id": "g43-independent:log-softmax-320x256",
       "task_id": "g43-benchmark-log-softmax-320x256",
-      "task_sha256": "6e7109652c6b12a01f9ac460ba50789bb68280afa6fad0f586381feb42c5eb4b"
+      "task_sha256": "83e5626b1ce67b5956cf3d9cb3f89edc01e164a59501cb8f37b3abb1d7d95473"
     },
     {
       "expected_initial_failure_stage": "artifact_contract",

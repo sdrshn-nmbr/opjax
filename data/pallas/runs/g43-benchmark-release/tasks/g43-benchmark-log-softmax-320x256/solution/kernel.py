@@ -5,7 +5,10 @@ from jax.experimental import pallas as pl
 SHAPE = (320, 256)
 
 def _kernel(x_ref, o_ref):
-    o_ref[...] = jax.nn.log_softmax(x_ref[...].astype(jnp.float32), axis=-1)
+    values = x_ref[...].astype(jnp.float32)
+    maximum = jnp.max(values, axis=-1, keepdims=True)
+    shifted = values - maximum
+    o_ref[...] = shifted - jnp.log(jnp.sum(jnp.exp(shifted), axis=-1, keepdims=True))
 
 def workload(x):
     spec = pl.BlockSpec((8, SHAPE[1]), lambda i: (i, 0))

@@ -194,8 +194,8 @@ def _row_reference(task: dict[str, Any]) -> str:
     bodies = {
         "rmsnorm": "values = x_ref[...].astype(jnp.float32)\n    mean_square = jnp.mean(jnp.square(values), axis=-1, keepdims=True)\n    o_ref[...] = values * jax.lax.rsqrt(mean_square + 1e-5)",
         "layernorm": "values = x_ref[...].astype(jnp.float32)\n    mean = jnp.mean(values, axis=-1, keepdims=True)\n    variance = jnp.mean(jnp.square(values - mean), axis=-1, keepdims=True)\n    o_ref[...] = (values - mean) * jax.lax.rsqrt(variance + 1e-5)",
-        "softmax": "o_ref[...] = jax.nn.softmax(x_ref[...].astype(jnp.float32), axis=-1)",
-        "log_softmax": "o_ref[...] = jax.nn.log_softmax(x_ref[...].astype(jnp.float32), axis=-1)",
+        "softmax": "values = x_ref[...].astype(jnp.float32)\n    maximum = jnp.max(values, axis=-1, keepdims=True)\n    numerator = jnp.exp(values - maximum)\n    o_ref[...] = numerator / jnp.sum(numerator, axis=-1, keepdims=True)",
+        "log_softmax": "values = x_ref[...].astype(jnp.float32)\n    maximum = jnp.max(values, axis=-1, keepdims=True)\n    shifted = values - maximum\n    o_ref[...] = shifted - jnp.log(jnp.sum(jnp.exp(shifted), axis=-1, keepdims=True))",
         "row_sum": "reduced = jnp.sum(x_ref[...], axis=-1, keepdims=True)\n    o_ref[...] = jnp.broadcast_to(reduced, x_ref.shape)",
         "max": "reduced = jnp.max(x_ref[...], axis=-1, keepdims=True)\n    o_ref[...] = jnp.broadcast_to(reduced, x_ref.shape)",
     }
