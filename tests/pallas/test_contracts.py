@@ -44,6 +44,17 @@ def test_experiment_is_locked_to_inkling_small(tmp_path: Path) -> None:
         load_contracts(root)
 
 
+def test_experiment_has_frozen_gate4_training_config(tmp_path: Path) -> None:
+    root = _copy_contracts(tmp_path)
+    path = root / "experiment.json"
+    experiment = json.loads(path.read_text(encoding="utf-8"))
+    experiment["training"]["batch_size"] = 32
+    path.write_text(json.dumps(experiment), encoding="utf-8")
+
+    with pytest.raises(ContractError, match="TRAINING_CONFIG_INVALID"):
+        load_contracts(root)
+
+
 def test_public_benchmark_source_is_forbidden_from_training() -> None:
     bundle = load_contracts(CONFIG_ROOT)
     jaxbench = next(

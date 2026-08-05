@@ -25,6 +25,33 @@
     "max_tokens": 8192,
     "max_retries": 2
   },
+  "training": {
+    "arm": "B",
+    "renderer": "tml_v0",
+    "train_on": "last_assistant_message",
+    "corpus_release_sha256": "bbaabb83c5c7c5d7e7a15a931680af809a32043754e9dea51919b3a0a5978355",
+    "corpus_contract_sha256": "bc6c14fbb0ff9143d914d475f5817aa68bcbe92bee8f3314e00bcc28ff35174e",
+    "dataset_sha256": "400f0a2c59ee08e726218b1b9770b5aaa61d2b5c6a7e83116291d531e07a47e4",
+    "verified_rows": 32,
+    "lora_rank": 64,
+    "batch_size": 4,
+    "num_epochs": 1,
+    "max_length": 4096,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "optimizer": {
+      "name": "adam",
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "eps": 1e-8,
+      "weight_decay": 0.0,
+      "grad_clip_norm": 0.0
+    },
+    "loss_fn": "cross_entropy",
+    "shuffle_seed": 0,
+    "training_seed": 0,
+    "checkpoint_every_steps": 4
+  },
   "sft_readiness": {
     "minimum_verified_rows": 32,
     "minimum_family_count": 8,

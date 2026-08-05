@@ -257,6 +257,55 @@ def _validate_experiment(value: dict[str, Any]) -> None:
         "SAMPLING_CONCURRENCY_INVALID",
         repr(sampling.get("max_concurrency")),
     )
+    training = value.get("training", {})
+    expected_training = {
+        "arm": "B",
+        "renderer": "tml_v0",
+        "train_on": "last_assistant_message",
+        "verified_rows": 32,
+        "lora_rank": 64,
+        "batch_size": 4,
+        "num_epochs": 1,
+        "max_length": 4096,
+        "learning_rate": 0.0001,
+        "lr_schedule": "constant",
+        "loss_fn": "cross_entropy",
+        "shuffle_seed": 0,
+        "training_seed": 0,
+        "checkpoint_every_steps": 4,
+    }
+    for name, expected in expected_training.items():
+        _require(
+            training.get(name) == expected,
+            "TRAINING_CONFIG_INVALID",
+            f"{name}={training.get(name)!r}",
+        )
+    for name in (
+        "corpus_release_sha256",
+        "corpus_contract_sha256",
+        "dataset_sha256",
+    ):
+        observed = training.get(name)
+        _require(
+            isinstance(observed, str)
+            and len(observed) == 64
+            and all(character in "0123456789abcdef" for character in observed),
+            "TRAINING_HASH_INVALID",
+            f"{name}={observed!r}",
+        )
+    _require(
+        training.get("optimizer")
+        == {
+            "name": "adam",
+            "beta1": 0.9,
+            "beta2": 0.95,
+            "eps": 1e-8,
+            "weight_decay": 0.0,
+            "grad_clip_norm": 0.0,
+        },
+        "TRAINING_OPTIMIZER_INVALID",
+        repr(training.get("optimizer")),
+    )
     readiness = value.get("sft_readiness", {})
     integer_minima = {
         "minimum_verified_rows": 32,
