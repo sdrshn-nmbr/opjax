@@ -176,6 +176,7 @@ async def run_tinker_agent(
     turn_limit: int = 6,
     snapshot_turns: tuple[int, ...] = (3, 6),
 ) -> dict[str, Any]:
+    output_dir = output_dir.resolve()
     if output_dir.exists():
         raise G42HarnessError(f"RUN_OUTPUT_EXISTS: {output_dir}")
     if turn_limit != 6 or snapshot_turns != (3, 6):

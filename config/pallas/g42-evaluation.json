@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g42-matched-k3-k6",
+  "benchmark_release_sha256": "adbae9894d42936924df1fc2d8ffdcf85585075f66e27d5bb796c69883f9bfbe",
+  "seeds": [0, 1, 2],
+  "turn_limit": 6,
+  "snapshot_turns": [3, 6],
+  "max_workers": 4,
+  "models": [
+    {
+      "model_id": "inkling-small-base",
+      "checkpoint": null,
+      "checkpoint_run_sha256": null
+    },
+    {
+      "model_id": "g41-sft",
+      "checkpoint": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "e2240fb190a843cbdc3cc086e0166dfe085dcb1627b70b9f602b809b6f08fbd4"
+    },
+    {
+      "model_id": "g42-repair-sft",
+      "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "64b3adbfb7402dd3f5c74a5286e0783422785f608a585a61acaa6dba4a8b9b60"
+    }
+  ]
+}
