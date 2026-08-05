@@ -296,6 +296,14 @@ def audit_sample_run(*, run_dir: Path, output: Path) -> dict[str, Any]:
             "blockspec_valid": sum(row["blockspec_valid"] for row in selected),
             "complete_candidate": sum(row["complete_candidate"] for row in selected),
             "length_truncated": sum(row["stop_reason"] == "length" for row in selected),
+            "blockspec_calls": sum(
+                (row["source_audit"] or {}).get("blockspec_calls", 0)
+                for row in selected
+            ),
+            "reversed_blockspec_calls": sum(
+                (row["source_audit"] or {}).get("reversed_blockspec_calls", 0)
+                for row in selected
+            ),
         }
 
     tiers = list(dict.fromkeys(row["tier"] for row in audited))
@@ -310,6 +318,77 @@ def audit_sample_run(*, run_dir: Path, output: Path) -> dict[str, Any]:
             for tier in tiers
         },
         "rows": audited,
+    }
+    report["sha256"] = _canonical_sha256(report)
+    _write_json(output, report)
+    return report
+
+
+def compare_audits(
+    *, supervision_path: Path, arm_a_path: Path, arm_b_path: Path, output: Path
+) -> dict[str, Any]:
+    supervision = _load_json(supervision_path)
+    arm_a = _load_json(arm_a_path)
+    arm_b = _load_json(arm_b_path)
+    supervision_summary = supervision["summary"]
+    renderer_integrity_pass = all(
+        supervision_summary[name] == 0
+        for name in (
+            "rows_truncated",
+            "rows_with_noncontiguous_supervision",
+            "rows_without_end_supervision",
+            "reversed_blockspec_calls",
+            "unknown_blockspec_order_calls",
+            "rows_with_placeholder_ellipsis",
+        )
+    )
+    report = {
+        "schema_version": 1,
+        "kind": "gate4_diagnostic_comparison",
+        "created_at": _utc_now(),
+        "source_sha256": {
+            "supervision": supervision["sha256"],
+            "arm_a": arm_a["sha256"],
+            "arm_b": arm_b["sha256"],
+        },
+        "renderer_integrity_pass": renderer_integrity_pass,
+        "training_prompt_contract": {
+            "rows": supervision_summary["rows"],
+            "prompts_requiring_workload_name": supervision_summary[
+                "prompts_requiring_workload_name"
+            ],
+            "prompts_requiring_self_contained_module": supervision_summary[
+                "prompts_requiring_self_contained_module"
+            ],
+            "prompts_forbidding_incomplete_kernel": supervision_summary[
+                "prompts_forbidding_incomplete_kernel"
+            ],
+        },
+        "arm_a": arm_a["overall"],
+        "arm_b": arm_b["overall"],
+        "arm_b_minus_arm_a": {
+            name: arm_b["overall"][name] - arm_a["overall"][name]
+            for name in (
+                "analysis_code_present",
+                "workload_contract_met",
+                "blockspec_valid",
+                "complete_candidate",
+                "length_truncated",
+            )
+        },
+        "conclusion": {
+            "renderer_corruption_observed": not renderer_integrity_pass,
+            "hidden_workload_contract_observed": (
+                supervision_summary["prompts_requiring_workload_name"] == 0
+            ),
+            "sft_complete_candidate_gain": (
+                arm_b["overall"]["complete_candidate"]
+                - arm_a["overall"]["complete_candidate"]
+            ),
+            "tpu_compile_probe_eligible_candidates": arm_b["overall"][
+                "complete_candidate"
+            ],
+        },
     }
     report["sha256"] = _canonical_sha256(report)
     _write_json(output, report)
@@ -490,6 +569,11 @@ def build_parser() -> argparse.ArgumentParser:
     audit_samples = commands.add_parser("audit-samples")
     audit_samples.add_argument("--run-dir", type=Path, required=True)
     audit_samples.add_argument("--output", type=Path, required=True)
+    compare = commands.add_parser("compare-audits")
+    compare.add_argument("--supervision", type=Path, required=True)
+    compare.add_argument("--arm-a", type=Path, required=True)
+    compare.add_argument("--arm-b", type=Path, required=True)
+    compare.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -500,8 +584,15 @@ def main(argv: list[str] | None = None) -> int:
             result = audit_supervision(config_root=args.config_root, corpus_root=args.corpus_root, repo_root=args.repo_root, output=args.output)
         elif args.command == "sample":
             result = asyncio.run(sample_ladder(config_root=args.config_root, corpus_root=args.corpus_root, diagnostic_path=args.diagnostic, repo_root=args.repo_root, out_dir=args.out_dir, arm=args.arm, model_path=args.model_path))
-        else:
+        elif args.command == "audit-samples":
             result = audit_sample_run(run_dir=args.run_dir, output=args.output)
+        else:
+            result = compare_audits(
+                supervision_path=args.supervision,
+                arm_a_path=args.arm_a,
+                arm_b_path=args.arm_b,
+                output=args.output,
+            )
     except (DiagnosticError, ValueError) as exc:
         print(f"G4_DIAGNOSTIC_ERROR {exc}", file=sys.stderr)
         return 2
@@ -513,6 +604,12 @@ def main(argv: list[str] | None = None) -> int:
             "sha256": result["sha256"],
             "overall": result["overall"],
             "by_tier": result["by_tier"],
+        }
+    elif args.command == "compare-audits":
+        printable = {
+            "sha256": result["sha256"],
+            "conclusion": result["conclusion"],
+            "arm_b_minus_arm_a": result["arm_b_minus_arm_a"],
         }
     print(json.dumps(printable, indent=2, sort_keys=True))
     return 0
