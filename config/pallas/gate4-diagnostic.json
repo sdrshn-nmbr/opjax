@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-v2-inkling-small-v5e",
+  "renderer": "tml_v0",
+  "sampling": {
+    "max_tokens": 8192,
+    "temperature": 0.0,
+    "top_p": 1.0,
+    "seed": 0
+  },
+  "replay_rows": [
+    "jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+    "jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+    "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+    "maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft"
+  ],
+  "heldout_tasks": [
+    {
+      "task_id": "heldout-add-384x384",
+      "operation": "add",
+      "input_shapes": [[384, 384], [384, 384]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "heldout-matmul-128x256x128",
+      "operation": "matmul",
+      "input_shapes": [[128, 256], [256, 128]],
+      "input_dtypes": ["float32", "float32"]
+    },
+    {
+      "task_id": "heldout-rmsnorm-256x128",
+      "operation": "rmsnorm",
+      "input_shapes": [[256, 128]],
+      "input_dtypes": ["float32"]
+    },
+    {
+      "task_id": "heldout-row-sum-128x256",
+      "operation": "row_sum",
+      "input_shapes": [[128, 256]],
+      "input_dtypes": ["float32"]
+    }
+  ]
+}

@@ -24,6 +24,7 @@ opjax-model-factory = "opjax.model_factory.cli:main"
 opjax-pallas = "opjax.pallas.cli:main"
 opjax-pallas-eval = "opjax.pallas.evaluation_cli:main"
 opjax-pallas-train = "opjax.pallas.training:main"
+opjax-pallas-g4-diagnostic = "opjax.pallas.gate4_diagnostics:main"
 
 [dependency-groups]
 dev = [
