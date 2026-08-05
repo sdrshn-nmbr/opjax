@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": false,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "2a5296651495664d65df75c958a02890b44388b60307544f8fb5ea4824a7a05b",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 0.996434765852492,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g43-benchmark-silu-gate-512x384",
+  "worker_recovery_required": false
+}

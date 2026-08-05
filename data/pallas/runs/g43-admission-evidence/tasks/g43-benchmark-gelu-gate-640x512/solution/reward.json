@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": false,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "48ba40a5f67de1dc94318fb5f5e8cf3bce8742dfcfe5f3eb00a8bd97c94d24a4",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 0.9488728197318015,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g43-benchmark-gelu-gate-640x512",
+  "worker_recovery_required": false
+}

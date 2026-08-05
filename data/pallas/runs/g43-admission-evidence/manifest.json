@@ -1,0 +1,162 @@
+{
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "counts": {
+    "failed_starters": 16,
+    "performance_headroom_tasks": 1,
+    "tasks": 16,
+    "verified_references": 16
+  },
+  "headroom_task_ids": [
+    "g43-benchmark-transpose-abs-384x640"
+  ],
+  "headroom_threshold": 1.05,
+  "kind": "pallas_g43_benchmark_admission",
+  "records": [
+    {
+      "family": "binary_elementwise",
+      "performance_headroom": false,
+      "solution_reward_sha256": "3508e556166053387194a9d6db49ff1d91dba50a0c71d1b2dcc7266fcd4f1a7f",
+      "solution_speedup": 0.9964432516485616,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-binary-add-768x384",
+      "task_sha256": "f82441dc2add295986e042eb021eb4f19270bba16e06d41bdaf7efb90477e0a8"
+    },
+    {
+      "family": "binary_elementwise",
+      "performance_headroom": false,
+      "solution_reward_sha256": "e9397a36918f8a4a4916cd5297c252e0a3bcfdf948ed36d70be4e5890d8261aa",
+      "solution_speedup": 0.9741606794596567,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-binary-safe-divide-640x512",
+      "task_sha256": "bf68ce14c360ced84b9440f5bdebb0bc81579e9aa981a6f64e395ef6af1f72d3"
+    },
+    {
+      "family": "transpose",
+      "performance_headroom": false,
+      "solution_reward_sha256": "fae61c892318b2f5f82527b35a3cf1279e82bbc1a537527cee5704379ca82729",
+      "solution_speedup": 1.0026380103596415,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-transpose-square-256x512",
+      "task_sha256": "50814f8d0c5b3aaee3916cfde24ad96580ef0dc82801a07a12340190a0dd6e86"
+    },
+    {
+      "family": "transpose",
+      "performance_headroom": true,
+      "solution_reward_sha256": "5597b57d954727ed56127a641fc137cf0ceea327d7e6f020aefafe27c386c601",
+      "solution_speedup": 1.1258317357695107,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-transpose-abs-384x640",
+      "task_sha256": "63b54cfdd90879cdc7be861cf52d29921f7fd0cb739228a6f3c854a7c9ef7133"
+    },
+    {
+      "family": "matmul",
+      "performance_headroom": false,
+      "solution_reward_sha256": "e72ad735f4a9d26e9a3df62065052546f177d02d154cc17d858a29414c9f3af2",
+      "solution_speedup": 0.9615302860517189,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-matmul-relu-256x384x512",
+      "task_sha256": "8f136d6ef1236bda04f778644dd786404912a3c4a4da5b8395cd0d8c4b30d40e"
+    },
+    {
+      "family": "matmul",
+      "performance_headroom": false,
+      "solution_reward_sha256": "660be1428844c8913033626bd35bd94e6f765f7ba440a090918451010276ee64",
+      "solution_speedup": 1.0015466780485651,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-matmul-square-384x256x384",
+      "task_sha256": "9604d9943672ba30426365cef26c4e03b2fbcc80e56effa07c14f48b2ca93577"
+    },
+    {
+      "family": "activation",
+      "performance_headroom": false,
+      "solution_reward_sha256": "5c06050aa0eee80e9585d62a2203c8b5f60361927e610b160a6eec84263660d8",
+      "solution_speedup": 0.9789990820717489,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-activation-relu-768x512",
+      "task_sha256": "b689fd3226e02a0c8d0530d2c1b210132282ef80bdf719d509715237e03f0107"
+    },
+    {
+      "family": "activation",
+      "performance_headroom": false,
+      "solution_reward_sha256": "c074c5dd7afedadcf3ebb4f1cea7d3a24a488df3597abb604c46b11a056ac053",
+      "solution_speedup": 1.0071164760303981,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-activation-exp-640x384",
+      "task_sha256": "5e8c10357928f905091dc9beaa6a18da0a75930b2f0d014370a0143c2de951cd"
+    },
+    {
+      "family": "normalization",
+      "performance_headroom": false,
+      "solution_reward_sha256": "b960c9b9d42adfd4fea3de7d889467d4262e35b94c82afb24e98e1017c51a004",
+      "solution_speedup": 0.9620906122605032,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-rmsnorm-192x384",
+      "task_sha256": "e7588e9d6ddabfabf6357f4be38681da1f602dad005dc9054b5b2a5046a4d567"
+    },
+    {
+      "family": "normalization",
+      "performance_headroom": false,
+      "solution_reward_sha256": "8ce136726ba0b3b4cfce4a6c1fbff6853181cfe5b9bd8507666741acf0c13c9f",
+      "solution_speedup": 0.9498913639451666,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-layernorm-320x512",
+      "task_sha256": "53baaca5d7dd9fd4c67ee9576920ccafa6de42885c6fa552877f891ecd63ef52"
+    },
+    {
+      "family": "softmax",
+      "performance_headroom": false,
+      "solution_reward_sha256": "2cd4dba20e6f3d54419af85c9e4e9a273e3c565ba05f49a214d721fe11b9bea5",
+      "solution_speedup": 0.9954068911554187,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-softmax-192x384",
+      "task_sha256": "0bc1813e0d016c02a7f4c188c10e41fe7698837aab99255be86379a5994e2bd2"
+    },
+    {
+      "family": "softmax",
+      "performance_headroom": false,
+      "solution_reward_sha256": "470ddfbf11d548e864e4e00e5bf04b6c86130586a43de8d0e8c91ecf4f6b0c43",
+      "solution_speedup": 0.9676330828584112,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-log-softmax-320x256",
+      "task_sha256": "83e5626b1ce67b5956cf3d9cb3f89edc01e164a59501cb8f37b3abb1d7d95473"
+    },
+    {
+      "family": "gated_activation",
+      "performance_headroom": false,
+      "solution_reward_sha256": "cc778276156fc50ae4e3376190fd60503206ee19c8db142c1da4f31a36b7a26a",
+      "solution_speedup": 0.996434765852492,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-silu-gate-512x384",
+      "task_sha256": "b950f1d9dbb2415f258086da6cb804f9b74e08d74ac0e7fbb223601487c93662"
+    },
+    {
+      "family": "gated_activation",
+      "performance_headroom": false,
+      "solution_reward_sha256": "8258aeb27b2140b4a3a439d03f4497ab5751ccadd924e2564e004a578d554d68",
+      "solution_speedup": 0.9488728197318015,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-gelu-gate-640x512",
+      "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e"
+    },
+    {
+      "family": "row_reduction",
+      "performance_headroom": false,
+      "solution_reward_sha256": "1fc566bbbeff10ce32af7be86c57c3a5c1626d20945690f3b85ca8ee34119c9b",
+      "solution_speedup": 0.9997985826601714,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-row-sum-192x384",
+      "task_sha256": "c1087a55ff26ff1ff2b7d0253b87e196cfb824fbc0ab2d030aff3af504647cd4"
+    },
+    {
+      "family": "row_reduction",
+      "performance_headroom": false,
+      "solution_reward_sha256": "97848c2c8160e8d4bcf9b7476526801c48a29bc2ea093e288f9a109575bd72b1",
+      "solution_speedup": 0.9703693880421419,
+      "starter_failure_stage": "artifact_contract",
+      "task_id": "g43-benchmark-row-max-320x512",
+      "task_sha256": "c9bd3a80329bf152b01e07aa852259de756e3d04416c131579065737451c33ea"
+    }
+  ],
+  "release_sha256": "c6751950420b7aef43b85156403badbb60d60228dfd388381487103ad2f0ba19",
+  "schema_version": 1
+}

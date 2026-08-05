@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g43-benchmark-log-softmax-320x256",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "full_shape_correctness",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

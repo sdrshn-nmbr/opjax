@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": true,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "1ee6e4dca3522e8a9d4cd8e7bccd6d578de35854b373abc59897c8a9c18ee9a4",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 1.0015466780485651,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g43-benchmark-matmul-square-384x256x384",
+  "worker_recovery_required": false
+}
