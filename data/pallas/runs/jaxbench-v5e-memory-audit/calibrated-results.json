@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "title": "JAXBench bundled optimized-reference headroom on TPU v5e",
+  "rendered_at": "2026-08-05",
+  "source_revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+  "runtime": {
+    "python": "3.11.13",
+    "jax": "0.10.1",
+    "jaxlib": "0.10.1",
+    "libtpu": "0.0.41"
+  },
+  "hardware": {
+    "accelerator": "v5litepod-1",
+    "device_count": 1,
+    "zone": "us-west4-a"
+  },
+  "admission_contract": {
+    "required": [
+      "Identical shapes and values for XLA and Pallas arms",
+      "Independent full-shape correctness oracle",
+      "Normal non-interpreted Pallas lowering",
+      "Device-profiled timing after compilation and warmup"
+    ],
+    "speedup_definition": "xla_median_ms / pallas_median_ms",
+    "headroom_threshold": 1.05
+  },
+  "summary": {
+    "bundled_reference_count": 8,
+    "scorable_count": 2,
+    "excluded_count": 6,
+    "correct_scorable_count": 2,
+    "beats_xla_count": 1,
+    "meets_headroom_threshold_count": 1,
+    "scorable_coverage": 0.25,
+    "headroom_subset": [
+      "11p_Megablox_GMM"
+    ],
+    "non_headroom_scorable_subset": [
+      "8p_GEMM"
+    ],
+    "suite_aggregate_speedup": null,
+    "suite_aggregate_reason": "Six of eight references are excluded, so an aggregate would misrepresent benchmark coverage."
+  },
+  "results": [
+    {
+      "workload": "1p_Flash_Attention",
+      "xla_median_ms": 29.3753,
+      "pallas_median_ms": null,
+      "speedup": null,
+      "correct": false,
+      "scorable": false,
+      "classification": "REFERENCE_INCORRECT",
+      "reason": "The optimized reference compiles under the corrected scoped-VMEM budget but fails the full-shape oracle with maximum absolute difference 0.0625."
+    },
+    {
+      "workload": "2p_GQA_Attention",
+      "xla_median_ms": null,
+      "pallas_median_ms": 27.0965,
+      "speedup": null,
+      "correct": null,
+      "scorable": false,
+      "classification": "XLA_ORACLE_HBM_OOM",
+      "reason": "The naive XLA baseline materializes full attention logits and uses 16.50 GiB against 15.75 GiB usable HBM. The Pallas arm runs, but no valid paired timing or independent full-shape oracle remains."
+    },
+    {
+      "workload": "3p_MLA_Attention",
+      "xla_median_ms": 39.7046,
+      "pallas_median_ms": null,
+      "speedup": null,
+      "correct": false,
+      "scorable": false,
+      "classification": "REFERENCE_INCORRECT",
+      "reason": "The optimized reference compiles under the corrected scoped-VMEM budget but fails the full-shape oracle with maximum absolute difference 3.4839675426483154."
+    },
+    {
+      "workload": "4p_Sparse_Attention",
+      "xla_median_ms": 7.5757,
+      "pallas_median_ms": 12.1039,
+      "speedup": null,
+      "correct": null,
+      "scorable": false,
+      "classification": "SHAPE_CONTRACT_MISMATCH",
+      "reason": "The XLA input omits batch 4 while the Pallas input includes it. The optimized arm reports eight times the FLOPs, so the descriptive timings are not comparable."
+    },
+    {
+      "workload": "6p_Paged_Attention",
+      "xla_median_ms": 11.8045,
+      "pallas_median_ms": null,
+      "speedup": null,
+      "correct": null,
+      "scorable": false,
+      "classification": "MISSING_PAIRED_ORACLE",
+      "reason": "The Pallas reference compiles and executes after the mechanical pltpu.ANY to pl.ANY API adapter, but its wrapper uses a different argument contract and no independent paired correctness result exists."
+    },
+    {
+      "workload": "7p_Ragged_Paged_Attention",
+      "xla_median_ms": 35.2304,
+      "pallas_median_ms": null,
+      "speedup": null,
+      "correct": null,
+      "scorable": false,
+      "classification": "MISSING_PAIRED_ORACLE",
+      "reason": "The Pallas reference compiles and executes after the ANY API adapter and correction of its stale 32 MiB per-kernel VMEM limit, but no independent paired correctness and timing result exists."
+    },
+    {
+      "workload": "8p_GEMM",
+      "xla_median_ms": 19.8461,
+      "pallas_median_ms": 19.9141,
+      "speedup": 0.9965853340095711,
+      "correct": true,
+      "scorable": true,
+      "classification": "VALID_NO_HEADROOM",
+      "beats_xla": false,
+      "meets_headroom_threshold": false,
+      "reason": "The unchanged reference passes correctness and normal-lowering profile proof under the corrected 64 MiB scoped-VMEM contract, but is 0.34 percent slower than XLA."
+    },
+    {
+      "workload": "11p_Megablox_GMM",
+      "xla_median_ms": 4.1864,
+      "pallas_median_ms": 3.6496,
+      "speedup": 1.1470298114861903,
+      "correct": true,
+      "scorable": true,
+      "classification": "VALID_HEADROOM",
+      "beats_xla": true,
+      "meets_headroom_threshold": true,
+      "reason": "Three paired profiler repeats pass correctness after binding the baseline max_expert_size as the static value returned by create_inputs. The median paired speedup is 1.1470x."
+    }
+  ],
+  "decision": {
+    "performance_subset": [
+      "11p_Megablox_GMM"
+    ],
+    "correctness_only_or_parity_subset": [
+      "8p_GEMM"
+    ],
+    "excluded_until_repaired": [
+      "1p_Flash_Attention",
+      "2p_GQA_Attention",
+      "3p_MLA_Attention",
+      "4p_Sparse_Attention",
+      "6p_Paged_Attention",
+      "7p_Ragged_Paged_Attention"
+    ],
+    "interpretation": "The calibrated benchmark demonstrates one fusion-rich Pallas headroom case and one optimized GEMM at XLA parity. It does not support an eight-workload aggregate performance claim."
+  },
+  "provenance": {
+    "headroom_manifest": {
+      "path": "../jaxbench-v5e-headroom/manifest.json",
+      "sha256": "8d916a90bdb94758f9cd3054115afac5c631eb2030f37b38e29ea0d3903ddd9f"
+    },
+    "memory_audit_manifest": {
+      "path": "manifest.json",
+      "sha256": "1049121090bc9b997e49b98f3fd2f6832feb6743c603ab53c6c99f760f988efe"
+    },
+    "perfetto_queries": {
+      "path": "perfetto-queries.json",
+      "sha256": "cc25eaf721312fe6e7fc4b801f5d9d2e19990cbf0a26342b37ca02355c7ece5b"
+    }
+  }
+}
