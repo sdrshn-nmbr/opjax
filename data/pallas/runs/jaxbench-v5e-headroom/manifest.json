@@ -1,7 +1,12 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "purpose": "Measure default-shape XLA versus bundled optimized-reference headroom before selecting JAXBench performance tasks.",
   "observed_at": "2026-08-05",
+  "supersession": {
+    "status": "capacity_interpretation_superseded",
+    "superseded_by": "../jaxbench-v5e-memory-audit/manifest.json",
+    "reason": "The raw default-runtime failures remain valid, but the conclusion that five optimized references do not fit on v5e conflated a 16 MiB scoped custom-call VMEM budget with the chip's 128 MiB physical VMEM. Corrected compiler, runtime, and profiler probes are recorded in the superseding audit."
+  },
   "source": {
     "repository": "https://github.com/AI-Hypercomputer/accelerator-agents",
     "revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
@@ -122,6 +127,6 @@
     "strict_project_runtime_subset": [],
     "compatibility_lane_candidate_subset": ["11p_Megablox_GMM"],
     "freeze_performance_subset": false,
-    "reason": "The bundled reference set has no single declared runtime contract and seven references are not measurable at their default shapes on v5e. Megablox has stable headroom only after a transparent baseline static-argument adapter and a newer JAX lane. Integrate and independently verify that contract before freezing it as evaluation."
+    "reason": "Superseded capacity interpretation. The references still cannot be frozen as-is because of scoped-VMEM configuration, correctness, API, shape-parity, and static-argument defects. See the superseding memory audit for the corrected classifications."
   }
 }

@@ -1,0 +1,75 @@
+
+Total bytes used: 24576 (24.0KiB)
+
+Used values:
+<307 key.1 @0>
+ positions:
+  key.1
+ uses:
+  fusion.16, operand 0
+ from instruction: %key.1 = u32[2]{0:T(128)} parameter(0), metadata={op_name="key"}
+<308 fusion.16{} @0>
+ positions:
+  fusion.16 {}
+ uses:
+  get-tuple-element, operand 0 {}
+  get-tuple-element.1, operand 0 {}
+ from instruction: %fusion.16 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.41, metadata={op_name="jit(_threefry_split)/slice" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<309 fusion.16{0} @0>
+ positions:
+  fusion.16 {0}
+  get-tuple-element
+  bitcast.1
+ uses:
+  bitcast.1, operand 0
+  add_add_fusion, operand 2
+  xor.4, operand 1
+  broadcast_add_fusion, operand 1
+ from instruction: %fusion.16 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.41, metadata={op_name="jit(_threefry_split)/slice" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<310 fusion.16{1} @0>
+ positions:
+  fusion.16 {1}
+  get-tuple-element.1
+  bitcast
+ uses:
+  bitcast, operand 0
+  add_add_fusion, operand 0
+  xor.4, operand 0
+  broadcast_add_fusion, operand 2
+ from instruction: %fusion.16 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.41, metadata={op_name="jit(_threefry_split)/slice" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<311 xor.4 @6>
+ positions:
+  xor.4
+ uses:
+  xor.5, operand 0
+ from instruction: %xor.4 = u32[]{:T(128)S(6)} xor(%bitcast, %bitcast.1), metadata={op_name="jit(_threefry_split)/xor" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<312 constant.15 @0>
+ positions:
+  constant.15
+ uses:
+  xor.5, operand 1
+ from instruction: %constant.15 = u32[]{:T(128)} constant(466688986), metadata={op_name="jit(_threefry_split)" stack_frame_id=2}
+<313 xor.5 @6>
+ positions:
+  xor.5
+ uses:
+  add_add_fusion, operand 1
+  broadcast_add_fusion, operand 0
+ from instruction: %xor.5 = u32[]{:T(128)S(6)} xor(%xor.4, %constant.15), metadata={op_name="jit(_threefry_split)/xor" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[{"indices":["0","2"]}]}}
+<314 add_add_fusion @1>
+ positions:
+  add_add_fusion
+ uses:
+  pad_add_fusion, operand 0
+ from instruction: %add_add_fusion = u32[2,1]{1,0:T(2,128)S(1)} fusion(%bitcast, %xor.5, %bitcast.1), kind=kLoop, calls=%fused_computation.12, metadata={op_name="jit(_threefry_split)/add" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<315 broadcast_add_fusion @1>
+ positions:
+  broadcast_add_fusion
+ uses:
+  pad_add_fusion, operand 1
+ from instruction: %broadcast_add_fusion = u32[2,1]{1,0:T(2,128)S(1)} fusion(%xor.5, %bitcast.1, %bitcast), kind=kLoop, calls=%fused_computation.40, metadata={op_name="jit(_threefry_split)/add" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<316 pad_add_fusion @0>
+ positions:
+  pad_add_fusion
+ uses:
+ from instruction: %pad_add_fusion = u32[2,2]{1,0:T(2,128)} fusion(%add_add_fusion, %broadcast_add_fusion), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(_threefry_split)/stack" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}

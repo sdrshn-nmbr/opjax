@@ -1,0 +1,39 @@
+I0805 21:36:48.797183    5113 pjrt_api.cc:118] GetPjrtApi was found for tpu at /home/sudarshan/jb-jax101/lib/python3.11/site-packages/libtpu/libtpu.so
+I0805 21:36:48.797242    5113 pjrt_api.cc:95] PJRT_Api is set for device type tpu
+I0805 21:36:48.797254    5113 pjrt_api.cc:167] The PJRT plugin has PJRT API version 0.108. The framework PJRT API version is 0.108.
+I0805 21:36:49.759988    5113 pjrt_c_api_client.cc:199] PjRtCApiClient created.
+I0805 21:36:49.760548    5113 pjrt_client.cc:574] PjRt-IFRT device count: total=1, addressable=1
+I0805 21:36:49.760562    5113 pjrt_client.cc:578] Addressable PjRt-IFRT device: TpuDevice(id=0, process_index=0, coords=(0,0,0), core_on_chip=0)
+I0805 21:36:49.765919    5113 pjrt_client.cc:574] PjRt-IFRT device count: total=1, addressable=1
+I0805 21:36:49.765933    5113 pjrt_client.cc:578] Addressable PjRt-IFRT device: CpuDevice(id=0)
+Traceback (most recent call last):
+  File "<stdin>", line 7, in <module>
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/stages.py", line 586, in compile
+    return Compiled(self._lowering.compile(**kw), self._lowering.const_args,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1230, in compile
+    executable = UnloadedMeshExecutable.from_hlo(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1728, in from_hlo
+    xla_executable = _cached_compilation(
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1511, in _cached_compilation
+    xla_executable = compiler.compile_or_get_cached(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 469, in compile_or_get_cached
+    return _compile_and_write_cache(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 737, in _compile_and_write_cache
+    executable = backend_compile_and_load(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/profiler.py", line 427, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 363, in backend_compile_and_load
+    raise e
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 353, in backend_compile_and_load
+    return backend.compile_and_load(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:
+Ran out of memory in memory space vmem while allocating on stack for %matmul.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} custom-call(%x.1, %y.1), custom_call_target="tpu_custom_call", operand_layout_constraints={bf16[8192,8192]{1,0}, bf16[8192,28672]{1,0}}, frontend_attributes={kernel_metadata={}}, metadata={op_name="jit(workload)/jit(matmul)/pallas_call" stack_frame_id=3}. Scoped allocation with size 28.00M and limit 16.00M exceeded scoped vmem limit by 12.00M. It should not be possible to run out of scoped vmem - 
+See https://openxla.org/xla/errors/error_1001 for more details.

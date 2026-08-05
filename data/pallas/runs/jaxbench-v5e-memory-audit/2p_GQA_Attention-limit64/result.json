@@ -1,0 +1,95 @@
+[
+  {
+    "name": "2p_GQA_Attention",
+    "variant": "baseline",
+    "status": "error",
+    "tpu": "v5e",
+    "config": {
+      "name": "llama3_405b_gqa",
+      "model": "Llama-3.1-405B",
+      "operator": "gqa_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 128,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "emb_dim": 16384
+    },
+    "input_shapes": [
+      [
+        4,
+        4096,
+        128,
+        128
+      ],
+      [
+        4,
+        4096,
+        8,
+        128
+      ],
+      [
+        4,
+        4096,
+        8,
+        128
+      ]
+    ],
+    "xla_flops": 0,
+    "error": "RESOURCE_EXHAUSTED: E1000: CompileTimeHbmOom: XLA:TPU compile permanent error. Ran out of memory in memory space hbm. Used 16.50G of 15.75G hbm. Exceeded hbm capacity by 770.02M.\n\nTotal hbm usage >= 16.75G:\n    reserved        258.00M \n    program          16.50G \n    arguments            0B \n\nOutpu",
+    "traceback": " HLO temp\n     ==========================\n\n\nSee https://openxla.org/xla/errors/error_1000 for more details. [type.googleapis.com/tensorflow.tpu.CompilationResultProto='\\x08\\x08\\x12\\x80\\x0cRan out of memory in memory space hbm. Used 16.50G of 15.75G hbm. Exceeded hbm capacity by 770.02M.\\n\\nTotal hbm usage >= 16....[truncated]']\n--------------------\nFor simplicity, JAX has removed its internal frames from the traceback of the following exception. Set JAX_TRACEBACK_FILTERING=off to include these.\n"
+  },
+  {
+    "name": "2p_GQA_Attention",
+    "variant": "optimized",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "llama3_405b_gqa_optimized",
+      "model": "Llama-3.1-405B",
+      "operator": "gqa_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 128,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "emb_dim": 16384
+    },
+    "input_shapes": [
+      [
+        4,
+        4096,
+        128,
+        128
+      ],
+      [
+        4,
+        4096,
+        8,
+        128
+      ],
+      [
+        4,
+        4096,
+        8,
+        128
+      ]
+    ],
+    "xla_flops": 4398046511104,
+    "timing_method": "device_profiler",
+    "median_ms": 27.0965,
+    "mean_ms": 27.0964,
+    "std_ms": 0.0007,
+    "min_ms": 27.0951,
+    "wall_clock_median_ms": 27.2446,
+    "tflops": 162.31,
+    "utilization_pct": 82.4,
+    "output_shape": [
+      4,
+      4096,
+      128,
+      128
+    ],
+    "num_iters": 10
+  }
+]

@@ -1,0 +1,18 @@
+#loc1 = loc("x")
+#loc2 = loc("y")
+module @jit_multiply attributes {mhlo.num_partitions = 1 : i32, mhlo.num_replicas = 1 : i32} {
+  func.func public @main(%arg0: tensor<8192x28672xbf16> loc("x"), %arg1: tensor<f32> loc("y")) -> (tensor<8192x28672xbf16> {jax.result_info = "result"}) {
+    %0 = stablehlo.convert %arg1 : (tensor<f32>) -> tensor<bf16> loc(#loc8)
+    %1 = stablehlo.broadcast_in_dim %0, dims = [] : (tensor<bf16>) -> tensor<8192x28672xbf16> loc(#loc9)
+    %2 = stablehlo.multiply %arg0, %1 : tensor<8192x28672xbf16> loc(#loc9)
+    return %2 : tensor<8192x28672xbf16> loc(#loc)
+  } loc(#loc)
+} loc(#loc)
+#loc = loc(unknown)
+#loc3 = loc("/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/optimized.py":114:8 to :57)
+#loc4 = loc("<stdin>":6:7 to :24)
+#loc5 = loc("create_inputs"(#loc3))
+#loc6 = loc("<module>"(#loc4))
+#loc7 = loc(callsite(#loc5 at #loc6))
+#loc8 = loc("jit(multiply)/convert_element_type"(#loc7))
+#loc9 = loc("jit(multiply)/mul"(#loc7))

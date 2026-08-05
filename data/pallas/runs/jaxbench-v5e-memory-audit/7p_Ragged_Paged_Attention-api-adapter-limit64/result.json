@@ -1,0 +1,13 @@
+{
+  "adapter": "pltpu.ANY=pl.ANY plus corrected per-kernel scoped VMEM limit",
+  "argument_bytes": 1140917760,
+  "output_bytes": 67108864,
+  "output_shape": [
+    4096,
+    64,
+    128
+  ],
+  "peak_hbm_bytes": 1208027648,
+  "scoped_vmem_limit_kib": 65536,
+  "status": "success"
+}

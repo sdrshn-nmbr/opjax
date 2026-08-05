@@ -1,0 +1,18 @@
+BufferAssignment:
+allocation 0: size 512, constant:
+ value: <349 constant.46 @0> (size=512,offset=0): u32[]{:T(128)}
+allocation 1: size 134217728, output shape is |bf16[8192,8192]|, maybe-live-out:
+ value: <354 fusion.31 @0> (size=134217728,offset=0): bf16[8192,8192]{1,0:T(8,128)(2,1)}
+allocation 2: size 512, parameter 0, shape |u32[2]| at ShapeIndex {}:
+ value: <344 key.1 @0> (size=512,offset=0): u32[2]{0:T(128)}
+allocation 3: size 33280, preallocated-temp:
+ value: <345 fusion.45{} @0> (size=512,offset=0): (u32[1]{0:T(128)}, u32[1]{0:T(128)})
+ value: <346 fusion.45{0} @0> (size=512,offset=16384): u32[1]{0:T(128)}
+ value: <347 fusion.45{1} @0> (size=512,offset=32768): u32[1]{0:T(128)}
+allocation 4: size 98304, color 1, preallocated-temp:
+ value: <351 fusion.44 @1> (size=32768,offset=32768): u32[8192]{0:T(1024)S(1)}
+ value: <352 broadcast_add_fusion @1> (size=32768,offset=0): u32[8192]{0:T(1024)S(1)}
+ value: <353 fusion.38 @1> (size=32768,offset=65536): u32[8192]{0:T(1024)S(1)}
+allocation 5: size 512, color 6, preallocated-temp:
+ value: <348 xor.72 @6> (size=512,offset=0): u32[]{:T(128)S(6)}
+ value: <350 xor.73 @6> (size=512,offset=0): u32[]{:T(128)S(6)}

@@ -1,0 +1,1 @@
+{"profile_root": "/home/sudarshan/jb-memory-audit/gemm-profile/xprof", "iterations_per_arm": 5, "jax": "0.10.1", "devices": ["TPU_0(process=0,(0,0,0,0))"]}

@@ -1,0 +1,12 @@
+BufferAssignment:
+allocation 0: size 512, output shape is |(u32[2], u32[2])|, maybe-live-out:
+ value: <8 tuple.1{} @0> (size=512,offset=0): (u32[2]{0:T(128)}, u32[2]{0:T(128)})
+allocation 1: size 1024, parameter 0, shape |u32[2,2]| at ShapeIndex {}:
+ value: <4 args_0_.1 @0> (size=1024,offset=0): u32[2,2]{1,0:T(2,128)}
+allocation 2: size 512, maybe-live-out:
+ value: <6 slice_bitcast_fusion{0} @0> (size=512,offset=0): u32[2]{0:T(128)}
+allocation 3: size 512, maybe-live-out:
+ value: <7 slice_bitcast_fusion{1} @0> (size=512,offset=0): u32[2]{0:T(128)}
+allocation 4: size 0, color 1, preallocated-temp:
+allocation 5: size 512, preallocated-temp:
+ value: <5 slice_bitcast_fusion{} @0> (size=512,offset=0): (u32[2]{0:T(128)}, u32[2]{0:T(128)})

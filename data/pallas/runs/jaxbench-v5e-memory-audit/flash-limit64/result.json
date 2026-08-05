@@ -1,0 +1,19 @@
+{
+  "workload": "1p_Flash_Attention",
+  "status": "incorrect",
+  "tpu": "v5e",
+  "config": {
+    "name": "flash_attention_baseline",
+    "model": "Baseline-MHA",
+    "operator": "causal_mha",
+    "batch": 4,
+    "seq_len": 4096,
+    "num_heads": 64,
+    "head_dim": 128
+  },
+  "correctness": {
+    "correct": false,
+    "max_diff": 0.0625,
+    "reason": "values differ"
+  }
+}

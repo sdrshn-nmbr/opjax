@@ -1,0 +1,36 @@
+HloModule jit_unstack, is_scheduled=true, entry_computation_layout={(u32[2,2]{1,0:T(2,128)})->(u32[2]{0:T(128)}, u32[2]{0:T(128)})}, allow_spmd_sharding_propagation_to_parameters={true}, allow_spmd_sharding_propagation_to_output={true,true}
+
+FileNames
+1 "<stdin>"
+2 "/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/optimized.py"
+
+FunctionNames
+1 "<module>"
+2 "create_inputs"
+
+FileLocations
+1 {file_name_id=1 function_name_id=1 line=6 end_line=6 column=7 end_column=24}
+2 {file_name_id=2 function_name_id=2 line=111 end_line=111 column=4 end_column=10}
+
+StackFrames
+1 {file_location_id=1 parent_frame_id=1}
+2 {file_location_id=2 parent_frame_id=2}
+
+
+%fused_computation (param_0.1: u32[2,2]) -> (u32[2], u32[2]) {
+  %param_0.1 = u32[2,2]{1,0:T(2,128)} parameter(0)
+  %unstack.0 = u32[1,2]{1,0:T(1,128)} slice(%param_0.1), slice={[1:2], [0:2]}, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  %bitcast.2 = u32[2]{0:T(128)} bitcast(%unstack.0), metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  %unstack.1.clone.1 = u32[1,2]{1,0:T(1,128)} slice(%param_0.1), slice={[0:1], [0:2]}, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  %bitcast.3.clone.1 = u32[2]{0:T(128)} bitcast(%unstack.1.clone.1), metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  ROOT %tuple = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) tuple(%bitcast.2, %bitcast.3.clone.1)
+}
+
+ENTRY %main.1 (args_0_.1: u32[2,2]) -> (u32[2], u32[2]) {
+  %args_0_.1 = u32[2,2]{1,0:T(2,128)} parameter(0), metadata={op_name="args[0]"}
+  %slice_bitcast_fusion = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) fusion(%args_0_.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}, backend_config={"flag_configs":[],"window_config":{"kernel_window_bounds":[],"output_window_bounds":["1"],"input_window_bounds":[],"estimated_cycles":"1831","iteration_bounds":["1"],"cost_model_type":"COST_MODEL_TYPE_INVALID","ml_estimated_microseconds":0,"is_mask":false,"pad_output_on_minor_dim":"0","pad_input_on_minor_dim":"0","estimated_vmem_bytes":"0","estimated_bundle_count":"0","estimated_scoped_vmem_bytes":"0"},"scoped_memory_configs":[],"used_scoped_memory_configs":[{"memory_space":"1","offset":"0","size":"4096"}],"retry_config":{"retry_count":"0"},"aliasing_operands":{"lists":[]}}
+  %get-tuple-element.1 = u32[2]{0:T(128)} get-tuple-element(%slice_bitcast_fusion), index=1, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  %get-tuple-element = u32[2]{0:T(128)} get-tuple-element(%slice_bitcast_fusion), index=0, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}
+  ROOT %tuple.1 = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) tuple(%get-tuple-element.1, %get-tuple-element)
+}
+

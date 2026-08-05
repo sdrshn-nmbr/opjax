@@ -1,0 +1,104 @@
+[
+  {
+    "name": "4p_Sparse_Attention",
+    "variant": "baseline",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "llama3_70b_sparse_attention",
+      "model": "Llama-3.1-70B",
+      "operator": "sparse_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128
+    },
+    "input_shapes": [
+      [
+        64,
+        4096,
+        128
+      ],
+      [
+        8,
+        4096,
+        128
+      ],
+      [
+        8,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 275968425984,
+    "timing_method": "device_profiler",
+    "median_ms": 7.5757,
+    "mean_ms": 7.5754,
+    "std_ms": 0.0014,
+    "min_ms": 7.5723,
+    "wall_clock_median_ms": 7.7177,
+    "tflops": 36.43,
+    "utilization_pct": 18.5,
+    "output_shape": [
+      64,
+      4096,
+      128
+    ],
+    "num_iters": 10
+  },
+  {
+    "name": "4p_Sparse_Attention",
+    "variant": "optimized",
+    "status": "success",
+    "tpu": "v5e",
+    "config": {
+      "name": "pallas_splash_attention_llama70b",
+      "model": "Llama-3.1-70B",
+      "operator": "pallas_splash_attention",
+      "batch": 4,
+      "seq_len": 4096,
+      "num_query_heads": 64,
+      "num_kv_heads": 8,
+      "head_dim": 128,
+      "atol": 0.003,
+      "rtol": 0.003
+    },
+    "input_shapes": [
+      [
+        4,
+        64,
+        4096,
+        128
+      ],
+      [
+        4,
+        8,
+        4096,
+        128
+      ],
+      [
+        4,
+        8,
+        4096,
+        128
+      ]
+    ],
+    "xla_flops": 2199023255552,
+    "timing_method": "device_profiler",
+    "median_ms": 12.1039,
+    "mean_ms": 12.1039,
+    "std_ms": 0.0009,
+    "min_ms": 12.1024,
+    "wall_clock_median_ms": 12.243,
+    "tflops": 181.68,
+    "utilization_pct": 92.2,
+    "output_shape": [
+      4,
+      64,
+      4096,
+      128
+    ],
+    "num_iters": 10
+  }
+]

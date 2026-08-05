@@ -1,0 +1,31 @@
+Traceback (most recent call last):
+  File "<stdin>", line 9, in <module>
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/stages.py", line 586, in compile
+    return Compiled(self._lowering.compile(**kw), self._lowering.const_args,
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1230, in compile
+    executable = UnloadedMeshExecutable.from_hlo(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1728, in from_hlo
+    xla_executable = _cached_compilation(
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/interpreters/pxla.py", line 1511, in _cached_compilation
+    xla_executable = compiler.compile_or_get_cached(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 469, in compile_or_get_cached
+    return _compile_and_write_cache(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 737, in _compile_and_write_cache
+    executable = backend_compile_and_load(
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/profiler.py", line 427, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 363, in backend_compile_and_load
+    raise e
+  File "/home/sudarshan/jb-jax101/lib/python3.11/site-packages/jax/_src/compiler.py", line 353, in backend_compile_and_load
+    return backend.compile_and_load(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+jax.errors.JaxRuntimeError: RESOURCE_EXHAUSTED: E1001: CompileTimeScopedVmemOom:
+Ran out of memory in memory space vmem while allocating on stack for %ragged_paged_attention_kernel.1 = bf16[4096,64,128]{2,1,0:T(8,128)(2,1)} custom-call(%kv_lens.1, %page_indices.1, %cu_q_lens.1, %broadcast.0, %copy, /*index=5*/%q.1, %kv_pages.1), custom_call_target="tpu_custom_call", operand_layout_constraints={s32[64]{0}, s32[64,256]{1,0}, s32[65]{0}, s32[2]{0}, s32[1]{0}, bf16[4096,64,128]{2,1,0}, bf16[16384,16,16,128]{3,2,1,0}}, frontend_attributes={kernel_metadata={}}, metadata={op_name="jit(workload)/jit(ragged_paged_attention)/ragged_paged_attention_kernel/pallas_call" stack_frame_id=3}. Scoped allocation with size 38.15M and limit 32.00M exceeded scoped vmem limit by 6.15M. It should not be possible to run out of scoped vmem - 
+See https://openxla.org/xla/errors/error_1001 for more details.

@@ -1,0 +1,1 @@
+{"adapter": "pltpu.ANY=pl.ANY", "argument_bytes": 1074856448, "output_bytes": 1048576, "output_shape": [64, 64, 128], "peak_hbm_bytes": 1080100352, "status": "success", "workload": "6p_Paged_Attention"}

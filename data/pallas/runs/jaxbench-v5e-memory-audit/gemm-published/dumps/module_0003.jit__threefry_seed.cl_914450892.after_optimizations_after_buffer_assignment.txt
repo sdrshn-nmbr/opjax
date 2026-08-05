@@ -1,0 +1,40 @@
+HloModule jit__threefry_seed, is_scheduled=true, entry_computation_layout={(s32[]{:T(128)})->u32[2]{0:T(128)}}, allow_spmd_sharding_propagation_to_parameters={true}, allow_spmd_sharding_propagation_to_output={true}
+
+FileNames
+1 "<stdin>"
+2 "/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/optimized.py"
+
+FunctionNames
+1 "<module>"
+2 "create_inputs"
+
+FileLocations
+1 {file_name_id=1 function_name_id=1 line=6 end_line=6 column=7 end_column=24}
+2 {file_name_id=2 function_name_id=2 line=110 end_line=110 column=10 end_column=28}
+
+StackFrames
+1 {file_location_id=1 parent_frame_id=1}
+2 {file_location_id=2 parent_frame_id=2}
+
+
+%fused_computation (param_0.1: u32[1], param_1.3: u32[1]) -> u32[2] {
+  %param_1.3 = u32[1]{0:T(128)} parameter(1)
+  %constant.2 = u32[]{:T(128)} constant(0)
+  %pad.3 = u32[2]{0:T(128)} pad(%param_1.3, %constant.2), padding=0_1, metadata={op_name="jit(_threefry_seed)/concatenate" stack_frame_id=2}
+  %param_0.1 = u32[1]{0:T(128)} parameter(0)
+  %pad.2 = u32[2]{0:T(128)} pad(%param_0.1, %constant.2), padding=1_0, metadata={op_name="jit(_threefry_seed)/concatenate" stack_frame_id=2}
+  ROOT %add.1 = u32[2]{0:T(128)} add(%pad.3, %pad.2), metadata={op_name="jit(_threefry_seed)/concatenate" stack_frame_id=2}
+}
+
+ENTRY %main.1 (seed.1: s32[]) -> u32[2] {
+  %constant.1 = s32[]{:T(128)} constant(32)
+  %seed.1 = s32[]{:T(128)} parameter(0), metadata={op_name="seed"}
+  %copy = s32[]{:T(128)S(6)} copy(%seed.1), backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  %convert_element_type.3 = u32[]{:T(128)} convert(%copy), metadata={op_name="jit(_threefry_seed)/convert_element_type" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  %shift_right_logical.1 = s32[]{:T(128)S(6)} shift-right-logical(%copy, %constant.1), metadata={op_name="jit(_threefry_seed)/shift_right_logical" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  %convert_element_type.2 = u32[]{:T(128)} convert(%shift_right_logical.1), metadata={op_name="jit(_threefry_seed)/convert_element_type" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  %bitcast.1 = u32[1]{0:T(128)} bitcast(%convert_element_type.3), metadata={op_name="jit(_threefry_seed)/broadcast_in_dim" stack_frame_id=2}
+  %bitcast = u32[1]{0:T(128)} bitcast(%convert_element_type.2), metadata={op_name="jit(_threefry_seed)/broadcast_in_dim" stack_frame_id=2}
+  ROOT %pad_add_fusion = u32[2]{0:T(128)} fusion(%bitcast.1, %bitcast), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(_threefry_seed)/concatenate" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+}
+

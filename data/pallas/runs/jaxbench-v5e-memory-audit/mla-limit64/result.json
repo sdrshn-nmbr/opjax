@@ -1,0 +1,25 @@
+{
+  "workload": "3p_MLA_Attention",
+  "status": "incorrect",
+  "tpu": "v5e",
+  "config": {
+    "name": "deepseek_v3_mla",
+    "model": "DeepSeek-V3-671B",
+    "operator": "mla_attention",
+    "batch": 4,
+    "seq_len": 2048,
+    "emb_dim": 7168,
+    "num_heads": 128,
+    "q_lora_rank": 1536,
+    "kv_lora_rank": 512,
+    "qk_nope_head_dim": 128,
+    "qk_rope_head_dim": 64,
+    "v_head_dim": 128,
+    "rope_theta": 10000
+  },
+  "correctness": {
+    "correct": false,
+    "max_diff": 3.4839675426483154,
+    "reason": "values differ"
+  }
+}

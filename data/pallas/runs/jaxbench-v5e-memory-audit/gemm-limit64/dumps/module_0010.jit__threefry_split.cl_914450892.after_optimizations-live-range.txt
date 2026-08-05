@@ -1,0 +1,35 @@
+HloLiveRange (max 12):
+  InstructionSequence:
+    0:constant.15
+    1:key.1
+    2:fusion.16
+    3:get-tuple-element.1
+    4:get-tuple-element
+    5:bitcast
+    6:bitcast.1
+    7:xor.4
+    8:xor.5
+    9:broadcast_add_fusion
+    10:add_add_fusion
+    11:pad_add_fusion
+  BufferLiveRange:
+    key.1{}:0-12
+    fusion.16{}:2-4
+    fusion.16{0}:2-10
+    fusion.16{1}:2-10
+    xor.4{}:7-8
+    constant.15{}:0-8
+    xor.5{}:8-10
+    add_add_fusion{}:10-11
+    broadcast_add_fusion{}:9-11
+    pad_add_fusion{}:11-12
+  Live ranges at 11 (peak):
+    pad_add_fusion{}: 16 bytes (cumulative: 16 bytes)
+    add_add_fusion{}: 8 bytes (cumulative: 24 bytes)
+    broadcast_add_fusion{}: 8 bytes (cumulative: 32 bytes)
+    key.1{}: 8 bytes (cumulative: 40 bytes)
+  Stack trace breakdown for peak usage: 40 bytes
+    main.2 (100.0%, total: 40 bytes, current: 0 bytes, remaining: 40 bytes)
+      ├── jit(_threefry_split)/add (40.0%, total: 16 bytes, current: 16 bytes, remaining: 24 bytes)
+      ├── jit(_threefry_split)/stack (40.0%, total: 16 bytes, current: 16 bytes, remaining: 8 bytes)
+      └── key (20.0%, total: 8 bytes, current: 8 bytes, remaining: 0 bytes)

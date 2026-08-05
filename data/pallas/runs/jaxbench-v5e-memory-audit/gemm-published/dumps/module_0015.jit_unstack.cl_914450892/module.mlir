@@ -1,0 +1,17 @@
+#loc1 = loc("args[0]")
+module @jit_unstack attributes {mhlo.num_partitions = 1 : i32, mhlo.num_replicas = 1 : i32} {
+  func.func public @main(%arg0: tensor<2x2xui32> loc("args[0]")) -> (tensor<2xui32> {jax.result_info = "result[0]"}, tensor<2xui32> {jax.result_info = "result[1]"}) {
+    %0 = stablehlo.slice %arg0 [0:1, 0:2] : (tensor<2x2xui32>) -> tensor<1x2xui32> loc(#loc7)
+    %1 = stablehlo.reshape %0 : (tensor<1x2xui32>) -> tensor<2xui32> loc(#loc7)
+    %2 = stablehlo.slice %arg0 [1:2, 0:2] : (tensor<2x2xui32>) -> tensor<1x2xui32> loc(#loc7)
+    %3 = stablehlo.reshape %2 : (tensor<1x2xui32>) -> tensor<2xui32> loc(#loc7)
+    return %1, %3 : tensor<2xui32>, tensor<2xui32> loc(#loc)
+  } loc(#loc)
+} loc(#loc)
+#loc = loc(unknown)
+#loc2 = loc("/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/optimized.py":111:4 to :10)
+#loc3 = loc("<stdin>":6:7 to :24)
+#loc4 = loc("create_inputs"(#loc2))
+#loc5 = loc("<module>"(#loc3))
+#loc6 = loc(callsite(#loc4 at #loc5))
+#loc7 = loc("jit(unstack)/unstack"(#loc6))

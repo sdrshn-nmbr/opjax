@@ -1,0 +1,54 @@
+HloModule jit_multiply, is_scheduled=true, entry_computation_layout={(bf16[8192,28672]{1,0:T(8,128)(2,1)}, f32[]{:T(128)})->bf16[8192,28672]{1,0:T(8,128)(2,1)}}, allow_spmd_sharding_propagation_to_parameters={true,true}, allow_spmd_sharding_propagation_to_output={true}
+
+FileNames
+1 "<frozen runpy>"
+2 "/home/sudarshan/accelerator-agents/JAXBench/__main__.py"
+3 "/home/sudarshan/accelerator-agents/JAXBench/harness/evaluator.py"
+4 "/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/baseline.py"
+
+FunctionNames
+1 "_run_module_as_main"
+2 "_run_code"
+3 "<module>"
+4 "main"
+5 "cmd_evaluate"
+6 "evaluate_kernel"
+7 "create_inputs"
+
+FileLocations
+1 {file_name_id=1 function_name_id=1 line=198 end_line=199 column=11 end_column=42}
+2 {file_name_id=1 function_name_id=2 line=88 end_line=88 column=4 end_column=27}
+3 {file_name_id=2 function_name_id=3 line=153 end_line=153 column=13 end_column=19}
+4 {file_name_id=2 function_name_id=4 line=149 end_line=149 column=11 end_column=39}
+5 {file_name_id=2 function_name_id=5 line=18 end_line=24 column=13 end_column=5}
+6 {file_name_id=3 function_name_id=6 line=70 end_line=70 column=21 end_column=50}
+7 {file_name_id=4 function_name_id=7 line=25 end_line=25 column=8 end_column=57}
+
+StackFrames
+1 {file_location_id=1 parent_frame_id=1}
+2 {file_location_id=2 parent_frame_id=2}
+3 {file_location_id=3 parent_frame_id=3}
+4 {file_location_id=4 parent_frame_id=4}
+5 {file_location_id=5 parent_frame_id=5}
+6 {file_location_id=6 parent_frame_id=6}
+7 {file_location_id=7 parent_frame_id=7}
+
+
+%fused_computation (param_0: bf16[8192,28672], param_1.1: bf16[]) -> bf16[8192,28672] {
+  %param_0 = bf16[8192,28672]{1,0:T(8,128)(2,1)} parameter(0)
+  %convert = f32[8192,28672]{1,0:T(8,128)} convert(%param_0)
+  %param_1.1 = bf16[]{:T(256)S(6)} parameter(1)
+  %mul.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} broadcast(%param_1.1), dimensions={}, metadata={op_name="jit(multiply)/mul" stack_frame_id=7}
+  %convert.1 = f32[8192,28672]{1,0:T(8,128)} convert(%mul.1)
+  %mul.0 = f32[8192,28672]{1,0:T(8,128)} multiply(%convert, %convert.1), metadata={op_name="jit(multiply)/mul" stack_frame_id=7}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"float_type_correction_info":{"original_type":"BF16","original_shape":{"element_type":"BF16","dimensions":["8192","28672"],"tuple_shapes":[],"layout":{"minor_to_major":["1","0"],"tiles":[{"dimensions":["8","128"]},{"dimensions":["2","1"]}],"element_size_in_bits":"0","memory_space":"0","dim_level_types":[],"index_primitive_type":"PRIMITIVE_TYPE_INVALID","pointer_primitive_type":"PRIMITIVE_TYPE_INVALID","dim_unique":[],"dim_ordered":[],"dynamic_shape_metadata_prefix_bytes":"0","tail_padding_alignment_in_elements":"1","split_configs":[]},"is_dynamic_dimension":[false,false]}}}
+  ROOT %convert.2 = bf16[8192,28672]{1,0:T(8,128)(2,1)} convert(%mul.0)
+}
+
+ENTRY %main.1 (x.1: bf16[8192,28672], y.1: f32[]) -> bf16[8192,28672] {
+  %y.1 = f32[]{:T(128)} parameter(1), metadata={op_name="y"}
+  %x.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} parameter(0), metadata={op_name="x"}
+  %copy = f32[]{:T(128)S(6)} copy(%y.1), backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  %convert_element_type.1 = bf16[]{:T(256)S(6)} convert(%copy), metadata={op_name="jit(multiply)/convert_element_type" stack_frame_id=7}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+  ROOT %broadcast_multiply_fusion = bf16[8192,28672]{1,0:T(8,128)(2,1)} fusion(%x.1, %convert_element_type.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(multiply)/mul" stack_frame_id=7}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+}
+

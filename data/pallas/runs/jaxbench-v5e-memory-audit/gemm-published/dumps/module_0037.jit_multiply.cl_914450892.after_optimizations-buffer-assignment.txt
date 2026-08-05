@@ -1,0 +1,11 @@
+BufferAssignment:
+allocation 0: size 512, parameter 1, shape |f32[]| at ShapeIndex {}:
+ value: <8 y.1 @0> (size=512,offset=0): f32[]{:T(128)}
+allocation 1: size 469762048, output shape is |bf16[8192,28672]|, maybe-live-out:
+ value: <11 broadcast_multiply_fusion @0> (size=469762048,offset=0): bf16[8192,28672]{1,0:T(8,128)(2,1)}
+allocation 2: size 469762048, parameter 0, shape |bf16[8192,28672]| at ShapeIndex {}:
+ value: <7 x.1 @0> (size=469762048,offset=0): bf16[8192,28672]{1,0:T(8,128)(2,1)}
+allocation 3: size 0, color 1, preallocated-temp:
+allocation 4: size 1024, color 6, preallocated-temp:
+ value: <9 copy @6> (size=512,offset=0): f32[]{:T(128)S(6)}
+ value: <10 convert_element_type.1 @6> (size=512,offset=512): bf16[]{:T(256)S(6)}

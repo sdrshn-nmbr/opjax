@@ -1,0 +1,33 @@
+
+Total bytes used: 939525632 (896.00MiB)
+
+Used values:
+<7 x.1 @0>
+ positions:
+  x.1
+ uses:
+  broadcast_multiply_fusion, operand 0
+ from instruction: %x.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} parameter(0), metadata={op_name="x"}
+<8 y.1 @0>
+ positions:
+  y.1
+ uses:
+  copy, operand 0
+ from instruction: %y.1 = f32[]{:T(128)} parameter(1), metadata={op_name="y"}
+<9 copy @6>
+ positions:
+  copy
+ uses:
+  convert_element_type.1, operand 0
+ from instruction: %copy = f32[]{:T(128)S(6)} copy(%y.1), backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<10 convert_element_type.1 @6>
+ positions:
+  convert_element_type.1
+ uses:
+  broadcast_multiply_fusion, operand 1
+ from instruction: %convert_element_type.1 = bf16[]{:T(256)S(6)} convert(%copy), metadata={op_name="jit(multiply)/convert_element_type" stack_frame_id=7}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<11 broadcast_multiply_fusion @0>
+ positions:
+  broadcast_multiply_fusion
+ uses:
+ from instruction: %broadcast_multiply_fusion = bf16[8192,28672]{1,0:T(8,128)(2,1)} fusion(%x.1, %convert_element_type.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(multiply)/mul" stack_frame_id=7}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}

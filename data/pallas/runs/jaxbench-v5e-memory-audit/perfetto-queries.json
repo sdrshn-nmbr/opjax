@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "Perfetto Trace Processor",
+    "version": "v57.2-da1d152cf"
+  },
+  "trace": "gemm-profile/xprof/plugins/profile/2026_08_05_21_46_51/perfetto_trace.json.gz",
+  "queries": [
+    {
+      "purpose": "Host annotation durations",
+      "sql": "SELECT name, count(*) AS n, round(avg(dur)/1e6, 4) AS avg_ms, round(min(dur)/1e6, 4) AS min_ms, round(max(dur)/1e6, 4) AS max_ms FROM slice WHERE name IN ('xla_gemm', 'pallas_gemm') GROUP BY name ORDER BY name",
+      "rows": [
+        {
+          "name": "pallas_gemm",
+          "n": 5,
+          "avg_ms": 20.0757,
+          "min_ms": 20.0685,
+          "max_ms": 20.0883
+        },
+        {
+          "name": "xla_gemm",
+          "n": 5,
+          "avg_ms": 20.0208,
+          "min_ms": 20.0012,
+          "max_ms": 20.0747
+        }
+      ]
+    },
+    {
+      "purpose": "TPU device operation durations",
+      "sql": "SELECT name, count(*) AS n, round(avg(dur)/1e6, 4) AS avg_ms FROM slice WHERE name GLOB '*jit_workload*' OR name IN ('matmul.1','fusion') GROUP BY name ORDER BY avg_ms DESC",
+      "rows": [
+        {
+          "name": "matmul.1",
+          "n": 5,
+          "avg_ms": 19.9142
+        },
+        {
+          "name": "jit_workload(10899555362998979213)",
+          "n": 5,
+          "avg_ms": 19.9142
+        },
+        {
+          "name": "jit_workload(17484115248526903265)",
+          "n": 5,
+          "avg_ms": 19.8461
+        },
+        {
+          "name": "fusion",
+          "n": 5,
+          "avg_ms": 19.846
+        }
+      ]
+    },
+    {
+      "purpose": "Compilation contamination check",
+      "sql": "SELECT count(*) AS compile_rows FROM slice WHERE name GLOB '*Compile*' OR name GLOB '*Lower*'",
+      "rows": [
+        {
+          "compile_rows": 0
+        }
+      ]
+    },
+    {
+      "purpose": "Execution evidence",
+      "sql": "SELECT count(*) AS execute_markers FROM slice WHERE name GLOB '*System::Execute*' OR name = '=>Done'",
+      "rows": [
+        {
+          "execute_markers": 30
+        }
+      ]
+    }
+  ]
+}

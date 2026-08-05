@@ -1,0 +1,37 @@
+HloModule jit_multiply, is_scheduled=true, entry_computation_layout={(bf16[8192,28672]{1,0:T(8,128)(2,1)}, f32[]{:T(128)})->bf16[8192,28672]{1,0:T(8,128)(2,1)}}, allow_spmd_sharding_propagation_to_parameters={true,true}, allow_spmd_sharding_propagation_to_output={true}
+
+FileNames
+1 "<stdin>"
+2 "/home/sudarshan/accelerator-agents/JAXBench/benchmark/8p_GEMM/optimized.py"
+
+FunctionNames
+1 "<module>"
+2 "create_inputs"
+
+FileLocations
+1 {file_name_id=1 function_name_id=1 line=6 end_line=6 column=7 end_column=24}
+2 {file_name_id=2 function_name_id=2 line=114 end_line=114 column=8 end_column=57}
+
+StackFrames
+1 {file_location_id=1 parent_frame_id=1}
+2 {file_location_id=2 parent_frame_id=2}
+
+
+%fused_computation (param_0: bf16[8192,28672], param_1.1: bf16[]) -> bf16[8192,28672] {
+  %param_0 = bf16[8192,28672]{1,0:T(8,128)(2,1)} parameter(0)
+  %convert = f32[8192,28672]{1,0:T(8,128)} convert(%param_0)
+  %param_1.1 = bf16[]{:T(256)} parameter(1)
+  %mul.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} broadcast(%param_1.1), dimensions={}, metadata={op_name="jit(multiply)/mul" stack_frame_id=2}
+  %convert.1 = f32[8192,28672]{1,0:T(8,128)} convert(%mul.1)
+  %mul.0 = f32[8192,28672]{1,0:T(8,128)} multiply(%convert, %convert.1), metadata={op_name="jit(multiply)/mul" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"float_type_correction_info":{"original_type":"BF16","original_shape":{"element_type":"BF16","dimensions":["8192","28672"],"tuple_shapes":[],"layout":{"minor_to_major":["1","0"],"tiles":[{"dimensions":["8","128"]},{"dimensions":["2","1"]}],"element_size_in_bits":"0","memory_space":"0","dim_level_types":[],"index_primitive_type":"PRIMITIVE_TYPE_INVALID","pointer_primitive_type":"PRIMITIVE_TYPE_INVALID","dim_unique":[],"dim_ordered":[],"dynamic_shape_metadata_prefix_bytes":"0","tail_padding_alignment_in_elements":"1","split_configs":[]},"is_dynamic_dimension":[false,false]}}}
+  ROOT %convert.2 = bf16[8192,28672]{1,0:T(8,128)(2,1)} convert(%mul.0)
+}
+
+ENTRY %main.1 (x.1: bf16[8192,28672], y.1: f32[]) -> bf16[8192,28672] {
+  %y.1 = f32[]{:T(128)} parameter(1), metadata={op_name="y"}
+  %x.1 = bf16[8192,28672]{1,0:T(8,128)(2,1)} parameter(0), metadata={op_name="x"}
+  %copy = f32[]{:T(128)S(6)} copy(%y.1)
+  %convert_element_type.1 = bf16[]{:T(256)} convert(%copy), metadata={op_name="jit(multiply)/convert_element_type" stack_frame_id=2}
+  ROOT %broadcast_multiply_fusion = bf16[8192,28672]{1,0:T(8,128)(2,1)} fusion(%x.1, %convert_element_type.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(multiply)/mul" stack_frame_id=2}
+}
+

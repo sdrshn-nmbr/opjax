@@ -1,0 +1,44 @@
+HloLiveRange (max 13):
+  InstructionSequence:
+    0:constant.46
+    1:key.1
+    2:fusion.45
+    3:get-tuple-element.1
+    4:get-tuple-element
+    5:bitcast
+    6:bitcast.1
+    7:xor.72
+    8:xor.73
+    9:broadcast_add_fusion
+    10:fusion.44
+    11:fusion.38
+    12:fusion.31
+  BufferLiveRange:
+    key.1{}:0-13
+    fusion.45{}:2-4
+    fusion.45{0}:2-12
+    fusion.45{1}:2-12
+    xor.72{}:7-8
+    constant.46{}:0-8
+    xor.73{}:8-12
+    fusion.44{}:10-12
+    broadcast_add_fusion{}:9-12
+    fusion.38{}:11-12
+    fusion.31{}:12-13
+  Live ranges at 12 (peak):
+    fusion.31{}: 469762048 bytes (cumulative: 469762048 bytes)
+    broadcast_add_fusion{}: 32768 bytes (cumulative: 469794816 bytes)
+    fusion.38{}: 32768 bytes (cumulative: 469827584 bytes)
+    fusion.44{}: 32768 bytes (cumulative: 469860352 bytes)
+    key.1{}: 8 bytes (cumulative: 469860360 bytes)
+    fusion.45{0}: 4 bytes (cumulative: 469860364 bytes)
+    fusion.45{1}: 4 bytes (cumulative: 469860368 bytes)
+    xor.73{}: 4 bytes (cumulative: 469860372 bytes)
+  Stack trace breakdown for peak usage: 469 860 372 bytes
+    main.4 (100.0%, total: 469 860 372 bytes, current: 0 bytes, remaining: 469 860 372 bytes)
+      ├── jit(_normal)/jit(_normal_real)/mul (100.0%, total: 469 762 048 bytes, current: 469 762 048 bytes, remaining: 98 324 bytes)
+      ├── jit(_normal)/jit(_normal_real)/jit(_uniform)/iota_2x32_shape (0.0%, total: 98 304 bytes, current: 98 304 bytes, remaining: 20 bytes)
+      ├── key (0.0%, total: 8 bytes, current: 8 bytes, remaining: 12 bytes)
+      ├── jit(_normal)/jit(_normal_real)/jit(_uniform)/slice{0} (0.0%, total: 4 bytes, current: 4 bytes, remaining: 8 bytes)
+      ├── jit(_normal)/jit(_normal_real)/jit(_uniform)/slice{1} (0.0%, total: 4 bytes, current: 4 bytes, remaining: 4 bytes)
+      └── jit(_normal)/jit(_normal_real)/jit(_uniform)/xor (0.0%, total: 4 bytes, current: 4 bytes, remaining: 0 bytes)

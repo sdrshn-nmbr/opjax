@@ -1,0 +1,38 @@
+
+Total bytes used: 3072 (3.0KiB)
+
+Used values:
+<4 args_0_.1 @0>
+ positions:
+  args_0_.1
+ uses:
+  slice_bitcast_fusion, operand 0
+ from instruction: %args_0_.1 = u32[2,2]{1,0:T(2,128)} parameter(0), metadata={op_name="args[0]"}
+<5 slice_bitcast_fusion{} @0>
+ positions:
+  slice_bitcast_fusion {}
+ uses:
+  get-tuple-element, operand 0 {}
+  get-tuple-element.1, operand 0 {}
+ from instruction: %slice_bitcast_fusion = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) fusion(%args_0_.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<6 slice_bitcast_fusion{0} @0>
+ positions:
+  slice_bitcast_fusion {0}
+  get-tuple-element
+  tuple.1 {1}
+ uses:
+  tuple.1, operand 1
+ from instruction: %slice_bitcast_fusion = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) fusion(%args_0_.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<7 slice_bitcast_fusion{1} @0>
+ positions:
+  slice_bitcast_fusion {1}
+  get-tuple-element.1
+  tuple.1 {0}
+ uses:
+  tuple.1, operand 0
+ from instruction: %slice_bitcast_fusion = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) fusion(%args_0_.1), kind=kLoop, calls=%fused_computation, metadata={op_name="jit(unstack)/unstack" stack_frame_id=2}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<8 tuple.1{} @0>
+ positions:
+  tuple.1 {}
+ uses:
+ from instruction: %tuple.1 = (u32[2]{0:T(128)}, u32[2]{0:T(128)}) tuple(%get-tuple-element.1, %get-tuple-element)

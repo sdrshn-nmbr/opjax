@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "purpose": "Distinguish v5e physical capacity from scoped Pallas VMEM limits and benchmark defects in the JAXBench optimized-reference audit.",
+  "observed_at": "2026-08-05",
+  "supersedes": "../jaxbench-v5e-headroom/manifest.json#decision",
+  "source": {
+    "repository": "https://github.com/AI-Hypercomputer/accelerator-agents",
+    "revision": "6b6c44293c43976032ba12d2f72d6bebeaf2394f",
+    "python": "3.11.13",
+    "jax": "0.10.1",
+    "jaxlib": "0.10.1",
+    "libtpu": "0.0.41"
+  },
+  "hardware": {
+    "accelerator": "v5litepod-1",
+    "device_kind": "TPU v5 lite",
+    "device_count": 1,
+    "zone": "us-west4-a",
+    "runtime_version": "v2-alpha-tpuv5-lite",
+    "reported_hbm_capacity_bytes": 17200000000,
+    "reported_physical_vmem_capacity_bytes": 134217728
+  },
+  "napkin_math": {
+    "method": "Sum immutable input and output arrays from declared default shapes. Separately calculate known materialized attention logits and declared Pallas tiles. These are lower bounds, not compiler peak-memory predictions.",
+    "logical_operand_and_output_mib": {
+      "1p_Flash_Attention": 1024.0,
+      "2p_GQA_Attention": 1088.0,
+      "3p_MLA_Attention": 580.9,
+      "4p_Sparse_Attention": 576.0,
+      "6p_Paged_Attention": 1026.0,
+      "7p_Ragged_Paged_Attention": 1152.0,
+      "8p_GEMM": 1024.0,
+      "11p_Megablox_GMM": 1888.0
+    },
+    "known_attention_logit_temporaries_mib": {
+      "1p_Flash_Attention_bf16": 8192.0,
+      "1p_Flash_Attention_f32": 16384.0,
+      "2p_GQA_Attention_bf16": 16384.0,
+      "2p_GQA_Attention_f32": 32768.0,
+      "3p_MLA_Attention_f32": 8192.0,
+      "4p_Sparse_Attention_bf16": 8192.0,
+      "4p_Sparse_Attention_f32": 16384.0
+    },
+    "8p_GEMM_declared_tile_mib": {
+      "x": 2.0,
+      "y": 4.0,
+      "output": 4.0,
+      "accumulator": 8.0,
+      "sum_before_compiler_buffering": 18.0
+    },
+    "conclusion": "Every workload's immutable operands and output fit in 16 GB HBM. GQA's naive XLA baseline can still exceed HBM because it materializes an approximately 16 GB bf16 logits tensor. Pallas scoped VMEM is a separate per-custom-call budget and cannot be inferred from HBM fit."
+  },
+  "compiler_probes": {
+    "8p_GEMM_default": {
+      "status": "compile_time_scoped_vmem_oom",
+      "requested_mib": 28.0,
+      "effective_limit_mib": 16.0,
+      "physical_vmem_mib": 128.0,
+      "compiler_flag": "--xla_tpu_scoped_vmem_limit_kib=-1",
+      "evidence": [
+        "gemm-published/stderr.txt",
+        "gemm-published/dumps/module_0041.jit_workload.cl_914450892.flagfile"
+      ]
+    },
+    "8p_GEMM_scoped_limit_64_mib": {
+      "status": "correct_and_profiled",
+      "compiler_flag_transport": "LIBTPU_INIT_ARGS",
+      "compiler_flag": "--xla_tpu_scoped_vmem_limit_kib=65536",
+      "correct": true,
+      "max_absolute_difference": 0.03125,
+      "xla_median_ms": 19.8461,
+      "pallas_median_ms": 19.9141,
+      "speedup": 0.996585,
+      "xla_tflops": 193.91,
+      "pallas_tflops": 193.24,
+      "compiled_peak_hbm_bytes": 1073741824,
+      "evidence": [
+        "gemm-limit64/result.json",
+        "gemm-limit64/compiled-analysis.json",
+        "gemm-limit64/dumps/module_0045.jit_workload.cl_914450892.flagfile"
+      ]
+    },
+    "1p_Flash_Attention_scoped_limit_64_mib": {
+      "status": "compiled_but_incorrect",
+      "max_absolute_difference": 0.0625,
+      "evidence": "flash-limit64/result.json"
+    },
+    "2p_GQA_Attention_scoped_limit_64_mib": {
+      "xla_status": "compile_time_hbm_oom",
+      "xla_reported_hbm_usage_gib": 16.5,
+      "xla_reported_hbm_capacity_gib": 15.75,
+      "pallas_status": "profiled_without_correctness_oracle",
+      "pallas_median_ms": 27.0965,
+      "pallas_tflops": 162.31,
+      "evidence": "2p_GQA_Attention-limit64/result.json"
+    },
+    "3p_MLA_Attention_scoped_limit_64_mib": {
+      "status": "compiled_but_incorrect",
+      "max_absolute_difference": 3.4839675426483154,
+      "evidence": "mla-limit64/result.json"
+    },
+    "4p_Sparse_Attention_scoped_limit_64_mib": {
+      "status": "compiled_but_packaging_invalid",
+      "reason": "The baseline omits batch dimension 4 while the optimized arm includes it; FLOP counts differ by 8x and no correctness comparison is possible.",
+      "evidence": "4p_Sparse_Attention-limit64/result.json"
+    },
+    "6p_Paged_Attention_api_adapter": {
+      "status": "compiled_and_executed_without_correctness_oracle",
+      "adapter": "pltpu.ANY=pl.ANY",
+      "compiled_peak_hbm_bytes": 1080100352,
+      "evidence": "6p_Paged_Attention-api-adapter/result.json"
+    },
+    "7p_Ragged_Paged_Attention_api_adapter": {
+      "default_status": "compile_time_scoped_vmem_oom",
+      "default_requested_mib": 38.15,
+      "explicit_kernel_limit_mib": 32.0,
+      "corrected_status": "compiled_and_executed_without_correctness_oracle",
+      "adapter": "pltpu.ANY=pl.ANY and per-kernel vmem_limit_bytes=67108864",
+      "compiled_peak_hbm_bytes": 1208027648,
+      "evidence": [
+        "7p_Ragged_Paged_Attention-api-adapter/stderr.txt",
+        "7p_Ragged_Paged_Attention-api-adapter-limit64/result.json"
+      ]
+    }
+  },
+  "profile_probe": {
+    "workload": "8p_GEMM",
+    "warmups_before_trace": 3,
+    "iterations_per_arm": 5,
+    "trace_annotations": [
+      "xla_gemm",
+      "pallas_gemm"
+    ],
+    "perfetto_annotation_average_ms": {
+      "xla_gemm": 20.0208,
+      "pallas_gemm": 20.0757
+    },
+    "tpu_device_slice_average_ms": {
+      "xla_fusion": 19.8460,
+      "pallas_matmul": 19.9142
+    },
+    "compile_or_lower_rows_in_trace": 0,
+    "execute_marker_rows": 30,
+    "evidence": [
+      "perfetto-queries.json",
+      "gemm-profile/xprof/plugins/profile/2026_08_05_21_46_51/perfetto_trace.json.gz",
+      "gemm-profile/xprof/plugins/profile/2026_08_05_21_46_51/t1v-n-97f772fc-w-0.trace.json.gz",
+      "gemm-profile/xprof/plugins/profile/2026_08_05_21_46_51/t1v-n-97f772fc-w-0.xplane.pb"
+    ]
+  },
+  "decision": {
+    "capacity_conclusion": "The earlier statement that five optimized references do not fit on v5e is false. Four tested references compile under the corrected scoped VMEM contract, and Paged/Ragged also execute after their API/per-kernel contract is repaired.",
+    "remaining_benchmark_defects": [
+      "Flash Attention and MLA optimized references fail correctness.",
+      "GQA's naive XLA oracle materializes a full logits tensor and genuinely exceeds v5e HBM.",
+      "Sparse Attention compares different shapes and FLOP counts.",
+      "Paged and Ragged Paged Attention use a moved ANY symbol; Ragged also pins an insufficient 32 MiB per-kernel scoped limit.",
+      "Megablox requires a static baseline argument adapter."
+    ],
+    "multi_tpu_conclusion": "A v5e-16 does not repair a single-core scoped VMEM contract unless the benchmark is explicitly sharded. One v5e is sufficient to diagnose these failures.",
+    "benchmark_conclusion": "Do not freeze the bundled eight references as-is. Rebuild a versioned evaluator contract with an explicit scoped VMEM budget, independent correctness oracles, shape parity, and profile proof before selecting a performance subset."
+  }
+}

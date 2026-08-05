@@ -1,0 +1,78 @@
+
+Total bytes used: 134350848 (128.13MiB)
+
+Used values:
+<344 key.1 @0>
+ positions:
+  key.1
+ uses:
+  fusion.45, operand 0
+ from instruction: %key.1 = u32[2]{0:T(128)} parameter(0), metadata={op_name="key"}
+<345 fusion.45{} @0>
+ positions:
+  fusion.45 {}
+ uses:
+  get-tuple-element, operand 0 {}
+  get-tuple-element.1, operand 0 {}
+ from instruction: %fusion.45 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.56, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/slice"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<346 fusion.45{0} @0>
+ positions:
+  fusion.45 {0}
+  get-tuple-element
+  bitcast.1
+ uses:
+  bitcast.1, operand 0
+  fusion.31, operand 1
+  xor.72, operand 1
+ from instruction: %fusion.45 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.56, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/slice"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<347 fusion.45{1} @0>
+ positions:
+  fusion.45 {1}
+  get-tuple-element.1
+  bitcast
+ uses:
+  bitcast, operand 0
+  fusion.31, operand 2
+  xor.72, operand 0
+ from instruction: %fusion.45 = (u32[1]{0:T(128)}, u32[1]{0:T(128)}) fusion(%key.1), kind=kLoop, calls=%fused_computation.56, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/slice"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<348 xor.72 @6>
+ positions:
+  xor.72
+ uses:
+  xor.73, operand 0
+ from instruction: %xor.72 = u32[]{:T(128)S(6)} xor(%bitcast, %bitcast.1), metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/xor"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<349 constant.46 @0>
+ positions:
+  constant.46
+ uses:
+  xor.73, operand 1
+ from instruction: %constant.46 = u32[]{:T(128)} constant(466688986), metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)"}
+<350 xor.73 @6>
+ positions:
+  xor.73
+ uses:
+  fusion.31, operand 0
+ from instruction: %xor.73 = u32[]{:T(128)S(6)} xor(%xor.72, %constant.46), metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/xor"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[{"indices":["0","2"]}]}}
+<351 fusion.44 @1>
+ positions:
+  fusion.44
+ uses:
+  fusion.31, operand 3
+ from instruction: %fusion.44 = u32[8192]{0:T(1024)S(1)} fusion(), kind=kLoop, calls=%fused_computation.54, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/iota_2x32_shape"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<352 broadcast_add_fusion @1>
+ positions:
+  broadcast_add_fusion
+ uses:
+  fusion.31, operand 4
+ from instruction: %broadcast_add_fusion = u32[8192]{0:T(1024)S(1)} fusion(), kind=kLoop, calls=%fused_computation.55, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/iota_2x32_shape"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<353 fusion.38 @1>
+ positions:
+  fusion.38
+ uses:
+  fusion.31, operand 5
+ from instruction: %fusion.38 = u32[8192]{0:T(1024)S(1)} fusion(), kind=kLoop, calls=%fused_computation.48, metadata={op_name="jit(_normal)/jit(_normal_real)/jit(_uniform)/iota_2x32_shape"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
+<354 fusion.31 @0>
+ positions:
+  fusion.31
+ uses:
+ from instruction: %fusion.31 = bf16[8192,8192]{1,0:T(8,128)(2,1)} fusion(%xor.73, %bitcast.1, %bitcast, %fusion.44, %broadcast_add_fusion, /*index=5*/%fusion.38), kind=kLoop, calls=%fused_computation.38, metadata={op_name="jit(_normal)/jit(_normal_real)/mul"}, backend_config={"flag_configs":[],"scoped_memory_configs":[],"used_scoped_memory_configs":[],"aliasing_operands":{"lists":[]}}
