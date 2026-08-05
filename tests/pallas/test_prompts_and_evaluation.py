@@ -360,18 +360,32 @@ def test_jaxbench_retries_transient_tpu_runtime_lock(
         subprocess.CompletedProcess(
             [],
             1,
-            stdout=json.dumps(
-                {
-                    "status": "error",
-                    "error": "TPU is already in use by process with pid 123",
-                }
-            ),
+                stdout=json.dumps(
+                    {
+                        "hardware": None,
+                        "result": {
+                            "status": "error",
+                            "error": "TPU is already in use by process with pid 123",
+                        },
+                    }
+                ),
             stderr="",
         ),
         subprocess.CompletedProcess(
             [],
             0,
-            stdout=json.dumps({"status": "incorrect"}),
+            stdout=json.dumps(
+                {
+                    "hardware": {
+                        "platforms": ["tpu"],
+                        "device_kinds": ["TPU v5 lite"],
+                        "device_count": 1,
+                        "process_count": 1,
+                        "process_index": 0,
+                    },
+                    "result": {"status": "incorrect"},
+                }
+            ),
             stderr="",
         ),
     ]

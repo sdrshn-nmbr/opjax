@@ -467,11 +467,10 @@ def _run_jaxbench_once(
     num_iters: int,
     timeout_seconds: float,
 ) -> dict[str, Any]:
-    command = [
+    runner_command = [
         sys.executable,
         "-m",
-        "JAXBench",
-        "evaluate",
+        "opjax.pallas.jaxbench_runner",
         "--workload",
         workload,
         "--kernel",
@@ -482,9 +481,16 @@ def _run_jaxbench_once(
         str(num_warmup),
         "--num-iters",
         str(num_iters),
-        "--json",
+    ]
+    command = [
+        "/bin/bash",
+        "-c",
+        '"$@"; status=$?; exit "$status"',
+        "opjax-pallas-jaxbench-supervisor",
+        *runner_command,
     ]
     environment = os.environ.copy()
+    environment["JAX_PLATFORMS"] = "tpu"
     python_path = environment.get("PYTHONPATH")
     environment["PYTHONPATH"] = (
         f"{jaxbench_root}{os.pathsep}{python_path}" if python_path else str(jaxbench_root)
@@ -528,19 +534,24 @@ def _run_jaxbench_once(
                 "stderr_tail": "",
                 "transient_attempts": transient_attempts,
             }
-        parsed = _parse_json_output(process.stdout)
-        if parsed is None:
-            parsed = {
+        envelope = _parse_json_output(process.stdout)
+        if envelope is None or not isinstance(envelope.get("result"), dict):
+            result = {
                 "workload": workload,
                 "status": "error",
                 "error_code": "JAXBENCH_JSON_MISSING",
                 "error": (process.stderr or process.stdout or "no output")[-1000:],
             }
+            hardware = None
+        else:
+            result = envelope["result"]
+            hardware = envelope.get("hardware")
         combined_output = f"{process.stdout}\n{process.stderr}"
         if "TPU is already in use by process" not in combined_output:
             return {
                 "returncode": process.returncode,
-                "result": parsed,
+                "result": result,
+                "runtime_hardware": hardware,
                 "stdout_tail": process.stdout[-2000:],
                 "stderr_tail": process.stderr[-2000:],
                 "transient_attempts": transient_attempts,
@@ -548,7 +559,8 @@ def _run_jaxbench_once(
         transient_attempts.append(
             {
                 "returncode": process.returncode,
-                "result": parsed,
+                "result": result,
+                "runtime_hardware": hardware,
                 "stdout_tail": process.stdout[-2000:],
                 "stderr_tail": process.stderr[-2000:],
             }
@@ -559,6 +571,20 @@ def _run_jaxbench_once(
             flush=True,
         )
         time.sleep(min(1.0, max(0.0, deadline - time.monotonic())))
+
+
+def _runtime_hardware_from_row(row: dict[str, Any]) -> dict[str, Any]:
+    observations = [
+        run.get("runtime_hardware")
+        for run in row.get("raw_runs", [])
+        if isinstance(run, dict)
+    ]
+    if not observations or not all(isinstance(value, dict) for value in observations):
+        raise EvaluationError("RUNTIME_HARDWARE_EVIDENCE_MISSING")
+    first = observations[0]
+    if any(value != first for value in observations[1:]):
+        raise EvaluationError("RUNTIME_HARDWARE_EVIDENCE_INCONSISTENT")
+    return first
 
 
 def _result_correct(value: dict[str, Any]) -> bool:
@@ -604,10 +630,13 @@ def _capture_lowering_evidence(
             str(bundle.eval_policy["authenticity"]["profile_repetitions"]),
         ]
         try:
+            environment = os.environ.copy()
+            environment["JAX_PLATFORMS"] = "tpu"
             process = subprocess.run(
                 command,
                 capture_output=True,
                 text=True,
+                env=environment,
                 timeout=timeout_seconds,
                 check=False,
             )
@@ -1346,6 +1375,10 @@ def evaluate_kernels(
     dry_run: bool,
     timeout_seconds: float,
 ) -> dict[str, Any]:
+    if not dry_run and os.environ.get("JAX_PLATFORMS") != "cpu":
+        raise EvaluationError(
+            "EVALUATOR_PARENT_PLATFORM_INVALID: launch with JAX_PLATFORMS=cpu"
+        )
     verify_source_checkout(bundle, "jaxbench", jaxbench_root)
     _assert_public_workloads_match(bundle, jaxbench_root)
     validated_sample = validate_sample_run(
@@ -1366,7 +1399,61 @@ def evaluate_kernels(
     lowering_calibration_sha256 = _sha256_file(
         lowering_calibration / "calibration.json"
     )
-    runtime_hardware = None if dry_run else probe_runtime_hardware()
+    runtime_hardware = None
+    bootstrap_row: dict[str, Any] | None = None
+    existing_manifest_path = out_dir / "manifest.json"
+    if not dry_run and existing_manifest_path.is_file():
+        existing_manifest = json.loads(
+            existing_manifest_path.read_text(encoding="utf-8")
+        )
+        existing_fingerprint = existing_manifest.get("fingerprint")
+        if not isinstance(existing_fingerprint, dict):
+            raise EvaluationError("EVALUATION_MANIFEST_INVALID")
+        runtime_hardware = existing_fingerprint.get("runtime_hardware")
+        if not isinstance(runtime_hardware, dict):
+            raise EvaluationError("RUNTIME_HARDWARE_EVIDENCE_MISSING")
+    elif not dry_run:
+        bootstrap_candidate = next(
+            (
+                candidate
+                for candidate in candidates
+                if (
+                    (inspection := inspect_pallas_source(
+                        candidate.kernel.read_text(encoding="utf-8")
+                    )).parses
+                    and inspection.has_workload
+                )
+            ),
+            None,
+        )
+        if bootstrap_candidate is None:
+            raise EvaluationError("RUNTIME_HARDWARE_EVIDENCE_UNAVAILABLE")
+        print(
+            "PALLAS_EVAL_START "
+            f"sample_id={bootstrap_candidate.sample_id} "
+            f"workload={bootstrap_candidate.workload} "
+            f"seed={bootstrap_candidate.seed}",
+            flush=True,
+        )
+        bootstrap_row = _evaluate_workload(
+            bundle=bundle,
+            jaxbench_root=jaxbench_root,
+            candidate=bootstrap_candidate,
+            prompt_context=prompt_context,
+            lowering_calibration=lowering_calibration,
+            lowering_evidence_root=out_dir / "lowering",
+            timeout_seconds=timeout_seconds,
+        )
+        runtime_hardware = _runtime_hardware_from_row(bootstrap_row)
+        print(
+            "PALLAS_EVAL_DONE "
+            f"sample_id={bootstrap_candidate.sample_id} "
+            f"compiled={bootstrap_row['compiled']} "
+            f"correct={bootstrap_row['correct']} "
+            f"pallas={bootstrap_row['inspection']['authentic']} "
+            f"headline={bootstrap_row['headline_credited']}",
+            flush=True,
+        )
     if runtime_hardware is not None:
         _assert_tpu_runtime(runtime_hardware, bundle.experiment["target"])
     fingerprint = environment_fingerprint(
@@ -1405,6 +1492,11 @@ def evaluate_kernels(
     )
     results_path = out_dir / "tpu_results.jsonl"
     rows = load_jsonl(results_path)
+    if bootstrap_row is not None:
+        if rows:
+            raise EvaluationError("BOOTSTRAP_RESULTS_ALREADY_EXIST")
+        rows.append(bootstrap_row)
+        _write_jsonl(results_path, rows)
     completed: set[str] = set()
     valid_ids = {candidate.sample_id for candidate in candidates}
     for row in rows:
