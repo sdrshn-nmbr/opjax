@@ -27,6 +27,7 @@ opjax-pallas-train = "opjax.pallas.training:main"
 opjax-pallas-g4-diagnostic = "opjax.pallas.gate4_diagnostics:main"
 opjax-pallas-environment-corpus = "opjax.pallas.environment_corpus:main"
 opjax-pallas-environment-runner = "opjax.pallas.environment_runner:main"
+opjax-pallas-environment-sample = "opjax.pallas.environment_sampling:main"
 
 [dependency-groups]
 dev = [
