@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "experiment_id": "pallas-v2-inkling-small-v5e",
+  "experiment_id": "pallas-v2.1-inkling-small-v5e",
   "renderer": "tml_v0",
   "sampling": {
     "max_tokens": 8192,

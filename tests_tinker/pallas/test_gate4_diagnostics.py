@@ -14,7 +14,7 @@ from opjax.pallas.gate4_diagnostics import (
 
 REPO_ROOT = Path(__file__).parents[2]
 CONFIG_ROOT = REPO_ROOT / "config" / "pallas"
-CORPUS_ROOT = REPO_ROOT / "data" / "pallas" / "runs" / "g3-sft-ready-final"
+CORPUS_ROOT = REPO_ROOT / "data" / "pallas" / "runs" / "g41-environment-corpus"
 DIAGNOSTIC = CONFIG_ROOT / "gate4-diagnostic.json"
 
 
@@ -28,7 +28,7 @@ def test_supervision_audit_proves_complete_correct_targets(tmp_path: Path) -> No
 
     assert report["summary"] == {
         "rows": 32,
-        "sequence_tokens": 9104,
+        "sequence_tokens": 11312,
         "supervised_tokens": 5554,
         "rows_truncated": 0,
         "rows_with_noncontiguous_supervision": 0,
@@ -38,9 +38,9 @@ def test_supervision_audit_proves_complete_correct_targets(tmp_path: Path) -> No
         "unknown_blockspec_order_calls": 0,
         "rows_with_placeholder_ellipsis": 0,
         "authentic_rows": 32,
-        "prompts_requiring_workload_name": 0,
-        "prompts_requiring_self_contained_module": 0,
-        "prompts_forbidding_incomplete_kernel": 0,
+        "prompts_requiring_workload_name": 32,
+        "prompts_requiring_self_contained_module": 32,
+        "prompts_forbidding_incomplete_kernel": 32,
     }
 
 

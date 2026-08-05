@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "kind": "pallas_environment_dataset_contract",
+  "max_attempts": 3,
+  "expected_interface": "exactly one self-contained Python module defining workload(*inputs)",
+  "pallas_api": {
+    "jax_version": "0.6.2",
+    "blockspec_signature": "pl.BlockSpec(block_shape, index_map)",
+    "interpret_allowed": false,
+    "plain_jax_fallback_allowed": false
+  },
+  "feedback_stages": [
+    "output_contract",
+    "pallas_api",
+    "tpu_compile",
+    "full_shape_correctness",
+    "normal_lowering",
+    "profile"
+  ],
+  "feedback_policy": {
+    "one_failure_stage_per_turn": true,
+    "reference_solution_visible": false,
+    "stop_on_verified_success": true,
+    "profile_only_after_correctness": true
+  }
+}

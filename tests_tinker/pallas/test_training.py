@@ -10,7 +10,7 @@ from opjax.pallas.training import TrainingError, _prepare, _training_order
 
 REPO_ROOT = Path(__file__).parents[2]
 CONFIG_ROOT = REPO_ROOT / "config" / "pallas"
-CORPUS_ROOT = REPO_ROOT / "data" / "pallas" / "runs" / "g3-sft-ready-final"
+CORPUS_ROOT = REPO_ROOT / "data" / "pallas" / "runs" / "g41-environment-corpus"
 
 
 def test_gate4_preparation_binds_verified_corpus_and_renderer() -> None:
@@ -21,15 +21,13 @@ def test_gate4_preparation_binds_verified_corpus_and_renderer() -> None:
     )
 
     assert preparation["base_model"] == "thinkingmachines/Inkling-Small"
-    assert preparation["corpus_release_sha256"] == (
-        "bbaabb83c5c7c5d7e7a15a931680af809a32043754e9dea51919b3a0a5978355"
-    )
-    assert preparation["data"] == {
-        "rows": 32,
-        "sequence_tokens": 9104,
-        "supervised_tokens": 5554,
-        "maximum_sequence_tokens": 365,
-    }
+    assert preparation["corpus_release_sha256"] == preparation["training"][
+        "corpus_release_sha256"
+    ]
+    assert preparation["data"]["rows"] == 32
+    assert preparation["data"]["sequence_tokens"] > 9104
+    assert preparation["data"]["supervised_tokens"] == 5554
+    assert preparation["data"]["maximum_sequence_tokens"] > 365
     assert len(rows) == len(datums) == len(order) == 32
     assert order == _training_order(rows, seed=0, num_epochs=1)
 

@@ -1,0 +1,18 @@
+{
+  "artifacts": {
+    "datasets/sft.jsonl": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
+    "tasks.jsonl": "b3b66b837ab75b6e5180b81735755bc150a6d9fd9fd9d603fc88d819ae1fc803"
+  },
+  "contract_sha256": "4f5a3f18eff1efb15f09f1dd501c33498c04baa289fb32a01bf00c724fece271",
+  "counts": {
+    "sft": 32,
+    "tasks": 32
+  },
+  "created_at": "2026-08-05T04:52:25.263053+00:00",
+  "kind": "pallas_environment_corpus_release",
+  "max_attempts": 3,
+  "release_sha256": "b6113016d873da0676c34df226299a87a9423b316e259e142e630775d085473c",
+  "schema_version": 1,
+  "source_release_relative_path": "../g3-sft-ready-final",
+  "source_release_sha256": "bbaabb83c5c7c5d7e7a15a931680af809a32043754e9dea51919b3a0a5978355"
+}

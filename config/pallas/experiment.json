@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "experiment_id": "pallas-v2-inkling-small-v5e",
+  "experiment_id": "pallas-v2.1-inkling-small-v5e",
   "base_model": "thinkingmachines/Inkling-Small",
   "target": {
     "accelerator": "tpu",
@@ -29,9 +29,9 @@
     "arm": "B",
     "renderer": "tml_v0",
     "train_on": "last_assistant_message",
-    "corpus_release_sha256": "bbaabb83c5c7c5d7e7a15a931680af809a32043754e9dea51919b3a0a5978355",
-    "corpus_contract_sha256": "bc6c14fbb0ff9143d914d475f5817aa68bcbe92bee8f3314e00bcc28ff35174e",
-    "dataset_sha256": "400f0a2c59ee08e726218b1b9770b5aaa61d2b5c6a7e83116291d531e07a47e4",
+    "corpus_release_sha256": "b6113016d873da0676c34df226299a87a9423b316e259e142e630775d085473c",
+    "corpus_contract_sha256": "4f5a3f18eff1efb15f09f1dd501c33498c04baa289fb32a01bf00c724fece271",
+    "dataset_sha256": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
     "verified_rows": 32,
     "lora_rank": 64,
     "batch_size": 4,

@@ -22,6 +22,10 @@ from tinker_cookbook.tokenizer_utils import get_tokenizer
 
 from opjax.pallas.contracts import ContractError, git_revision, load_contracts
 from opjax.pallas.corpus import CorpusError, validate_corpus_release
+from opjax.pallas.environment_corpus import (
+    EnvironmentCorpusError,
+    validate_environment_corpus,
+)
 
 
 class TrainingError(RuntimeError):
@@ -104,8 +108,13 @@ def _json_value(value: Any) -> Any:
 def _load_training_rows(
     *, corpus_root: Path, training_config: dict[str, Any]
 ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    validation = validate_corpus_release(corpus_root)
     manifest = json.loads((corpus_root / "manifest.json").read_text(encoding="utf-8"))
+    environment_release = manifest.get("kind") == "pallas_environment_corpus_release"
+    validation = (
+        validate_environment_corpus(corpus_root)
+        if environment_release
+        else validate_corpus_release(corpus_root)
+    )
     if validation["release_sha256"] != training_config["corpus_release_sha256"]:
         raise TrainingError(
             "CORPUS_RELEASE_MISMATCH: "
@@ -118,9 +127,10 @@ def _load_training_rows(
             f"expected={training_config['corpus_contract_sha256']} "
             f"observed={manifest.get('contract_sha256')}"
         )
-    readiness = manifest.get("sft_readiness", {})
-    if readiness.get("arm_b_authorized") is not True or readiness.get("reasons") != []:
-        raise TrainingError(f"ARM_B_UNAUTHORIZED: {readiness.get('reasons')}")
+    if not environment_release:
+        readiness = manifest.get("sft_readiness", {})
+        if readiness.get("arm_b_authorized") is not True or readiness.get("reasons") != []:
+            raise TrainingError(f"ARM_B_UNAUTHORIZED: {readiness.get('reasons')}")
     dataset_path = corpus_root / "datasets" / "sft.jsonl"
     observed_dataset_hash = _sha256_file(dataset_path)
     if observed_dataset_hash != training_config["dataset_sha256"]:
@@ -415,7 +425,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         print(json.dumps(result, indent=2, sort_keys=True))
         return 0
-    except (ContractError, CorpusError, TrainingError, OSError, ValueError) as exc:
+    except (
+        ContractError,
+        CorpusError,
+        EnvironmentCorpusError,
+        TrainingError,
+        OSError,
+        ValueError,
+    ) as exc:
         print(
             json.dumps(
                 {
