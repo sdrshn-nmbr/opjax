@@ -1,0 +1,190 @@
+{
+  "by_tier": {
+    "near_heldout": {
+      "analysis_code_present": 3,
+      "blockspec_calls": 5,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 2,
+      "n": 4,
+      "reversed_blockspec_calls": 5,
+      "workload_contract_met": 3
+    },
+    "training_replay": {
+      "analysis_code_present": 1,
+      "blockspec_calls": 2,
+      "blockspec_valid": 1,
+      "complete_candidate": 0,
+      "length_truncated": 0,
+      "n": 4,
+      "reversed_blockspec_calls": 0,
+      "workload_contract_met": 1
+    }
+  },
+  "created_at": "2026-08-05T05:10:28.541251+00:00",
+  "kind": "gate4_sample_audit",
+  "overall": {
+    "analysis_code_present": 4,
+    "blockspec_calls": 7,
+    "blockspec_valid": 1,
+    "complete_candidate": 0,
+    "length_truncated": 2,
+    "n": 8,
+    "reversed_blockspec_calls": 5,
+    "workload_contract_met": 4
+  },
+  "rows": [
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 2993,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "0e42b1702b97fdaa8972f4d09c3fc573d8aa8d4b52014a966d01d51805ef9d48",
+      "blockspec_valid": true,
+      "complete_candidate": false,
+      "n_tokens": 6769,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 2,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 3589,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 4796,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "5e224e2b02cb8c56031e61b914c3da48698c82ecbb5069d1b412914c8f35edb7",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 6573,
+      "source_audit": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 3,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "heldout-add-384x384",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "3155f0158af70e0dfb331bb74b5ada042fe9377a8fe5f01694abe82497e051e6",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 0,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "heldout-matmul-128x256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "9753b5427051516d8ccea48377b12969919c6b9edb75c92ffd717d862ec801f7",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 5463,
+      "source_audit": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 2,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 2,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "stop",
+      "task_id": "heldout-rmsnorm-256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-row-sum-128x256",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "b58d5ece0e08581183087943a47f49c2e2c2d56865b39ad2b4b5f6813ed16bd8",
+  "source_fingerprint_sha256": "0d10251e204b5da4f90ed3b0babc4f3df00fffb7da8ec9035d7ec1b65ea9cc30"
+}

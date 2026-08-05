@@ -1,0 +1,10 @@
+{
+  "arm": "A",
+  "kind": "pallas_environment_tpu_repair_run",
+  "max_attempts": 3,
+  "model_path": null,
+  "schema_version": 1,
+  "source_verification": "data/pallas/runs/g41-environment-arm-a/tpu.json",
+  "static_pass": 4,
+  "task_count": 4
+}

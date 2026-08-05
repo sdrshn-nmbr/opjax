@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "kind": "pallas_gate_4_1_result",
+  "experiment_id": "pallas-v2.1-inkling-small-v5e",
+  "decision": "failed_no_causal_gain",
+  "training": {
+    "base_model": "thinkingmachines/Inkling-Small",
+    "rows": 32,
+    "sequence_tokens": 11312,
+    "supervised_tokens": 5554,
+    "updates": 8,
+    "first_step_nll": 0.9311952590942383,
+    "final_step_nll": 0.558385968208313,
+    "run_sha256": "e2240fb190a843cbdc3cc086e0166dfe085dcb1627b70b9f602b809b6f08fbd4",
+    "sampler_weights": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final"
+  },
+  "single_shot_heldout": {
+    "tasks": 4,
+    "base": {
+      "workload_contract": 2,
+      "static_complete": 0,
+      "reversed_blockspec_calls": 3
+    },
+    "sft": {
+      "workload_contract": 3,
+      "static_complete": 0,
+      "reversed_blockspec_calls": 5
+    }
+  },
+  "three_attempt_environment": {
+    "tasks": 4,
+    "base": {
+      "static_complete": 4,
+      "tpu_profile_verified": 1,
+      "verified_task_ids": ["heldout-add-384x384"]
+    },
+    "sft": {
+      "static_complete": 3,
+      "tpu_profile_verified": 1,
+      "verified_task_ids": ["heldout-add-384x384"]
+    },
+    "base_minus_sft_verified": 0
+  },
+  "verified_runtime": {
+    "accelerator": "TPU v5 lite",
+    "jax": "0.6.2",
+    "jaxlib": "0.6.2",
+    "libtpu": "0.0.17",
+    "chex": "0.1.90",
+    "profile_repetitions": 3,
+    "required_trace_event": "tpu::System::Execute=>Done",
+    "required_compiler_marker": "tpu_custom_call"
+  },
+  "failure_modes": {
+    "matmul": "compiled but halted the TPU on an out-of-bounds DMA during full-shape execution in both arms",
+    "rmsnorm_base": "illegal TPU block shape",
+    "rmsnorm_sft": "out-of-bounds DMA during isolated full-shape execution",
+    "row_sum_base": "illegal TPU block shape",
+    "row_sum_sft": "invalid BlockSpec construction"
+  },
+  "gate_effect": {
+    "gate_4_1_complete": true,
+    "gate_4_capability_pass": false,
+    "gate_5_authorized": false,
+    "reason": "bounded feedback improved API conformance but SFT did not improve profile-verified heldout correctness over base"
+  }
+}

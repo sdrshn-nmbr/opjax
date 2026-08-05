@@ -1,0 +1,10 @@
+{
+  "arm": "B",
+  "kind": "pallas_environment_tpu_repair_run",
+  "max_attempts": 3,
+  "model_path": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+  "schema_version": 1,
+  "source_verification": "data/pallas/runs/g41-environment-arm-b/tpu.json",
+  "static_pass": 3,
+  "task_count": 4
+}

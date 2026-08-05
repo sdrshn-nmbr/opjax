@@ -1,0 +1,990 @@
+{
+  "contract_sha256": "dc9ceaa8fa56ee46daa7c145db1d99c2c86b7beda2410561cd5bbd5ff0bd0095",
+  "created_at": "2026-08-05T05:10:24.630952+00:00",
+  "dataset_sha256": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
+  "experiment_id": "pallas-v2.1-inkling-small-v5e",
+  "kind": "gate4_supervision_audit",
+  "maximum_length": 4096,
+  "renderer": "tml_v0",
+  "rows": [
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "sequence_tokens": 342,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 155,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:multiply-256x512:sft",
+      "sequence_tokens": 342,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 155,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:subtract-512x256:sft",
+      "sequence_tokens": 342,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 155,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:maximum-512x512:sft",
+      "sequence_tokens": 348,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 161,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:minimum-256x384:sft",
+      "sequence_tokens": 348,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 161,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "binary_elementwise",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:safe-divide-384x256:sft",
+      "sequence_tokens": 358,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 167,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "transpose",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-128x128:sft",
+      "sequence_tokens": 351,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 2,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 180,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "in_spec,),\n        out_specs=out_spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "transpose",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-square-256x384:sft",
+      "sequence_tokens": 355,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 2,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 182,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "in_spec,),\n        out_specs=out_spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "transpose",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:transpose-abs-384x256:sft",
+      "sequence_tokens": 356,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 2,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 182,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "in_spec,),\n        out_specs=out_spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "matmul",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "sequence_tokens": 417,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 3,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 224,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "),\n        out_specs=out_spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "matmul",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-relu-256x128x256:sft",
+      "sequence_tokens": 434,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 3,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 238,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "),\n        out_specs=out_spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "matmul",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "jax:tests/pallas/tpu_pallas_test.py:matmul-square-128x256x256:sft",
+      "sequence_tokens": 428,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 3,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 233,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "),\n        out_specs=out_spec,\n    )(x, y)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:relu-256x256:sft",
+      "sequence_tokens": 325,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 152,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:tanh-256x512:sft",
+      "sequence_tokens": 321,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 148,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:sigmoid-512x256:sft",
+      "sequence_tokens": 320,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 149,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:square-512x512:sft",
+      "sequence_tokens": 318,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 147,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:absolute-256x384:sft",
+      "sequence_tokens": 318,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 147,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/attention/pallas_mosaic_tpu_common.py:exp-384x256:sft",
+      "sequence_tokens": 318,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 147,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "normalization",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "sequence_tokens": 357,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 184,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "normalization",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:layernorm-128x256:sft",
+      "sequence_tokens": 378,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 205,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "normalization",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:l2norm-96x256:sft",
+      "sequence_tokens": 367,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 192,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "softmax",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmax-128x128:sft",
+      "sequence_tokens": 362,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 189,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "softmax",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:log-softmax-96x128:sft",
+      "sequence_tokens": 379,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 204,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "softmax",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:softmin-96x256:sft",
+      "sequence_tokens": 368,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 195,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "gated_activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:silu-gate-256x256:sft",
+      "sequence_tokens": 354,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 162,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, gate)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "gated_activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:gelu-gate-512x256:sft",
+      "sequence_tokens": 354,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 162,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, gate)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "gated_activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:relu-gate-256x384:sft",
+      "sequence_tokens": 357,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 165,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, gate)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "gated_activation",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/attention/ragged_attention.py:tanh-gate-384x256:sft",
+      "sequence_tokens": 353,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 161,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": " spec),\n        out_specs=spec,\n    )(x, gate)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "row_reduction",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "sequence_tokens": 336,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 163,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "row_reduction",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-max-128x128:sft",
+      "sequence_tokens": 335,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 163,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "row_reduction",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-mean-96x128:sft",
+      "sequence_tokens": 336,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 163,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    },
+    {
+      "family_category": "row_reduction",
+      "prompt_contract": {
+        "forbids_incomplete_kernel": true,
+        "requires_self_contained_module": true,
+        "requires_workload_name": true
+      },
+      "rendered_prefix": "<|message_system|><|content_text|>Thinking effort level: 0.9<|end_message|><|message_user|><|content_text|>Implement an authentic",
+      "row_id": "maxtext:src/maxtext/kernels/sort_activations.py:row-min-96x256:sft",
+      "sequence_tokens": 335,
+      "source": {
+        "authentic": true,
+        "authenticity_reasons": [],
+        "blockspec_calls": 1,
+        "defines_workload": true,
+        "has_placeholder_ellipsis": false,
+        "imports": [
+          "jax",
+          "jnp",
+          "pl"
+        ],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "supervised_tokens": 163,
+      "supervision_contiguous": true,
+      "supervision_reaches_end": true,
+      "target_tail": "_specs=(spec,),\n        out_specs=spec,\n    )(x)\n<|end_message|><|content_model_end_sampling|>"
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "006f9a779a506cc7e0264b8924eff6d76be24440005a6aa321db56d4b811e724",
+  "summary": {
+    "authentic_rows": 32,
+    "blockspec_calls": 41,
+    "prompts_forbidding_incomplete_kernel": 32,
+    "prompts_requiring_self_contained_module": 32,
+    "prompts_requiring_workload_name": 32,
+    "reversed_blockspec_calls": 0,
+    "rows": 32,
+    "rows_truncated": 0,
+    "rows_with_noncontiguous_supervision": 0,
+    "rows_with_placeholder_ellipsis": 0,
+    "rows_without_end_supervision": 0,
+    "sequence_tokens": 11312,
+    "supervised_tokens": 5554,
+    "unknown_blockspec_order_calls": 0
+  },
+  "train_on": "last_assistant_message"
+}

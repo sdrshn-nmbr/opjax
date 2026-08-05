@@ -1,0 +1,47 @@
+{
+  "artifacts": {
+    "events.jsonl": "944edec447381fd1f512edcae62ce151c2114e54815c6703d8971702682a3f6a",
+    "preparation.json": "2258ec4b57237791124932338444cdb93be922664de533e1664419bb503df995"
+  },
+  "base_model": "thinkingmachines/Inkling-Small",
+  "checkpoint": {
+    "response": {
+      "path": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/weights/step-0008",
+      "type": "save_weights"
+    },
+    "step": 8
+  },
+  "completed_at": "2026-08-05T04:56:58.233185+00:00",
+  "completed_steps": 8,
+  "contract_sha256": "dc9ceaa8fa56ee46daa7c145db1d99c2c86b7beda2410561cd5bbd5ff0bd0095",
+  "corpus_release_sha256": "b6113016d873da0676c34df226299a87a9423b316e259e142e630775d085473c",
+  "dataset_sha256": "67db8ee769746e99bdd3c020b53a19748af28b85f0d260512ea6c99bddbc0a19",
+  "experiment_id": "pallas-v2.1-inkling-small-v5e",
+  "final_state": {
+    "path": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/weights/final",
+    "type": "save_weights"
+  },
+  "kind": "pallas_sft_run",
+  "preparation_sha256": "0aa9cb023e05802a0892c98858687fd7d75e5f91367556cc16b095c51606585e",
+  "run_sha256": "e2240fb190a843cbdc3cc086e0166dfe085dcb1627b70b9f602b809b6f08fbd4",
+  "sampler_weights": {
+    "path": "tinker://f76cff44-000e-5250-9c44-ce98444e300b:train:0/sampler_weights/final",
+    "type": null
+  },
+  "schema_version": 1,
+  "started_at": "2026-08-05T04:55:15.361126+00:00",
+  "status": "completed",
+  "total_steps": 8,
+  "training_client": {
+    "is_lora": true,
+    "lora_rank": 64,
+    "model_data": {
+      "arch": null,
+      "model_name": "thinkingmachines/Inkling-Small",
+      "tokenizer_id": "thinkingmachines/Inkling-Small"
+    },
+    "model_id": "f76cff44-000e-5250-9c44-ce98444e300b:train:0",
+    "model_name": null,
+    "type": "get_info"
+  }
+}

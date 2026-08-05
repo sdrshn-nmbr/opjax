@@ -1,0 +1,161 @@
+{
+  "by_tier": {
+    "near_heldout": {
+      "analysis_code_present": 2,
+      "blockspec_calls": 3,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 4,
+      "n": 4,
+      "reversed_blockspec_calls": 3,
+      "workload_contract_met": 2
+    },
+    "training_replay": {
+      "analysis_code_present": 0,
+      "blockspec_calls": 0,
+      "blockspec_valid": 0,
+      "complete_candidate": 0,
+      "length_truncated": 1,
+      "n": 4,
+      "reversed_blockspec_calls": 0,
+      "workload_contract_met": 0
+    }
+  },
+  "created_at": "2026-08-05T05:10:26.638426+00:00",
+  "kind": "gate4_sample_audit",
+  "overall": {
+    "analysis_code_present": 2,
+    "blockspec_calls": 3,
+    "blockspec_valid": 0,
+    "complete_candidate": 0,
+    "length_truncated": 5,
+    "n": 8,
+    "reversed_blockspec_calls": 3,
+    "workload_contract_met": 2
+  },
+  "rows": [
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 4747,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:add-256x256:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "replay::jax:tests/pallas/tpu_pallas_test.py:matmul-128x128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 6212,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::tokamax:tokamax/_src/ops/linear_softmax_cross_entropy_loss/pallas_mosaic_tpu_kernel.py:rmsnorm-128x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 6789,
+      "source_audit": null,
+      "stop_reason": "stop",
+      "task_id": "replay::maxtext:src/maxtext/kernels/sort_activations.py:row-sum-64x128:sft",
+      "tier": "training_replay",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "7480950a3c1287fde8925b1f2f73117069e90be8806d2555fab84debabf632d1",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 3,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": true,
+        "imports": [],
+        "parses": true,
+        "reversed_blockspec_calls": 3,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "heldout-add-384x384",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": true,
+      "analysis_code_sha256": "caf0650ff68fe0031dd9c233a62943adfe0c3d7d9ca2206ce0824b5001071aec",
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": {
+        "authentic": false,
+        "authenticity_reasons": [
+          "WORKLOAD_MISSING"
+        ],
+        "blockspec_calls": 0,
+        "defines_workload": false,
+        "has_placeholder_ellipsis": false,
+        "imports": [],
+        "parses": true,
+        "reversed_blockspec_calls": 0,
+        "unknown_blockspec_order_calls": 0
+      },
+      "stop_reason": "length",
+      "task_id": "heldout-matmul-128x256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": true
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-rmsnorm-256x128",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    },
+    {
+      "analysis_code_present": false,
+      "analysis_code_sha256": null,
+      "blockspec_valid": false,
+      "complete_candidate": false,
+      "n_tokens": 8192,
+      "source_audit": null,
+      "stop_reason": "length",
+      "task_id": "heldout-row-sum-128x256",
+      "tier": "near_heldout",
+      "workload_contract_met": false
+    }
+  ],
+  "schema_version": 1,
+  "sha256": "c048d2fd258025cd46e57fd5f5668b059f02d12d75adabd8d4c92eb19025c1b9",
+  "source_fingerprint_sha256": "e5380c2c3c190b2e4c8c534b93e4fee9e991181d93ffc930875ff3abbf847952"
+}
