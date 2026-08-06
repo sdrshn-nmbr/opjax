@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": true,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "883a4dff055d1cd2783feaa1b500a73cc1884cec11cdd0e915b1a35303e2f368",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 1.0217977840615704,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g43-benchmark-softmax-192x384",
+  "worker_recovery_required": false
+}

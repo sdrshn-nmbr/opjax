@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g43-benchmark-binary-safe-divide-640x512",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 326995 / 327680 (99.8%)\nMax absolute difference among violations: 1823678.4\nMax relative difference among violations: 196857.12\n ACTUAL: array([[ 1.942312e+00,  5.068938e+00, -1.832996e-01, ..., -1.223803e+01,\n        -2.333323e-01,  1.423540e-01],\n       [-1.620223e+00, -2.211039e+00,  4.253969e+00, ...,  1.982512e+00,...\n DESIRED: array([[-1.620203, -3.124144,  0.149884, ...,  3.224346, -0.172406,\n        -0.114432],\n       [-0.188026,  1.734166,  1.726061, ...,  1.448463,  5.65658 ,... \nOriginal dtypes: float32, float32.",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

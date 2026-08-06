@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "TypeError: workload.<locals>.<lambda>() missing 2 required positional arguments: 'i' and 'j'",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "b2a1f2615c29c1822662dadb8d3bad054654e100959507b07f3ce885764b3eff",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"TypeError: workload.<locals>.<lambda>() missing 2 required positional arguments: 'i' and 'j'\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"b2a1f2615c29c1822662dadb8d3bad054654e100959507b07f3ce885764b3eff\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"tpu_compile\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "tpu_compile",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "authentic": true,
+  "beats_xla": true,
+  "correct": true,
+  "failure_stage": null,
+  "infrastructure_error": false,
+  "kernel_sha256": "136491f7c9836bce94f23f4760687d8e535b4e7e001722949ceb6e6aacfdef26",
+  "normal_lowered": true,
+  "profiled": true,
+  "reward": 1,
+  "schema_version": 1,
+  "speedup": 1.0004169644906258,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 1.0,
+    "normal_lowering": 1.0,
+    "pallas_api": 1.0,
+    "profile": 1.0,
+    "runtime_safety": 1.0,
+    "tpu_compile": 1.0
+  },
+  "task_id": "g43-benchmark-rmsnorm-192x384",
+  "worker_recovery_required": false
+}

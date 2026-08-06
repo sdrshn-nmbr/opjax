@@ -1,0 +1,37 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "XlaRuntimeError: INTERNAL: Core halted unexpectedly: INTERNAL: Accelerator device halted prematurely, perhaps due to an on-device check-failure. Node 0 halted unexpectedly at tag:pc TensorCoreSequencer:1:0x9d (from TensorCoreSequencer:1:0x1cd): BoundsCheck 1 [deref of %s172] for %522 = dma.hbm_to_vmem [thread:$0]  (!%p517), /*hbm=*/%s172, /*size_in_granules=*/2048, /*vmem=*/%s174, /*dst_syncflagno=*/%s160, /*src_stride=*/384, /*dst_stride=*/128, /*steps_per_stride=*/8 /* \nbase_bounds: (32, 3)\ndynamic_base_bounds: (32, 3)\nwindow_bounds: (16, 1)\niteration_bounds: (3, 3)\nstrides: (16, 1)\npad_low: (0, 0)\npad_high: (0, 0)\nelement_size_in_bytes: 4096 */\nhlo: main.1\n HLO: main.1; HLO computation: main.4\n=== Source Location Trace: ===\nlearning/45eac/tpu/runtime/hal/internal/tpu_program_termination_validation.cc:180\n",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "3108c655783a59109acf5af11e4916aae735039527693fbb46e15aa87dfc1dd6",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"XlaRuntimeError: INTERNAL: Core halted unexpectedly: INTERNAL: Accelerator device halted prematurely, perhaps due to an on-device check-failure. Node 0 halted unexpectedly at tag:pc TensorCoreSequencer:1:0x9d (from TensorCoreSequencer:1:0x1cd): BoundsCheck 1 [deref of %s172] for %522 = dma.hbm_to_vmem [thread:$0]  (!%p517), /*hbm=*/%s172, /*size_in_granules=*/2048, /*vmem=*/%s174, /*dst_syncflagno=*/%s160, /*src_stride=*/384, /*dst_stride=*/128, /*steps_per_stride=*/8 /* \\nbase_bounds: (32, 3)\\ndynamic_base_bounds: (32, 3)\\nwindow_bounds: (16, 1)\\niteration_bounds: (3, 3)\\nstrides: (16, 1)\\npad_low: (0, 0)\\npad_high: (0, 0)\\nelement_size_in_bytes: 4096 */\\nhlo: main.1\\n HLO: main.1; HLO computation: main.4\\n=== Source Location Trace: ===\\nlearning/45eac/tpu/runtime/hal/internal/tpu_program_termination_validation.cc:180\\n\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"3108c655783a59109acf5af11e4916aae735039527693fbb46e15aa87dfc1dd6\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"runtime_safety\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "runtime_safety",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  },
+  "worker_recovery_required": true
+}

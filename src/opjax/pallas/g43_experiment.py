@@ -369,13 +369,39 @@ def _model_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         for row in rows
         if row["reward"] == 1 and isinstance(row.get("speedup"), (int, float))
     ]
+    stage_names = sorted(
+        {stage for row in rows for stage in row.get("stage_fractions", {})}
+    )
+    failure_stages: dict[str, int] = {}
+    failure_families: dict[str, int] = {}
+    for row in rows:
+        if row["reward"] == 1:
+            continue
+        stage = row.get("failure_stage") or "unknown"
+        failure_stages[stage] = failure_stages.get(stage, 0) + 1
+        family = row["family"]
+        failure_families[family] = failure_families.get(family, 0) + 1
     return {
         "tasks": len(rows),
         "profile_verified": verified,
         "pass_rate": verified / len(rows),
         "median_verified_speedup": statistics.median(speedups) if speedups else None,
+        "minimum_verified_speedup": min(speedups) if speedups else None,
+        "maximum_verified_speedup": max(speedups) if speedups else None,
+        "verified_speedups": sorted(speedups),
         "beats_xla": sum(value > 1.0 for value in speedups),
         "meets_headroom_threshold": sum(value >= 1.05 for value in speedups),
+        "stage_pass_fractions": {
+            stage: statistics.fmean(
+                float(row.get("stage_fractions", {}).get(stage, 0.0)) for row in rows
+            )
+            for stage in stage_names
+        },
+        "failure_stages": dict(sorted(failure_stages.items())),
+        "failure_families": dict(sorted(failure_families.items())),
+        "candidate_tpu_halts": sum(
+            row.get("worker_recovery_required") is True for row in rows
+        ),
     }
 
 
@@ -480,8 +506,11 @@ def summarize_results(
     base_rows = [row for row in rows if row["model_id"] == "inkling-small-base"]
     family_results = {}
     regressions = []
+    regressions_vs_g42 = []
+    g42_rows = [row for row in rows if row["model_id"] == "g42-repair-sft"]
     for family in FAMILIES:
         base_count = sum(row["reward"] == 1 for row in base_rows if row["family"] == family)
+        g42_count = sum(row["reward"] == 1 for row in g42_rows if row["family"] == family)
         n32_counts = [
             sum(
                 row["reward"] == 1
@@ -493,11 +522,14 @@ def summarize_results(
         mean_count = statistics.fmean(n32_counts)
         family_results[family] = {
             "base_profile_verified": base_count,
+            "g42_profile_verified": g42_count,
             "n32_profile_verified_by_training_seed": n32_counts,
             "n32_mean_profile_verified": mean_count,
         }
         if min(n32_counts) < base_count:
             regressions.append(family)
+        if min(n32_counts) < g42_count:
+            regressions_vs_g42.append(family)
     admission = _load(admission_root / "manifest.json")
     headroom_ids = set(admission["headroom_task_ids"])
     performance = {}
@@ -519,6 +551,7 @@ def summarize_results(
         "schema_version": 1,
         "kind": "pallas_g43_learning_curve_results",
         "verifier_release_sha256": manifest["release_sha256"],
+        "verification_release_sha256": verification["release_sha256"],
         "admission_release_sha256": admission["release_sha256"],
         "rows": rows,
         "summary": {
@@ -529,6 +562,7 @@ def summarize_results(
             "monotonic_non_decreasing": monotonic,
             "n32_family_comparison": family_results,
             "n32_regressions_vs_base": regressions,
+            "n32_regressions_vs_g42": regressions_vs_g42,
             "n32_regression_rule": "any_training_seed_below_base",
             "performance_headroom_task_ids": sorted(headroom_ids),
             "performance_on_headroom_tasks": performance,
@@ -539,6 +573,7 @@ def summarize_results(
             "positive_learning_curve": monotonic and slope > 0,
             "flat_or_negative": slope <= 0,
             "no_n32_family_regression": not regressions,
+            "no_n32_family_regression_vs_g42": not regressions_vs_g42,
             "dapt_authorized_by_g43": False,
         },
     }

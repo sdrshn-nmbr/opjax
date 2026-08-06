@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "NameError: name 'jax' is not defined",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "5a1c647f6f04b23f8539e89e31d699a9331a5865b57cb957763085c00a4a75f9",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"NameError: name 'jax' is not defined\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"5a1c647f6f04b23f8539e89e31d699a9331a5865b57cb957763085c00a4a75f9\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"tpu_compile\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "tpu_compile",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

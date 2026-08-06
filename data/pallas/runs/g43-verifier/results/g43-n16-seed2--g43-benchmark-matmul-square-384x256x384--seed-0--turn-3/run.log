@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 147448 / 147456 (100%)\nMax absolute difference among violations: 5974.331\nMax relative difference among violations: 5.568572e+08\n ACTUAL: array([[-15.646461,  -2.22385 ,  -8.902553, ...,  16.581076,  24.258228,\n         -0.877953],\n       [ -5.749036,  -2.825704,  -7.498533, ...,  -4.872038,   5.934159,...\n DESIRED: array([[2.282032e+02, 2.639317e+02, 1.108376e+00, ..., 4.186704e+02,\n        8.240860e+02, 7.847653e+01],\n       [2.262892e+00, 7.908421e+01, 4.096248e+02, ..., 1.553939e+02,... \nOriginal dtypes: float32, float32.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "77678408f06c9cdfd03be5620668dde633d7a931ee7b349d0b181eace29d696b",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \\nNot equal to tolerance rtol=0.001, atol=0.001\\nError in value equality check: Values not approximately equal\\nMismatched elements: 147448 / 147456 (100%)\\nMax absolute difference among violations: 5974.331\\nMax relative difference among violations: 5.568572e+08\\n ACTUAL: array([[-15.646461,  -2.22385 ,  -8.902553, ...,  16.581076,  24.258228,\\n         -0.877953],\\n       [ -5.749036,  -2.825704,  -7.498533, ...,  -4.872038,   5.934159,...\\n DESIRED: array([[2.282032e+02, 2.639317e+02, 1.108376e+00, ..., 4.186704e+02,\\n        8.240860e+02, 7.847653e+01],\\n       [2.262892e+00, 7.908421e+01, 4.096248e+02, ..., 1.553939e+02,... \\nOriginal dtypes: float32, float32.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"77678408f06c9cdfd03be5620668dde633d7a931ee7b349d0b181eace29d696b\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}

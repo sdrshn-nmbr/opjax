@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 196432 / 196608 (99.9%)\nMax absolute difference among violations: 110.83319\nMax relative difference among violations: 2433867.5\n ACTUAL: array([[-0.109336, -0.052445, -1.377245, ..., -0.544214,  0.33656 ,\n        -1.025898],\n       [ 0.775813, -0.005094,  0.162933, ..., -1.021432,  0.004363,...\n DESIRED: array([[ 0.245686,  0.094431, -0.127047, ..., -0.054424,  0.018542,\n        -0.170023],\n       [ 0.055221,  0.005462, -0.165302, ..., -0.119762, -0.003988,... \nOriginal dtypes: float32, float32.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "78f94f2eb14ddc02501f9e6afb35ce637fa082f0b303fbd87225f0e92a804d05",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \\nNot equal to tolerance rtol=0.001, atol=0.001\\nError in value equality check: Values not approximately equal\\nMismatched elements: 196432 / 196608 (99.9%)\\nMax absolute difference among violations: 110.83319\\nMax relative difference among violations: 2433867.5\\n ACTUAL: array([[-0.109336, -0.052445, -1.377245, ..., -0.544214,  0.33656 ,\\n        -1.025898],\\n       [ 0.775813, -0.005094,  0.162933, ..., -1.021432,  0.004363,...\\n DESIRED: array([[ 0.245686,  0.094431, -0.127047, ..., -0.054424,  0.018542,\\n        -0.170023],\\n       [ 0.055221,  0.005462, -0.165302, ..., -0.119762, -0.003988,... \\nOriginal dtypes: float32, float32.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"78f94f2eb14ddc02501f9e6afb35ce637fa082f0b303fbd87225f0e92a804d05\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}

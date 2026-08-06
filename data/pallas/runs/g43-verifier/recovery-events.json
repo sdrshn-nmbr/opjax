@@ -1,0 +1,50 @@
+[
+  {
+    "after_unit": "g42-repair-sft--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3",
+    "command": [
+      "/tmp/opjax-g43/.venv/bin/python",
+      "-c",
+      "import jax, jax.numpy as jnp; x=jax.jit(lambda y:y+1)(jnp.asarray(1)); x.block_until_ready(); print(int(x))"
+    ],
+    "healthy": true,
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "2\n"
+  },
+  {
+    "after_unit": "g43-n16-seed1--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3",
+    "command": [
+      "/tmp/opjax-g43/.venv/bin/python",
+      "-c",
+      "import jax, jax.numpy as jnp; x=jax.jit(lambda y:y+1)(jnp.asarray(1)); x.block_until_ready(); print(int(x))"
+    ],
+    "healthy": true,
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "2\n"
+  },
+  {
+    "after_unit": "g43-n32-seed1--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3",
+    "command": [
+      "/tmp/opjax-g43/.venv/bin/python",
+      "-c",
+      "import jax, jax.numpy as jnp; x=jax.jit(lambda y:y+1)(jnp.asarray(1)); x.block_until_ready(); print(int(x))"
+    ],
+    "healthy": true,
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "2\n"
+  },
+  {
+    "after_unit": "g43-n32-seed2--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3",
+    "command": [
+      "/tmp/opjax-g43/.venv/bin/python",
+      "-c",
+      "import jax, jax.numpy as jnp; x=jax.jit(lambda y:y+1)(jnp.asarray(1)); x.block_until_ready(); print(int(x))"
+    ],
+    "healthy": true,
+    "returncode": 0,
+    "stderr": "",
+    "stdout": "2\n"
+  }
+]
