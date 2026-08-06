@@ -145,6 +145,7 @@ def test_deterministic_online_step_preserves_16_by_4_credit_contract(
             "max_context_tokens": 32768,
             "sampling_seed": 0,
             "max_sampling_concurrency": 64,
+            "max_action_concurrency": 8,
         },
         verifier=verifier,
         out_dir=tmp_path / "step",

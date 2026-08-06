@@ -379,7 +379,9 @@ def collect_rollout_step(
                 futures = [executor.submit(sample_state, state) for state in states]
                 for future in as_completed(futures):
                     samples.append(future.result())
-        with ThreadPoolExecutor(max_workers=min(64, len(samples))) as executor:
+        with ThreadPoolExecutor(
+            max_workers=min(int(rollout["max_action_concurrency"]), len(samples))
+        ) as executor:
             futures = [executor.submit(_execute_action, state, sample) for state, sample in samples]
             for future in as_completed(futures):
                 future.result()

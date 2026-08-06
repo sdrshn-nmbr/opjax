@@ -157,6 +157,7 @@ def load_g6_config(
         or rollout.get("tasks_per_step") != 8
         or rollout.get("discount_gamma") != 0.4
         or rollout.get("temperature") != 0.9
+        or rollout.get("max_action_concurrency") != 8
         or optimizer.get("updates_per_step") != 2
         or optimizer.get("grad_clip_norm") != 0.05
         or optimizer.get("constant_length_normalizer")
