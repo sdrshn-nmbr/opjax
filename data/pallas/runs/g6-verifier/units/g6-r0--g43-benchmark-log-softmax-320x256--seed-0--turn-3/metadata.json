@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/sampler_weights/final",
+  "family": "softmax",
+  "group": "grpo",
+  "kernel_sha256": "63fd76b5f8296a7fe3c2ba0c82703e25f9b0ab8fa44caf16c446891abe822c48",
+  "model_id": "g6-r0",
+  "patch_sha256": "a7515b2f735197a5de8655571143eebf2302987e335120117caed0116bd59856",
+  "seed": 0,
+  "task_id": "g43-benchmark-log-softmax-320x256",
+  "task_sha256": "83e5626b1ce67b5956cf3d9cb3f89edc01e164a59501cb8f37b3abb1d7d95473",
+  "training_seed": 0,
+  "trajectory_count": 512,
+  "trajectory_sha256": "ef68ad5d792be689c70b7b4340ffe98531630dfe2769b1fdca78af9a213da4e1",
+  "turn": 3,
+  "unit_id": "g6-r0--g43-benchmark-log-softmax-320x256--seed-0--turn-3"
+}

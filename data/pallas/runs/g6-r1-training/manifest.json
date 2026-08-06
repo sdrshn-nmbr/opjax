@@ -1,0 +1,65 @@
+{
+  "checkpoints": [
+    {
+      "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/step-01",
+      "type": "save_weights"
+    },
+    {
+      "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/step-02",
+      "type": "save_weights"
+    },
+    {
+      "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/step-03",
+      "type": "save_weights"
+    },
+    {
+      "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/step-04",
+      "type": "save_weights"
+    }
+  ],
+  "completed_steps": 4,
+  "config_sha256": "456e78dfe1479927af406ec18299bac7fc1c158edfcc16d1b3f1db9313b7ce64",
+  "experiment_id": "pallas-g6-multiturn-grpo-inkling-small-v5e",
+  "final_state": {
+    "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/final",
+    "type": "save_weights"
+  },
+  "initial_state_path": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/weights/final",
+  "kind": "pallas_g6_grpo_run",
+  "lane_id": "R1",
+  "opjax_revision": "16659c64785db6536ec5cc2908077cb1859fd6bc",
+  "parent_id": "S1",
+  "parent_run_sha256": "c599ff939bb7fe4bad4fa15e8ae01af54cb4acdd87c1e084af3b9bc0467a1d8e",
+  "run_sha256": "eca34ba893bf579065fcc9c64538b010b16ec590b3eef8e64dd680f6ddb9ba3b",
+  "sampler_weights": {
+    "path": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/sampler_weights/final",
+    "type": null
+  },
+  "schema_version": 1,
+  "status": "completed",
+  "task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "total_steps": 4,
+  "training_client": {
+    "is_lora": true,
+    "lora_rank": 64,
+    "model_data": {
+      "arch": null,
+      "model_name": "thinkingmachines/Inkling-Small",
+      "tokenizer_id": "thinkingmachines/Inkling-Small"
+    },
+    "model_id": "b31f9810-fda5-52a3-9428-db907bad1e0d:train:0",
+    "model_name": null,
+    "type": "get_info"
+  },
+  "workers": [
+    "opjax-g43-feedback-v5e",
+    "opjax-g6-v5e-01",
+    "opjax-g6-v5e-02",
+    "opjax-g6-v5e-03",
+    "opjax-g6-v5e-04",
+    "opjax-g6-v5e-05",
+    "opjax-g6-v5e-06",
+    "opjax-g6-v5e-07"
+  ],
+  "zone": "us-west4-a"
+}

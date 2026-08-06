@@ -1,0 +1,13 @@
+diff --git a/kernel.py b/kernel.py
+index a877f2f..d486972 100644
+--- a/kernel.py
++++ b/kernel.py
+@@ -1,2 +1,6 @@
+-def workload(*inputs):
+-    ...
++import jax
++import jax.numpy as jnp
++import jax.experimental.pallas as pl
++
++def workload(x_ref, o_ref):
++    o_ref[...] = jnp.abs(jnp.transpose(x_ref[...]))

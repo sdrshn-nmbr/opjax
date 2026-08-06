@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 185693 / 196608 (94.4%)\nFirst 5 mismatches are at indices:\n [0, 0]: 0.6800175905227661 (ACTUAL), 0.24568603932857513 (DESIRED)\n [0, 1]: 0.3277764320373535 (ACTUAL), 0.0944308340549469 (DESIRED)\n [0, 2]: -0.05664481967687607 (ACTUAL), -0.12704673409461975 (DESIRED)\n [0, 3]: -0.21939846873283386 (ACTUAL), -0.12810835242271423 (DESIRED)\n [0, 4]: 0.1950010359287262 (ACTUAL), 0.20895186066627502 (DESIRED)\nMax absolute difference among violations: 9.332492\nMax relative difference among violations: 43.767258\n ACTUAL: array([[ 0.680018,  0.327776, -0.056645, ..., -0.038469,  0.020121,\n        -0.095098],\n       [ 0.06772 ,  0.013136, -0.494492, ..., -0.066399, -0.008622,...\n DESIRED: array([[ 0.245686,  0.094431, -0.127047, ..., -0.054424,  0.018542,\n        -0.170023],\n       [ 0.055221,  0.005462, -0.165302, ..., -0.119762, -0.003988,... \nOriginal dtypes: float32, float32.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "cd9df5abc8151c98767c50ae7c990d11be9d805e0453f98bd390657b1f47f63a",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \\nNot equal to tolerance rtol=0.001, atol=0.001\\nError in value equality check: Values not approximately equal\\nMismatched elements: 185693 / 196608 (94.4%)\\nFirst 5 mismatches are at indices:\\n [0, 0]: 0.6800175905227661 (ACTUAL), 0.24568603932857513 (DESIRED)\\n [0, 1]: 0.3277764320373535 (ACTUAL), 0.0944308340549469 (DESIRED)\\n [0, 2]: -0.05664481967687607 (ACTUAL), -0.12704673409461975 (DESIRED)\\n [0, 3]: -0.21939846873283386 (ACTUAL), -0.12810835242271423 (DESIRED)\\n [0, 4]: 0.1950010359287262 (ACTUAL), 0.20895186066627502 (DESIRED)\\nMax absolute difference among violations: 9.332492\\nMax relative difference among violations: 43.767258\\n ACTUAL: array([[ 0.680018,  0.327776, -0.056645, ..., -0.038469,  0.020121,\\n        -0.095098],\\n       [ 0.06772 ,  0.013136, -0.494492, ..., -0.066399, -0.008622,...\\n DESIRED: array([[ 0.245686,  0.094431, -0.127047, ..., -0.054424,  0.018542,\\n        -0.170023],\\n       [ 0.055221,  0.005462, -0.165302, ..., -0.119762, -0.003988,... \\nOriginal dtypes: float32, float32.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"cd9df5abc8151c98767c50ae7c990d11be9d805e0453f98bd390657b1f47f63a\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}

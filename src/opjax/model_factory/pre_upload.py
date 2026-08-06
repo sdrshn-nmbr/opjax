@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from opjax.model_factory.canary import (
-    CanarySet,
     embed_canaries,
     find_canaries,
     load_canary_set,

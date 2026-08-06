@@ -1,0 +1,33 @@
+{
+  "authentic": false,
+  "correct": false,
+  "error": "The module does not satisfy the normal-lowering Pallas API contract. Use reachable pl.pallas_call without interpret=True or a plain-JAX fallback, and call pl.BlockSpec(block_shape, index_map) with the block shape first and lambda index map second.",
+  "hardware": {
+    "execution": "static_preflight",
+    "target": "tpu"
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "5866f15c297972019cdc1fcb87c09f94d8f789bc78ef0668ceec4ee8641f47b6",
+  "normal_lowered": false,
+  "passed": false,
+  "preflight_evidence": {
+    "authentic": false,
+    "authenticity_reasons": [
+      "PALLAS_PATH_UNREACHABLE"
+    ],
+    "blockspec_calls": 0,
+    "code_sha256": "5866f15c297972019cdc1fcb87c09f94d8f789bc78ef0668ceec4ee8641f47b6",
+    "reversed_blockspec_calls": 0,
+    "unknown_blockspec_order_calls": 0
+  },
+  "stage": "pallas_api",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": false,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

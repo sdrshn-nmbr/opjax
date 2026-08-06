@@ -1,0 +1,18 @@
+import jax
+import jax.numpy as jnp
+import jax.experimental.pallas as pl
+
+def workload(x_ref, y_ref, o_ref):
+    o_ref[...] = jnp.where(x_ref[...] == 0, jnp.zeros_like(x_ref[...]), y_ref[...] / x_ref[...])
+
+def safe_divide(x, y):
+    return pl.pallas_call(
+        workload,
+        out_shape=jax.ShapeDtypeStruct.like(x),
+        grid=(x.shape[0], x.shape[1]),
+        in_specs=[
+            pl.BlockSpec((1, 1), lambda i, j: (i, j)),
+            pl.BlockSpec((1, 1), lambda i, j: (i, j)),
+        ],
+        out_specs=pl.BlockSpec((1, 1), lambda i, j: (i, j)),
+    )(x, y)

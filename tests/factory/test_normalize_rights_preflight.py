@@ -2,8 +2,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pytest
-
 from opjax.factory.axport_ingest import load_trajectories
 from opjax.factory.normalize import NormalizeConfig, normalize_trajectories
 from opjax.factory.preflight import preflight

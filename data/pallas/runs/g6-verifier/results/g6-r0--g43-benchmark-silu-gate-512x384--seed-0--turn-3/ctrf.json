@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g43-benchmark-silu-gate-512x384",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "tpu_compile",
+      "status": "passed"
+    },
+    {
+      "message": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\nMismatched elements: 185693 / 196608 (94.4%)\nFirst 5 mismatches are at indices:\n [0, 0]: 0.6800175905227661 (ACTUAL), 0.24568603932857513 (DESIRED)\n [0, 1]: 0.3277764320373535 (ACTUAL), 0.0944308340549469 (DESIRED)\n [0, 2]: -0.05664481967687607 (ACTUAL), -0.12704673409461975 (DESIRED)\n [0, 3]: -0.21939846873283386 (ACTUAL), -0.12810835242271423 (DESIRED)\n [0, 4]: 0.1950010359287262 (ACTUAL), 0.20895186066627502 (DESIRED)\nMax absolute difference among violations: 9.332492\nMax relative difference among violations: 43.767258\n ACTUAL: array([[ 0.680018,  0.327776, -0.056645, ..., -0.038469,  0.020121,\n        -0.095098],\n       [ 0.06772 ,  0.013136, -0.494492, ..., -0.066399, -0.008622,...\n DESIRED: array([[ 0.245686,  0.094431, -0.127047, ..., -0.054424,  0.018542,\n        -0.170023],\n       [ 0.055221,  0.005462, -0.165302, ..., -0.119762, -0.003988,... \nOriginal dtypes: float32, float32.",
+      "name": "full_shape_correctness",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

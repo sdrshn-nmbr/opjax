@@ -3,7 +3,6 @@ from __future__ import annotations
 import pytest
 
 from opjax.pallas.scoring import (
-    PromptContext,
     TimingEvidenceError,
     diagnostic_reward,
     inspect_pallas_source,

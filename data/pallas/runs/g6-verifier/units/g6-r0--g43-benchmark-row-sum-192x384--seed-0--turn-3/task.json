@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "row_reduction",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      192,
+      384
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "row_sum",
+  "reference_kernel_sha256": "6493b5a7b31508ce056e0c1ad4000c06c486b8699cd13ea72bf55c70f8cc8922",
+  "source_task_id": "row-sum-192x384",
+  "task_id": "g43-benchmark-row-sum-192x384"
+}

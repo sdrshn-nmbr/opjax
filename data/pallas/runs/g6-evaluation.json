@@ -1,0 +1,38 @@
+{
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "config_sha256": "7e6aaf89bbbbbfff2b353f077d5403a4c3124691a62ac55836b800d40c1a91a4",
+  "evaluation_seed": 0,
+  "experiment_id": "pallas-g6-multiturn-grpo-inkling-small-v5e",
+  "kind": "pallas_g6_evaluation_config",
+  "lineage": {
+    "r0_parent_id": "S0",
+    "r0_parent_run_sha256": "64b3adbfb7402dd3f5c74a5286e0783422785f608a585a61acaa6dba4a8b9b60",
+    "r1_parent_id": "S1",
+    "r1_parent_run_sha256": "c599ff939bb7fe4bad4fa15e8ae01af54cb4acdd87c1e084af3b9bc0467a1d8e",
+    "training_config_sha256": "456e78dfe1479927af406ec18299bac7fc1c158edfcc16d1b3f1db9313b7ce64"
+  },
+  "max_sampling_workers": 4,
+  "models": [
+    {
+      "checkpoint": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "c60b525da9968c1f2581befcafbc5bea7c29eaa9cad060e42516db07cf6343d5",
+      "group": "grpo",
+      "model_id": "g6-r0",
+      "training_seed": 0,
+      "trajectory_count": 512
+    },
+    {
+      "checkpoint": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "eca34ba893bf579065fcc9c64538b010b16ec590b3eef8e64dd680f6ddb9ba3b",
+      "group": "dapt_sft_grpo",
+      "model_id": "g6-r1",
+      "training_seed": 0,
+      "trajectory_count": 512
+    }
+  ],
+  "schema_version": 1,
+  "snapshot_turns": [
+    3
+  ],
+  "turn_limit": 3
+}

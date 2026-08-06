@@ -108,6 +108,24 @@ to three-call kernel generation. S1's only valid kernel was binary add at
 `0.99842x` XLA. The full result is in
 [`g5-results.json`](data/pallas/runs/g5-results.json).
 
+Gate 6 then ran matched online GRPO from S0 and S1. Each lane used 32
+non-held-out repair tasks, 16 trajectories per task, four calls per trajectory,
+and eight optimizer updates. Training-time reward improved, but the primary
+held-out result did not:
+
+| Model | Profile-verified kernels on 16 unseen tasks |
+|---|---:|
+| G4.2 SFT (S0) | **8/16** |
+| GRPO from S0 (R0) | 7/16 |
+| DAPT then SFT (S1) | 1/16 |
+| GRPO from S1 (R1) | 2/16 |
+
+R0 preserved seven S0 wins, lost softmax, and gained no task. R1 preserved
+binary add and added SiLU gate, but remained five tasks behind R0. Neither
+checkpoint reached `1.05x` XLA: median verified speedup was `0.98945x` for R0
+and `1.01017x` for R1. The full result is in
+[`g6-results.json`](data/pallas/runs/g6-results.json).
+
 ## What counts as a valid kernel
 
 A generated kernel must:
@@ -215,6 +233,9 @@ cloud environment and produce evidence manifests.
 - Lower domain validation loss is not agent capability. Gate 5 reduced DAPT
   validation NLL by 38.25%, while D0 remained at 0/16 and S1 regressed from
   the S0 control's 8/16 to 1/16.
+- High online reward is not held-out improvement. Both Gate 6 lanes solved most
+  training repairs after feedback, but R0 fell from S0's 8/16 to 7/16 and R1
+  only recovered from S1's 1/16 to 2/16.
 - For small elementwise kernels, end-to-end latency can hide device behavior.
   Gate 5 binary add spent about 5.54 microseconds in the TPU program but about
   53.21 microseconds in the blocking region, so its 0.99842x end-to-end result
@@ -225,11 +246,10 @@ evidence separate. If any one changes, score the result again.
 
 ## Next step
 
-Gate 6 is active. It runs matched multi-turn GRPO from S0 and S1 using the
-existing isolated workspace and hidden TPU verifier. Online trajectories
-receive sanitized compiler, runtime, correctness, timing, and profiler
-feedback. The two lanes measure GRPO lift and whether the negative DAPT
-initialization changes that lift.
+Gate 7 is active. It runs matched online policy distillation from S0 and S1
+using the same task distribution, isolated workspace, hidden TPU verifier,
+rollout budget, reward, and frozen evaluation matrix as Gate 6. The teacher,
+token alignment, and OPD objective must be frozen before the first update.
 
 The JAXBench v5e check found one possible performance task: a corrected
 Megablox grouped matrix multiplication ran at `1.147x` XLA speed across three
@@ -260,3 +280,4 @@ result is overturned, a later entry records the correction. The manifests in
 | 2026-08-05 | Tested all eight optimized JAXBench references on a v5e before choosing speed tasks. | None worked as a strict shared-environment comparison. A corrected setup found stable `1.147x` Megablox headroom, which remains provisional. |
 | 2026-08-05 | Ran a three-seed 8/16/32-trajectory SFT learning curve on 16 unseen tasks. | The curve was non-monotonic and seed-sensitive. G4.2 remained strongest at 8/16; the best new arms reached 7/16. |
 | 2026-08-05 | Corrected the DAPT corpus to 854 rows, trained D0, continued it through the identical G4.2 SFT recipe as S1, and ran the frozen 16-task TPU benchmark. | DAPT reduced validation NLL by 38.25%, but D0 scored 0/16 and S1 scored 1/16 versus S0 at 8/16. Gate 5 closed negative and Gate 6 GRPO became active. |
+| 2026-08-06 | Ran matched four-turn online GRPO from S0 and S1 with real compiler, correctness, runtime, profile, and timing feedback on eight TPU workers. | R0 scored 7/16 versus S0 at 8/16; R1 scored 2/16 versus S1 at 1/16 but remained far below R0. Online reward rose in both lanes, so the result separates training-task repair from held-out weight improvement. |

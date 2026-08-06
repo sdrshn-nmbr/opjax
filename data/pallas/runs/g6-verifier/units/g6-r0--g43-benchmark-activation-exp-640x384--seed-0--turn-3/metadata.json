@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/sampler_weights/final",
+  "family": "activation",
+  "group": "grpo",
+  "kernel_sha256": "79733801e08df98908661ecb2399692ca36dd78e5416107ce22788a384bd68df",
+  "model_id": "g6-r0",
+  "patch_sha256": "39479cefd2dab936b0a6de08fea241b9f6680250f3d480534d3edf7109d72b10",
+  "seed": 0,
+  "task_id": "g43-benchmark-activation-exp-640x384",
+  "task_sha256": "5e8c10357928f905091dc9beaa6a18da0a75930b2f0d014370a0143c2de951cd",
+  "training_seed": 0,
+  "trajectory_count": 512,
+  "trajectory_sha256": "9339624f23e901af43c4250a332bec07a3c9f4fd802785321408529ba71a05f9",
+  "turn": 3,
+  "unit_id": "g6-r0--g43-benchmark-activation-exp-640x384--seed-0--turn-3"
+}

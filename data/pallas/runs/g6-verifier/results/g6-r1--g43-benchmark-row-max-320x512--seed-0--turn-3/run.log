@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "ValueError: The Pallas TPU lowering currently requires that the last two dimensions of your block shape are divisible by 8 and 128 respectively, or be equal to the respective dimensions of the overall array. Block spec for args[0] in pallas_call kernel at /tmp/opjax-g6-remote-batches-worker-02/batch/units/g6-r1--g43-benchmark-row-max-320x512--seed-0--turn-3/kernel.py:6 has block shape (Blocked(block_size=1), Blocked(block_size=512)), array shape (320, 512), and index_map { lambda ; a:i32[]. let  in (a, 0:i32[]) }, in memory space None.\nSee details at https://docs.jax.dev/en/latest/pallas/grid_blockspec.html#pallas-blockspec",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "505501580c395be5e1021d89ede259bb7c2c6a7a503fb70a0c11d4f6dcaf1a32",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"ValueError: The Pallas TPU lowering currently requires that the last two dimensions of your block shape are divisible by 8 and 128 respectively, or be equal to the respective dimensions of the overall array. Block spec for args[0] in pallas_call kernel at /tmp/opjax-g6-remote-batches-worker-02/batch/units/g6-r1--g43-benchmark-row-max-320x512--seed-0--turn-3/kernel.py:6 has block shape (Blocked(block_size=1), Blocked(block_size=512)), array shape (320, 512), and index_map { lambda ; a:i32[]. let  in (a, 0:i32[]) }, in memory space None.\\nSee details at https://docs.jax.dev/en/latest/pallas/grid_blockspec.html#pallas-blockspec\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"505501580c395be5e1021d89ede259bb7c2c6a7a503fb70a0c11d4f6dcaf1a32\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"tpu_compile\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "tpu_compile",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

@@ -1,0 +1,14 @@
+diff --git a/kernel.py b/kernel.py
+index a877f2f..6e9de28 100644
+--- a/kernel.py
++++ b/kernel.py
+@@ -1,2 +1,7 @@
+-def workload(*inputs):
+-    ...
++import jax
++import jax.numpy as jnp
++import jax.experimental.pallas as pl
++
++def workload(x_ref, o_ref):
++    x = x_ref[...]
++    o_ref[...] = jax.nn.softmax(x, axis=-1)

@@ -84,7 +84,7 @@ def test_curate_max_data_keeps_non_tool_and_emits_many_singleturns(tmp_path: Pat
     )
     assert stats.kept == 3
     assert stats.singleturn_examples >= 4
-    singles = [json.loads(l) for l in single.read_text().splitlines() if l.strip()]
+    singles = [json.loads(line) for line in single.read_text().splitlines() if line.strip()]
     assert all(len(r["messages"]) == 3 for r in singles)
 
 

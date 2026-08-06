@@ -1,0 +1,33 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "activation",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_ranges": [
+    [
+      -2.0,
+      2.0
+    ]
+  ],
+  "input_shapes": [
+    [
+      640,
+      384
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "exp",
+  "reference_kernel_sha256": "6f2280ebaaa744c9adfa314b3bca94bc63680fa92d66dc1a3e446f9e960850fc",
+  "source_task_id": "activation-exp-640x384",
+  "task_id": "g43-benchmark-activation-exp-640x384"
+}

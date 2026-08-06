@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/sampler_weights/final",
+  "family": "gated_activation",
+  "group": "grpo",
+  "kernel_sha256": "e0f3f969432e32c7063c3d626413a454ec98555bf7bc56b7ee25e97a536ac67c",
+  "model_id": "g6-r0",
+  "patch_sha256": "b9add5cd9a50272482102c6b0d599259cfd3482c42ec703766e1dbf28d532141",
+  "seed": 0,
+  "task_id": "g43-benchmark-gelu-gate-640x512",
+  "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e",
+  "training_seed": 0,
+  "trajectory_count": 512,
+  "trajectory_sha256": "6e8b8f8d16219989ba510a1405a4ea8bfa657565e8e301a2459d619c9ac42c92",
+  "turn": 3,
+  "unit_id": "g6-r0--g43-benchmark-gelu-gate-640x512--seed-0--turn-3"
+}

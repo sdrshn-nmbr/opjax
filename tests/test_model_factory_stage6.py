@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from opjax.model_factory.reward_env import grade_solution_code

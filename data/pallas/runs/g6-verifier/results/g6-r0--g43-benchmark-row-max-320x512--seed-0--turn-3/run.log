@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \nNot equal to tolerance rtol=0.001, atol=0.001\nError in value equality check: Values not approximately equal\n(shapes (320, 1), (320, 512) mismatch)\n ACTUAL: array([[3.594224],\n       [3.187183],\n       [3.268134],...\n DESIRED: array([[3.594224, 3.594224, 3.594224, ..., 3.594224, 3.594224, 3.594224],\n       [3.187183, 3.187183, 3.187183, ..., 3.187183, 3.187183, 3.187183],\n       [3.268134, 3.268134, 3.268134, ..., 3.268134, 3.268134, 3.268134],... \nOriginal dtypes: float32, float32.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "81e7301834c265d862a3f3ff8dd49d0ebf34e3885d9a8b45956d0d1330dc8dec",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"AssertionError: [Chex] Assertion assert_trees_all_close failed:  Trees (arrays) 0 and 1 differ: \\nNot equal to tolerance rtol=0.001, atol=0.001\\nError in value equality check: Values not approximately equal\\n(shapes (320, 1), (320, 512) mismatch)\\n ACTUAL: array([[3.594224],\\n       [3.187183],\\n       [3.268134],...\\n DESIRED: array([[3.594224, 3.594224, 3.594224, ..., 3.594224, 3.594224, 3.594224],\\n       [3.187183, 3.187183, 3.187183, ..., 3.187183, 3.187183, 3.187183],\\n       [3.268134, 3.268134, 3.268134, ..., 3.268134, 3.268134, 3.268134],... \\nOriginal dtypes: float32, float32.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"81e7301834c265d862a3f3ff8dd49d0ebf34e3885d9a8b45956d0d1330dc8dec\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"full_shape_correctness\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": true}}\n",
+    "timed_out": false
+  },
+  "stage": "full_shape_correctness",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": true
+  }
+}
