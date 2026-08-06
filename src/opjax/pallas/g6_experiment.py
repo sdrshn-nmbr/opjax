@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import sys
 from pathlib import Path
 from typing import Any, Mapping
@@ -16,6 +17,11 @@ from opjax.pallas.g43_experiment import (
     _tree_hashes,
     prepare_verifier_release,
     verify_release,
+)
+from opjax.pallas.g6_verifier_backend import (
+    RemoteTPUPoolVerifier,
+    VerifierBackend,
+    VerifierCandidate,
 )
 
 
@@ -157,6 +163,92 @@ def _training_receipt(run_root: Path) -> dict[str, Any]:
     }
 
 
+def verify_release_on_pool(
+    *,
+    verifier_root: Path,
+    workers: list[str],
+    zone: str,
+    timeout_seconds: int = 180,
+    verifier: VerifierBackend | None = None,
+) -> dict[str, Any]:
+    manifest = _load(verifier_root / "manifest.json")
+    payload = dict(manifest)
+    expected = payload.pop("release_sha256", None)
+    records = manifest.get("records")
+    if (
+        manifest.get("kind") != "pallas_g43_verifier_input_release"
+        or canonical_sha256(payload) != expected
+        or not isinstance(records, list)
+        or manifest.get("counts", {}).get("units") != len(records)
+        or not workers
+    ):
+        raise G6ExperimentError("G6_VERIFIER_RELEASE_INVALID")
+    batch_root = verifier_root / "remote-batches"
+    candidates = [
+        VerifierCandidate(
+            unit_id=record["unit_id"],
+            task_path=verifier_root / "units" / record["unit_id"] / "task.json",
+            kernel_path=verifier_root / "units" / record["unit_id"] / "kernel.py",
+        )
+        for record in records
+    ]
+    backend = verifier or RemoteTPUPoolVerifier(
+        workers=workers, zone=zone, timeout_seconds=timeout_seconds
+    )
+    results = backend.verify(candidates=candidates, batch_root=batch_root)
+    result_records = []
+    recovery_events = []
+    for worker_result in sorted(batch_root.glob("worker-*/results.json")):
+        recovery_events.extend(_load(worker_result).get("recovery_events", []))
+    for index, record in enumerate(records, start=1):
+        unit_id = record["unit_id"]
+        sources = list(batch_root.glob(f"worker-*/results/{unit_id}"))
+        if len(sources) != 1 or unit_id not in results:
+            raise G6ExperimentError(f"G6_REMOTE_RESULT_MISSING: {unit_id}")
+        output = verifier_root / "results" / unit_id
+        shutil.copytree(sources[0], output)
+        reward = _load(output / "reward.json")
+        result = results[unit_id]
+        if (
+            reward.get("task_id") != record["task_id"]
+            or reward.get("kernel_sha256") != record["kernel_sha256"]
+            or result.get("kernel_sha256") != record["kernel_sha256"]
+        ):
+            raise G6ExperimentError(f"G6_REMOTE_RESULT_MISMATCH: {unit_id}")
+        result_records.append(
+            {
+                "unit_id": unit_id,
+                "reward": reward["reward"],
+                "artifacts": _tree_hashes(output),
+            }
+        )
+        print(
+            f"G6_VERIFY completed={index}/{len(records)} reward={reward['reward']}",
+            flush=True,
+        )
+    verification: dict[str, Any] = {
+        "schema_version": 1,
+        "kind": "pallas_g43_verification_release",
+        "input_release_sha256": manifest["release_sha256"],
+        "counts": {
+            "units": len(result_records),
+            "verified": sum(record["reward"] == 1 for record in result_records),
+            "candidate_failures": sum(
+                record["reward"] == 0 for record in result_records
+            ),
+            "infrastructure_failures": sum(
+                record["reward"] == -1 for record in result_records
+            ),
+            "recovery_probes": len(recovery_events),
+        },
+        "records": result_records,
+        "recovery_events": recovery_events,
+    }
+    verification["release_sha256"] = canonical_sha256(verification)
+    _write(verifier_root / "verification.json", verification)
+    return verification
+
+
 def summarize_results(
     *,
     evaluation_config_path: Path,
@@ -269,6 +361,8 @@ def main(argv: list[str] | None = None) -> int:
     verify = commands.add_parser("verify")
     verify.add_argument("--verifier-root", type=Path, required=True)
     verify.add_argument("--timeout-seconds", type=int, default=180)
+    verify.add_argument("--workers")
+    verify.add_argument("--zone", default="us-west4-a")
     summarize = commands.add_parser("summarize")
     summarize.add_argument("--evaluation-config", type=Path, required=True)
     summarize.add_argument("--verifier-root", type=Path, required=True)
@@ -293,10 +387,18 @@ def main(argv: list[str] | None = None) -> int:
                 out_dir=args.out_dir,
             )
         elif args.command == "verify":
-            result = verify_release(
-                verifier_root=args.verifier_root,
-                timeout_seconds=args.timeout_seconds,
-            )
+            if args.workers:
+                result = verify_release_on_pool(
+                    verifier_root=args.verifier_root,
+                    workers=[worker for worker in args.workers.split(",") if worker],
+                    zone=args.zone,
+                    timeout_seconds=args.timeout_seconds,
+                )
+            else:
+                result = verify_release(
+                    verifier_root=args.verifier_root,
+                    timeout_seconds=args.timeout_seconds,
+                )
         else:
             result = summarize_results(
                 evaluation_config_path=args.evaluation_config,
