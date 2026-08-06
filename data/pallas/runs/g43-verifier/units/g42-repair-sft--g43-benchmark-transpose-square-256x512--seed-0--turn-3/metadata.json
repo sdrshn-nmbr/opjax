@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "transpose",
+  "group": "control",
+  "kernel_sha256": "245b9c1033a1608835063fe19e94c590751011dd283f50e7603ee44dedcbb54f",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "404166323e744aaf2bfa008ef081dc47e775bb8f612475fea81c0f8e347214b0",
+  "seed": 0,
+  "task_id": "g43-benchmark-transpose-square-256x512",
+  "task_sha256": "50814f8d0c5b3aaee3916cfde24ad96580ef0dc82801a07a12340190a0dd6e86",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "8022e77b0a4b5b8df91fe296f1c981e4f1e16dcac6492d215594650b9ed41a15",
+  "turn": 3,
+  "unit_id": "g42-repair-sft--g43-benchmark-transpose-square-256x512--seed-0--turn-3"
+}

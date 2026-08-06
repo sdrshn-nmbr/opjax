@@ -1,0 +1,16 @@
+{
+  "checkpoint": null,
+  "family": "softmax",
+  "group": "control",
+  "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+  "model_id": "inkling-small-base",
+  "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "seed": 0,
+  "task_id": "g43-benchmark-softmax-192x384",
+  "task_sha256": "0bc1813e0d016c02a7f4c188c10e41fe7698837aab99255be86379a5994e2bd2",
+  "training_seed": null,
+  "trajectory_count": 0,
+  "trajectory_sha256": "f56315f2462fda57b96870285586998e6d4765c6c390b9e48f33444784b12e1e",
+  "turn": 3,
+  "unit_id": "inkling-small-base--g43-benchmark-softmax-192x384--seed-0--turn-3"
+}

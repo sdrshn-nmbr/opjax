@@ -1,0 +1,9 @@
+{
+  "commit": "f5c9f4d61bd06a8f3a37978fcda0bf99e5331d45",
+  "kernel_path": "turn-1-kernel.py",
+  "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+  "patch_path": "turn-1.patch",
+  "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "turn": 1,
+  "workspace_sha256": "115a047d307afe13887b887d51bb4f77e6ea1d670bd70241fc0104fc110e55c7"
+}

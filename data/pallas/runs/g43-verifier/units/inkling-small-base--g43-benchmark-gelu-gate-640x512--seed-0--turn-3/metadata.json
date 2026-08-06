@@ -1,0 +1,16 @@
+{
+  "checkpoint": null,
+  "family": "gated_activation",
+  "group": "control",
+  "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+  "model_id": "inkling-small-base",
+  "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "seed": 0,
+  "task_id": "g43-benchmark-gelu-gate-640x512",
+  "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e",
+  "training_seed": null,
+  "trajectory_count": 0,
+  "trajectory_sha256": "e47c86075b05884402eba869f7fc3c13a97a89cc1bc4b5f21aa8ee1594f931d1",
+  "turn": 3,
+  "unit_id": "inkling-small-base--g43-benchmark-gelu-gate-640x512--seed-0--turn-3"
+}

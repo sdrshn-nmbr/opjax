@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "activation",
+  "group": "control",
+  "kernel_sha256": "6831182d4d3f496400c58460a8bf8f20c701b9d8708c3e3509a0a1a19b11e3ea",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "3162bc6e8e23730982252b95de9fa159a63a33f98234580518609eeb42d7f3cc",
+  "seed": 0,
+  "task_id": "g43-benchmark-activation-relu-768x512",
+  "task_sha256": "b689fd3226e02a0c8d0530d2c1b210132282ef80bdf719d509715237e03f0107",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "b195a16b78d5b2e850c800a3ae6208162b393b5004655f0d55096fe7786655e8",
+  "turn": 3,
+  "unit_id": "g42-repair-sft--g43-benchmark-activation-relu-768x512--seed-0--turn-3"
+}

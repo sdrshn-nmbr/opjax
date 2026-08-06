@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "gated_activation",
+  "group": "control",
+  "kernel_sha256": "cd9df5abc8151c98767c50ae7c990d11be9d805e0453f98bd390657b1f47f63a",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "28146207557d47d3420266a36b2ceb721c6f57019cdf40fa6bd0da305f866e66",
+  "seed": 0,
+  "task_id": "g43-benchmark-silu-gate-512x384",
+  "task_sha256": "b950f1d9dbb2415f258086da6cb804f9b74e08d74ac0e7fbb223601487c93662",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "c490331697d21f47ca20fde1888d05b429abc6e39e43ed670e8f3a46215ea292",
+  "turn": 3,
+  "unit_id": "g42-repair-sft--g43-benchmark-silu-gate-512x384--seed-0--turn-3"
+}

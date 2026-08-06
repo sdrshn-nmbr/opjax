@@ -1,0 +1,26 @@
+{
+  "agent_image": "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "kind": "pallas_g42_agent_run",
+  "schema_version": 1,
+  "seed": 0,
+  "snapshot_turns": [
+    3
+  ],
+  "snapshots": {
+    "3": {
+      "commit": "a02c296b1ab5e48a533b79157d7f7bde07eae1ec",
+      "kernel_path": "turn-3-kernel.py",
+      "kernel_sha256": "a0b1de5ab2337d5df8120c2dede6a7ecc86f8f9c72e9d3441a7b59cc77759339",
+      "patch_path": "turn-3.patch",
+      "patch_sha256": "69dfdae7e4b3988179beaafb7586323568e3aece294daf0f2b0321e7b37f7bc4",
+      "turn": 3,
+      "workspace_sha256": "4df65f2f277924f2908132b16c33d9455541843a200d46b3b712ec4b6fcda768"
+    }
+  },
+  "submitted": false,
+  "task_id": "g43-benchmark-layernorm-320x512",
+  "task_sha256": "53baaca5d7dd9fd4c67ee9576920ccafa6de42885c6fa552877f891ecd63ef52",
+  "trajectory_path": "trajectory.json",
+  "turn_limit": 3
+}

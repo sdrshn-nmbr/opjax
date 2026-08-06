@@ -1,0 +1,16 @@
+{
+  "checkpoint": null,
+  "family": "row_reduction",
+  "group": "control",
+  "kernel_sha256": "04f3ccf3cd195253dd00963ed5827ae3074dedb5515a49b5d5dec51d2f202c3b",
+  "model_id": "inkling-small-base",
+  "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "seed": 0,
+  "task_id": "g43-benchmark-row-max-320x512",
+  "task_sha256": "c9bd3a80329bf152b01e07aa852259de756e3d04416c131579065737451c33ea",
+  "training_seed": null,
+  "trajectory_count": 0,
+  "trajectory_sha256": "9d24049a99893c0ed78f1778f6d734e66c7b631113878e0aea78d109c2e7e19b",
+  "turn": 3,
+  "unit_id": "inkling-small-base--g43-benchmark-row-max-320x512--seed-0--turn-3"
+}

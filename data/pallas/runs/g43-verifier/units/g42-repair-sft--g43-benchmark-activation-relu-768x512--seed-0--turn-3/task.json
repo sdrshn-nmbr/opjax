@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "activation",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      768,
+      512
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "relu",
+  "reference_kernel_sha256": "2ae65af86cdfc837ff2b7b02aae9285182b505b61b60cf1c0ae0f05622432369",
+  "source_task_id": "activation-relu-768x512",
+  "task_id": "g43-benchmark-activation-relu-768x512"
+}

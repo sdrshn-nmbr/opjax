@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://889d2afa-1441-5535-bb81-e6760ab6f60a:train:0/sampler_weights/final",
+  "family": "gated_activation",
+  "group": "learning_curve",
+  "kernel_sha256": "26d5a27530663598a1409b2f83052dd3f7352d2ebf46923302aed6920d87390f",
+  "model_id": "g43-n16-seed2",
+  "patch_sha256": "6440a5cd9d2c9a1b0822dd7c441c029b7b57d2bdd194614f34171ab95d4554cf",
+  "seed": 0,
+  "task_id": "g43-benchmark-gelu-gate-640x512",
+  "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e",
+  "training_seed": 2,
+  "trajectory_count": 16,
+  "trajectory_sha256": "465077ccf323622adbd860863bbebd81ac4b0cb180e029e199fd4b869db314f0",
+  "turn": 3,
+  "unit_id": "g43-n16-seed2--g43-benchmark-gelu-gate-640x512--seed-0--turn-3"
+}

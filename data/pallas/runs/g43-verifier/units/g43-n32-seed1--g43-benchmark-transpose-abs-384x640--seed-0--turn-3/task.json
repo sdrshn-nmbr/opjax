@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "transpose",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      640
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "transpose_abs",
+  "reference_kernel_sha256": "24a1443929864f557f90421fdb452ba996e9c24f464e5c2f11ed46fca5eb35b4",
+  "source_task_id": "transpose-abs-384x640",
+  "task_id": "g43-benchmark-transpose-abs-384x640"
+}

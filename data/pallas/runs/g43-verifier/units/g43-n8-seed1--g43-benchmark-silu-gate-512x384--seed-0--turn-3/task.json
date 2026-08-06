@@ -1,0 +1,32 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "gated_activation",
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      512,
+      384
+    ],
+    [
+      512,
+      384
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "silu_gate",
+  "reference_kernel_sha256": "2a5296651495664d65df75c958a02890b44388b60307544f8fb5ea4824a7a05b",
+  "source_task_id": "silu-gate-512x384",
+  "task_id": "g43-benchmark-silu-gate-512x384"
+}

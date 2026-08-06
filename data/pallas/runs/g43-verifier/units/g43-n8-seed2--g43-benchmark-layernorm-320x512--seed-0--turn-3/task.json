@@ -1,0 +1,27 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "normalization",
+  "input_dtypes": [
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      320,
+      512
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "layernorm",
+  "reference_kernel_sha256": "331b8313158d83a26b00b65d16159ad00a3f7dd3be188f8ae424385ea885d2c0",
+  "source_task_id": "layernorm-320x512",
+  "task_id": "g43-benchmark-layernorm-320x512"
+}

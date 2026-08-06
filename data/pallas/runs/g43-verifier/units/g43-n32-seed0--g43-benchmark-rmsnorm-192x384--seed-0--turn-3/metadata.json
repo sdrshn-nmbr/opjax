@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://2368e923-a353-5985-872f-5910b5214894:train:0/sampler_weights/final",
+  "family": "normalization",
+  "group": "learning_curve",
+  "kernel_sha256": "7dc1c52141b10a3e13eec43e10b6c61f92339bfdccc7c4c3e94e902d2d5e97b1",
+  "model_id": "g43-n32-seed0",
+  "patch_sha256": "fb7e8f3e7937b14cbdf20fbab9c14a4f5297dfd633f86175c09bc5c5f85a9217",
+  "seed": 0,
+  "task_id": "g43-benchmark-rmsnorm-192x384",
+  "task_sha256": "e7588e9d6ddabfabf6357f4be38681da1f602dad005dc9054b5b2a5046a4d567",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "20a228084689117b4da53de5167bdda8498f14de2d1c504ad1c51d9d03967a16",
+  "turn": 3,
+  "unit_id": "g43-n32-seed0--g43-benchmark-rmsnorm-192x384--seed-0--turn-3"
+}

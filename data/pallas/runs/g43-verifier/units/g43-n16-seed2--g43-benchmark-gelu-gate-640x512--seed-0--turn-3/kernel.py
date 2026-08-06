@@ -1,0 +1,24 @@
+import jax
+import jax.numpy as jnp
+import jax.lax as lax
+from jax.experimental import pallas as pl
+
+def gelu(x):
+    return 0.5 * x * (1.0 + jnp.tanh(0.7978845608028654 * (x + 0.044715 * x**3)))
+
+def workload(*inputs):
+    x, gate = inputs
+    def kernel(x_ref, gate_ref, out_ref):
+        x_block = x_ref[...]
+        gate_block = gate_ref[...]
+        out_ref[...] = gelu(x_block) * gate_block
+    return pl.pallas_call(
+        kernel,
+        out_shape=jax.ShapeDtypeStruct(x.shape, x.dtype),
+        in_specs=[
+            pl.BlockSpec((128, 512), lambda i, j: (i, j)),
+            pl.BlockSpec((128, 512), lambda i, j: (i, j)),
+        ],
+        out_specs=pl.BlockSpec((128, 512), lambda i, j: (i, j)),
+        grid=(5, 1),
+    )(x, gate)

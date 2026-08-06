@@ -1,0 +1,26 @@
+{
+  "agent_image": "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+  "checkpoint": "tinker://5a95dd71-4a4c-5c98-beac-0a4c6c15afed:train:0/sampler_weights/final",
+  "kind": "pallas_g42_agent_run",
+  "schema_version": 1,
+  "seed": 0,
+  "snapshot_turns": [
+    3
+  ],
+  "snapshots": {
+    "3": {
+      "commit": "24955edac91162ac15900dd7d2825aafef89c6e6",
+      "kernel_path": "turn-3-kernel.py",
+      "kernel_sha256": "15c15d87ed4eb97762108728347c3f57a1d8011ed0e13ffd03dc8dd15a7a9425",
+      "patch_path": "turn-3.patch",
+      "patch_sha256": "3156ac95eb0973026f047de21ede71a4aca226ca6b425283f9cb79bad9f97640",
+      "turn": 3,
+      "workspace_sha256": "4322ca470cc893b93f21becb4ab1fec7c420570c4040285b77b204dd57cac0fa"
+    }
+  },
+  "submitted": false,
+  "task_id": "g43-benchmark-silu-gate-512x384",
+  "task_sha256": "b950f1d9dbb2415f258086da6cb804f9b74e08d74ac0e7fbb223601487c93662",
+  "trajectory_path": "trajectory.json",
+  "turn_limit": 3
+}

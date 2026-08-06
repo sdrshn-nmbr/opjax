@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "row_reduction",
+  "group": "control",
+  "kernel_sha256": "83acbc9d329be0d2492b84f909334a035c14b2222c646611248755925f520b90",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "55260525bd23d0f403fbe4c2834f4c9cc1f6e26ff269571549745f86757bbb1d",
+  "seed": 0,
+  "task_id": "g43-benchmark-row-max-320x512",
+  "task_sha256": "c9bd3a80329bf152b01e07aa852259de756e3d04416c131579065737451c33ea",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "3eef072410dba7b51290aea6e1d8b2b3c3318b42165aed36aab968309fa52268",
+  "turn": 3,
+  "unit_id": "g42-repair-sft--g43-benchmark-row-max-320x512--seed-0--turn-3"
+}

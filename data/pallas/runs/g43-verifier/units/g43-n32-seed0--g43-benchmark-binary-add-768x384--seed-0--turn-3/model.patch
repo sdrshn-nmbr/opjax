@@ -1,0 +1,27 @@
+diff --git a/kernel.py b/kernel.py
+index a877f2f..7170c8d 100644
+--- a/kernel.py
++++ b/kernel.py
+@@ -1,2 +1,21 @@
++import jax
++import jax.numpy as jnp
++from jax import lax
++import jax.experimental.pallas as pl
++
+ def workload(*inputs):
+-    ...
++    def kernel(x_ref, y_ref, o_ref):
++        x = x_ref[...]
++        y = y_ref[...]
++        o_ref[...] = x + y
++
++    return pl.pallas_call(
++        kernel,
++        out_shape=jax.ShapeDtypeStruct(inputs[0].shape, inputs[0].dtype),
++        in_specs=[
++            pl.BlockSpec((768, 384), lambda i, j: (i, j)),
++            pl.BlockSpec((768, 384), lambda i, j: (i, j)),
++        ],
++        out_specs=pl.BlockSpec((768, 384), lambda i, j: (i, j)),
++        grid=(1, 1),
++    )(*inputs)

@@ -1,0 +1,21 @@
+import jax
+import jax.numpy as jnp
+from jax import lax
+import jax.experimental.pallas as pl
+
+def workload(*inputs):
+    a, b = inputs
+    def matmul_kernel(a_ref, b_ref, o_ref):
+        a = a_ref[...]
+        b = b_ref[...]
+        o_ref[...] = jnp.dot(a, b)
+    return pl.pallas_call(
+        matmul_kernel,
+        out_shape=jax.ShapeDtypeStruct((256, 512), jnp.float32),
+        in_specs=[
+            pl.BlockSpec((256, 384), lambda i, j: (0, 0)),
+            pl.BlockSpec((384, 512), lambda i, j: (0, 0)),
+        ],
+        out_specs=pl.BlockSpec((256, 512), lambda i, j: (0, 0)),
+        grid=(1, 1),
+    )(a, b)

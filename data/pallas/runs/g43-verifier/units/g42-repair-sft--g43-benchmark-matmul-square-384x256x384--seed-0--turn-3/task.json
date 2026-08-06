@@ -1,0 +1,32 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "matmul",
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      384,
+      256
+    ],
+    [
+      256,
+      384
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "matmul_square",
+  "reference_kernel_sha256": "1ee6e4dca3522e8a9d4cd8e7bccd6d578de35854b373abc59897c8a9c18ee9a4",
+  "source_task_id": "matmul-square-384x256x384",
+  "task_id": "g43-benchmark-matmul-square-384x256x384"
+}

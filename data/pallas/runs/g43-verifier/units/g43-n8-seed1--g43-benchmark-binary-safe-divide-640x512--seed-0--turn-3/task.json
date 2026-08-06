@@ -1,0 +1,32 @@
+{
+  "correctness_seeds": [
+    0,
+    1,
+    2
+  ],
+  "correctness_tolerance": {
+    "atol": 0.001,
+    "rtol": 0.001
+  },
+  "expected_initial_failure_stage": "artifact_contract",
+  "family": "binary_elementwise",
+  "input_dtypes": [
+    "float32",
+    "float32"
+  ],
+  "input_shapes": [
+    [
+      640,
+      512
+    ],
+    [
+      640,
+      512
+    ]
+  ],
+  "mutation": "missing_implementation",
+  "operation": "safe_divide",
+  "reference_kernel_sha256": "c2808740e4aed693b1944c836b54a3cc9317ab8c78b2b5258c4c5e3fdecb4294",
+  "source_task_id": "binary-safe-divide-640x512",
+  "task_id": "g43-benchmark-binary-safe-divide-640x512"
+}

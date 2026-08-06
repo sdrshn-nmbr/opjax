@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://2368e923-a353-5985-872f-5910b5214894:train:0/sampler_weights/final",
+  "family": "matmul",
+  "group": "learning_curve",
+  "kernel_sha256": "76c998dbe3ed6677eff596ceaf32d72bd238b02233001ca4023b0e480d5618ec",
+  "model_id": "g43-n32-seed0",
+  "patch_sha256": "f824bb2e57e4c9009e58b2c6f067c515a0b47a59ddc539fe5b6ac0dc25b8207c",
+  "seed": 0,
+  "task_id": "g43-benchmark-matmul-square-384x256x384",
+  "task_sha256": "9604d9943672ba30426365cef26c4e03b2fbcc80e56effa07c14f48b2ca93577",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "d2141eef0e7b59d5dbc733469d9c6cbe97050fb53776592b6a521d10bdafb391",
+  "turn": 3,
+  "unit_id": "g43-n32-seed0--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3"
+}

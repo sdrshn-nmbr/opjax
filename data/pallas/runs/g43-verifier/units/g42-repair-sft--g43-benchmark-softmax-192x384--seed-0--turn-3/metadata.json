@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+  "family": "softmax",
+  "group": "control",
+  "kernel_sha256": "883a4dff055d1cd2783feaa1b500a73cc1884cec11cdd0e915b1a35303e2f368",
+  "model_id": "g42-repair-sft",
+  "patch_sha256": "bd569ff9ccb12611c196282a6ef847529f5029b73b5cf57e75dbf6d2059598d9",
+  "seed": 0,
+  "task_id": "g43-benchmark-softmax-192x384",
+  "task_sha256": "0bc1813e0d016c02a7f4c188c10e41fe7698837aab99255be86379a5994e2bd2",
+  "training_seed": 0,
+  "trajectory_count": 32,
+  "trajectory_sha256": "535bad594ad4149fecb405f11a7c43e28acda07c4de3ec0c045a0f2d86b9fc30",
+  "turn": 3,
+  "unit_id": "g42-repair-sft--g43-benchmark-softmax-192x384--seed-0--turn-3"
+}

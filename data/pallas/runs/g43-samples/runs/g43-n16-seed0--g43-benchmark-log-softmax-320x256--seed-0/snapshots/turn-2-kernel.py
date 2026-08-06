@@ -1,0 +1,22 @@
+import jax
+import jax.numpy as jnp
+import jax.lax as lax
+from jax.experimental import pallas as pl
+
+def workload(*inputs):
+    x = inputs[0]
+    def kernel(x_ref, o_ref):
+        x = x_ref[...]
+        max_x = jnp.max(x, axis=-1, keepdims=True)
+        shifted = x - max_x
+        exp_shifted = jnp.exp(shifted)
+        sum_exp = jnp.sum(exp_shifted, axis=-1, keepdims=True)
+        log_sum_exp = jnp.log(sum_exp)
+        o_ref[...] = shifted - log_sum_exp
+    return pl.pallas_call(
+        kernel,
+        out_shape=jax.ShapeDtypeStruct(x.shape, x.dtype),
+        in_specs=[pl.BlockSpec((320, 256), lambda i: (0, 0))],
+        out_specs=pl.BlockSpec((320, 256), lambda i: (0, 0)),
+        grid=(1,),
+    )(x)

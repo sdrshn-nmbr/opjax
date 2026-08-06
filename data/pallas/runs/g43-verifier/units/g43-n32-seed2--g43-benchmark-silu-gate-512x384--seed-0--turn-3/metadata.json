@@ -1,0 +1,16 @@
+{
+  "checkpoint": "tinker://5a95dd71-4a4c-5c98-beac-0a4c6c15afed:train:0/sampler_weights/final",
+  "family": "gated_activation",
+  "group": "learning_curve",
+  "kernel_sha256": "15c15d87ed4eb97762108728347c3f57a1d8011ed0e13ffd03dc8dd15a7a9425",
+  "model_id": "g43-n32-seed2",
+  "patch_sha256": "3156ac95eb0973026f047de21ede71a4aca226ca6b425283f9cb79bad9f97640",
+  "seed": 0,
+  "task_id": "g43-benchmark-silu-gate-512x384",
+  "task_sha256": "b950f1d9dbb2415f258086da6cb804f9b74e08d74ac0e7fbb223601487c93662",
+  "training_seed": 2,
+  "trajectory_count": 32,
+  "trajectory_sha256": "07bf1d45894c3ffb34ec5a02a1459f17179c2967aee4c5a70e4d18e2f66bddab",
+  "turn": 3,
+  "unit_id": "g43-n32-seed2--g43-benchmark-silu-gate-512x384--seed-0--turn-3"
+}

@@ -1,0 +1,26 @@
+{
+  "agent_image": "python@sha256:9e869b0816f5537709825b49e62dc86d1c2691eff19b05c1d4dc3a07992cc052",
+  "checkpoint": "tinker://3f373c81-cb61-5a54-9a61-78ca2fe2642b:train:0/sampler_weights/final",
+  "kind": "pallas_g42_agent_run",
+  "schema_version": 1,
+  "seed": 0,
+  "snapshot_turns": [
+    3
+  ],
+  "snapshots": {
+    "3": {
+      "commit": "1cc3628f8270c5f170443c1e0890a03d610d1b0a",
+      "kernel_path": "turn-3-kernel.py",
+      "kernel_sha256": "43c60fd36ce5a87d2bd801f986b5d3536c2ec9f05eecc9a45ed1f8551cb2dea3",
+      "patch_path": "turn-3.patch",
+      "patch_sha256": "234342bed32f3ff004084e0f53c8eae0b75a0b93924146083999c736088cef80",
+      "turn": 3,
+      "workspace_sha256": "ebaf8ba2e805b961aac9a0035f1211af50c0ba8373cc28874fba3978837abd1d"
+    }
+  },
+  "submitted": false,
+  "task_id": "g43-benchmark-gelu-gate-640x512",
+  "task_sha256": "e2bfc917500837f312176447e8147e26f31c638730490dfe7a9e2983d6cce70e",
+  "trajectory_path": "trajectory.json",
+  "turn_limit": 3
+}
