@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g6-multiturn-grpo-inkling-small-v5e",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "renderer": "tml_v0",
+  "task_release_sha256": "e1c6d46a953a61ff0f425a8749946577c19529ab5c8536a265d4727e5f759bcb",
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "lanes": [
+    {
+      "lane_id": "R0",
+      "parent_id": "S0",
+      "parent_run_sha256": "64b3adbfb7402dd3f5c74a5286e0783422785f608a585a61acaa6dba4a8b9b60",
+      "initial_state_path": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/weights/final",
+      "initial_sampler_path": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final"
+    },
+    {
+      "lane_id": "R1",
+      "parent_id": "S1",
+      "parent_run_sha256": "c599ff939bb7fe4bad4fa15e8ae01af54cb4acdd87c1e084af3b9bc0467a1d8e",
+      "initial_state_path": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/weights/final",
+      "initial_sampler_path": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/sampler_weights/final"
+    }
+  ],
+  "rollout": {
+    "parallel_trajectories": 16,
+    "refinement_turns": 4,
+    "tasks_per_step": 8,
+    "steps": 4,
+    "discount_gamma": 0.4,
+    "correctness_bonus": 0.3,
+    "temperature": 0.9,
+    "top_p": 0.95,
+    "max_response_tokens": 4096,
+    "max_context_tokens": 32768,
+    "sampling_seed": 0,
+    "max_sampling_concurrency": 64
+  },
+  "optimizer": {
+    "learning_rate": 0.00001,
+    "beta1": 0.9,
+    "beta2": 0.95,
+    "eps": 1e-8,
+    "weight_decay": 0.0,
+    "grad_clip_norm": 0.05,
+    "updates_per_step": 2,
+    "constant_length_normalizer": 4096,
+    "loss_fn": "importance_sampling"
+  },
+  "evaluation": {
+    "seed": 0,
+    "turn_limit": 3,
+    "snapshot_turns": [3],
+    "max_sampling_workers": 4
+  }
+}

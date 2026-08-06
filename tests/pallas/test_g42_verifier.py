@@ -40,9 +40,13 @@ def test_environment_runner_routes_device_halts_to_runtime_safety() -> None:
     assert _is_runtime_safety_failure(AssertionError("values differ")) is False
 
 
-def test_curriculum_feedback_exposes_only_stage() -> None:
-    feedback = sanitized_feedback({"stage": "full_shape_correctness", "error": "/hidden/tests.py: secret"})
-    assert feedback == (
-        "VERIFIER_STAGE full_shape_correctness: The submitted kernel failed a full-shape correctness case."
+def test_curriculum_feedback_exposes_sanitized_diagnostic() -> None:
+    feedback = sanitized_feedback(
+        {
+            "stage": "full_shape_correctness",
+            "error": "/hidden/tests.py: max absolute difference 0.25",
+            "infrastructure_error": False,
+        }
     )
-    assert "hidden" not in feedback
+    assert "max absolute difference 0.25" in feedback
+    assert "/hidden" not in feedback

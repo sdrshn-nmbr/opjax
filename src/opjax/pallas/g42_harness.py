@@ -280,7 +280,11 @@ def snapshot_workspace(workspace: Path, *, turn: int, output_dir: Path) -> dict[
     patch_path = output_dir / f"turn-{turn}.patch"
     patch_path.write_bytes(patch)
     kernel_path = output_dir / f"turn-{turn}-kernel.py"
-    kernel_path.write_bytes((workspace / "kernel.py").read_bytes())
+    workspace_kernel = workspace / "kernel.py"
+    if workspace_kernel.is_file() and not workspace_kernel.is_symlink():
+        kernel_path.write_bytes(workspace_kernel.read_bytes())
+    else:
+        kernel_path.write_bytes(b"")
     record = {
         "turn": turn,
         "commit": subprocess.run(

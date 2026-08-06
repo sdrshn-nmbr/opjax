@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from opjax.pallas.g42_harness import file_sha256, write_verifier_artifacts
+from opjax.pallas.g6_contracts import feedback_from_result
 
 
 class G42VerifierError(RuntimeError):
@@ -142,17 +143,7 @@ def run_fresh_verifier(
 
 
 def sanitized_feedback(result: dict[str, Any]) -> str:
-    stage = str(result.get("stage", "verifier"))
-    allowed = {
-        "artifact_contract": "The submitted module does not satisfy the output contract.",
-        "pallas_api": "The submitted module does not satisfy the authentic Pallas API contract.",
-        "tpu_compile": "The submitted kernel did not compile for the TPU.",
-        "full_shape_correctness": "The submitted kernel failed a full-shape correctness case.",
-        "normal_lowering": "The submitted kernel did not prove normal Pallas lowering.",
-        "runtime_safety": "The submitted kernel failed the TPU runtime-safety check.",
-        "profile": "The submitted kernel did not produce valid profile evidence.",
-    }
-    return f"VERIFIER_STAGE {stage}: {allowed.get(stage, 'Verification could not complete.')}"
+    return feedback_from_result(result)
 
 
 def main(argv: list[str] | None = None) -> int:
