@@ -130,13 +130,25 @@ contract as the existing model arms. It produced:
 | Infrastructure failures | 0/16 |
 | Non-empty patches | 0/16 |
 
-Every trajectory read `instruction.md`, `PALLAS_API.md`, and `kernel.py` in
-three separate actions. It then exhausted the call budget without editing or
-submitting. Every TPU result therefore stopped at `artifact_contract`. This is
-a valid result for the frozen three-call agent contract. It does not isolate
-Laguna's underlying Pallas ability from its inspection policy. A separate
-six-call diagnostic is the next fair way to test that interaction; it must not
-replace or relabel the three-call result.
+The paired six-call run captured true snapshots after calls 3 and 6. Both
+horizons scored 0/16, all 32 verifier units were candidate failures at
+`artifact_contract`, and no infrastructure or recovery event occurred. All
+turn-3 and turn-6 patches were empty, producing 16 fail-to-fail transitions.
+
+Every trajectory used calls 1–5 to read `instruction.md`, `PALLAS_API.md`,
+`kernel.py`, `dev_check.py`, and list the workspace. Ten used call 6 to reread
+the instruction; the others performed another repository search, inspected Git
+history, or emitted one malformed action. No trajectory edited or submitted.
+The first three actions and patch matched the original three-call run for all
+16 tasks, although only four textual reasoning prefixes were byte-identical.
+This exposes residual SGLang generation nondeterminism while confirming that
+the observable agent behavior and submitted artifacts were stable.
+
+This is a valid result for both frozen call limits. It shows that additional
+calls alone do not correct the model-harness interaction. It does not isolate
+Laguna's underlying Pallas ability from its serial inspection policy. The
+result remains a baseline; changing the initial observation or action protocol
+would define a separate harness experiment.
 
 Prime Intellect's
 [Laguna Jacobian-lens artifact](https://huggingface.co/PrimeIntellect/Laguna-XS.2-jlens)
@@ -191,8 +203,8 @@ optimizer, rollout policy, verifier, and checkpoint hashes.
 
 Gate 7 is therefore paused at backend conformance. The next primary probe is
 Miles renderer and base-logit parity for Inkling Small, followed by a one-batch
-SFT canary. In parallel, Laguna gets a six-call inference diagnostic and then a
-Miles model-plugin port. Once the port passes the same conversion, renderer,
+SFT canary. Laguna's six-call inference baseline is complete; its next boundary
+is a Miles model-plugin port. Once the port passes the same conversion, renderer,
 one-step, rollout, and reload checks, the experiment factory can cross the
 model arm with the existing SFT, DAPT, GRPO, and OPD recipes without changing
 the data, harness, reward, or evaluation.

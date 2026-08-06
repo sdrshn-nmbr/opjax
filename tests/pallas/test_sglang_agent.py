@@ -38,7 +38,9 @@ def test_sglang_model_records_identity_sampling_and_action() -> None:
         }
 
     model = _model(generate)
-    result = model.query([{"role": "system", "content": "system"}, {"role": "user", "content": "task"}])
+    result = model.query(
+        [{"role": "system", "content": "system"}, {"role": "user", "content": "task"}]
+    )
 
     assert result["extra"]["actions"] == [{"command": "python dev_check.py"}]
     assert calls[0][1] == {
@@ -92,6 +94,22 @@ def test_laguna_baseline_summary_validates_authoritative_evidence(tmp_path) -> N
     reward_path.write_text(
         json.dumps({"reward": 0, "failure_stage": "artifact_contract"}) + "\n"
     )
+    trajectory_path = tmp_path / "trajectory.json"
+    trajectory_path.write_text(
+        json.dumps(
+            {
+                "g42": {"submitted": False},
+                "messages": [
+                    {
+                        "role": "assistant",
+                        "content": "inspect",
+                        "extra": {"actions": [{"command": "cat kernel.py"}]},
+                    }
+                ],
+            }
+        )
+        + "\n"
+    )
     manifest = {
         "schema_version": 1,
         "records": [
@@ -99,6 +117,8 @@ def test_laguna_baseline_summary_validates_authoritative_evidence(tmp_path) -> N
                 "unit_id": unit_id,
                 "task_id": "task",
                 "family": "elementwise_binary",
+                "turn": 3,
+                "trajectory_sha256": file_sha256(trajectory_path),
                 "patch_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
             }
         ],
@@ -118,16 +138,39 @@ def test_laguna_baseline_summary_validates_authoritative_evidence(tmp_path) -> N
     }
     verification["release_sha256"] = canonical_sha256(verification)
     (tmp_path / "verification.json").write_text(json.dumps(verification) + "\n")
+    unit_root = tmp_path / "units" / unit_id
+    unit_root.mkdir(parents=True)
+    (unit_root / "trajectory.json").write_bytes(trajectory_path.read_bytes())
 
     output_path = tmp_path / "summary.json"
     result = summarize_baseline(verifier_root=tmp_path, out_path=output_path)
 
     assert result["counts"] == {
         "tasks": 1,
+        "units": 1,
         "profile_verified": 0,
         "candidate_failures": 1,
         "infrastructure_failures": 0,
         "nonempty_patches": 0,
     }
+    assert result["horizons"] == {
+        "k3": {
+            "units": 1,
+            "profile_verified": 0,
+            "candidate_failures": 1,
+            "infrastructure_failures": 0,
+            "nonempty_patches": 0,
+        }
+    }
+    assert result["turn_3_to_6_transitions"] is None
+    assert result["agent_behavior"] == {
+        "trajectories": 1,
+        "model_calls": 1,
+        "format_errors": 0,
+        "submitted": 0,
+        "commands_by_call": {"1": {"cat kernel.py": 1}},
+    }
     assert result["failure_stages"] == {"artifact_contract": 1}
-    assert json.loads(output_path.read_text())["result_sha256"] == result["result_sha256"]
+    assert (
+        json.loads(output_path.read_text())["result_sha256"] == result["result_sha256"]
+    )

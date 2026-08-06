@@ -40,7 +40,9 @@ def _load(path: Path) -> dict[str, Any]:
 
 def _write(path: Path, value: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+    )
 
 
 def _tree_hashes(root: Path) -> dict[str, str]:
@@ -187,7 +189,9 @@ def build_evaluation_config(
                 preparation.get("data", {}).get("trajectories") != count
                 or preparation.get("training", {}).get("training_seed") != seed
             ):
-                raise G43ExperimentError(f"G43_TRAINING_IDENTITY_MISMATCH: n{count}-seed{seed}")
+                raise G43ExperimentError(
+                    f"G43_TRAINING_IDENTITY_MISMATCH: n{count}-seed{seed}"
+                )
             models.append(
                 {
                     "model_id": f"g43-n{count}-seed{seed}",
@@ -213,7 +217,10 @@ def build_evaluation_config(
         "models": models,
     }
     evaluation["config_sha256"] = canonical_sha256(evaluation)
-    if curve_validation["release_sha256"] != evaluation["learning_curve_release_sha256"]:
+    if (
+        curve_validation["release_sha256"]
+        != evaluation["learning_curve_release_sha256"]
+    ):
         raise G43ExperimentError("G43_LEARNING_CURVE_RELEASE_MISMATCH")
     _write(out_path, evaluation)
     return evaluation
@@ -237,46 +244,62 @@ def prepare_verifier_release(
     tasks = {
         package.task_id: package
         for package in (
-            load_task_package(benchmark_root / relative) for relative in benchmark["tasks"]
+            load_task_package(benchmark_root / relative)
+            for relative in benchmark["tasks"]
         )
     }
+    snapshot_turns = sample.get("snapshot_turns", [3])
+    if (
+        not isinstance(snapshot_turns, list)
+        or not snapshot_turns
+        or any(turn not in {3, 6} for turn in snapshot_turns)
+        or snapshot_turns != sorted(set(snapshot_turns))
+    ):
+        raise G43ExperimentError("G43_SAMPLE_SNAPSHOT_TURNS_INVALID")
     records = []
     for run in sample["records"]:
         task = tasks[run["task_id"]]
         run_root = sample_root / run["run_path"]
-        unit_id = f"{run['model_id']}--{task.task_id}--seed-0--turn-3"
-        unit_root = out_dir / "units" / unit_id
-        materialized = materialize_submission(
-            task=task,
-            patch_path=run_root / "snapshots" / "turn-3.patch",
-            destination=unit_root / "workspace",
-        )
-        unit_root.mkdir(parents=True, exist_ok=True)
-        (unit_root / "task.json").write_bytes((task.root / "tests" / "task.json").read_bytes())
-        (unit_root / "kernel.py").write_bytes(Path(materialized["kernel_path"]).read_bytes())
-        (unit_root / "model.patch").write_bytes(
-            (run_root / "snapshots" / "turn-3.patch").read_bytes()
-        )
-        (unit_root / "trajectory.json").write_bytes((run_root / "trajectory.json").read_bytes())
-        metadata = {
-            "unit_id": unit_id,
-            "model_id": run["model_id"],
-            "checkpoint": run["checkpoint"],
-            "group": run["group"],
-            "trajectory_count": run["trajectory_count"],
-            "training_seed": run["training_seed"],
-            "task_id": task.task_id,
-            "family": task.family,
-            "task_sha256": task.task_sha256,
-            "seed": 0,
-            "turn": 3,
-            "patch_sha256": materialized["patch_sha256"],
-            "kernel_sha256": materialized["kernel_sha256"],
-            "trajectory_sha256": file_sha256(unit_root / "trajectory.json"),
-        }
-        _write(unit_root / "metadata.json", metadata)
-        (unit_root / "workspace").rename(unit_root / "materialized-workspace")
-        records.append(metadata)
+        seed = int(run.get("seed", 0))
+        for turn in snapshot_turns:
+            unit_id = f"{run['model_id']}--{task.task_id}--seed-{seed}--turn-{turn}"
+            unit_root = out_dir / "units" / unit_id
+            patch_path = run_root / "snapshots" / f"turn-{turn}.patch"
+            materialized = materialize_submission(
+                task=task,
+                patch_path=patch_path,
+                destination=unit_root / "workspace",
+            )
+            unit_root.mkdir(parents=True, exist_ok=True)
+            (unit_root / "task.json").write_bytes(
+                (task.root / "tests" / "task.json").read_bytes()
+            )
+            (unit_root / "kernel.py").write_bytes(
+                Path(materialized["kernel_path"]).read_bytes()
+            )
+            (unit_root / "model.patch").write_bytes(patch_path.read_bytes())
+            (unit_root / "trajectory.json").write_bytes(
+                (run_root / "trajectory.json").read_bytes()
+            )
+            metadata = {
+                "unit_id": unit_id,
+                "model_id": run["model_id"],
+                "checkpoint": run["checkpoint"],
+                "group": run["group"],
+                "trajectory_count": run["trajectory_count"],
+                "training_seed": run["training_seed"],
+                "task_id": task.task_id,
+                "family": task.family,
+                "task_sha256": task.task_sha256,
+                "seed": seed,
+                "turn": turn,
+                "patch_sha256": materialized["patch_sha256"],
+                "kernel_sha256": materialized["kernel_sha256"],
+                "trajectory_sha256": file_sha256(unit_root / "trajectory.json"),
+            }
+            _write(unit_root / "metadata.json", metadata)
+            (unit_root / "workspace").rename(unit_root / "materialized-workspace")
+            records.append(metadata)
     manifest: dict[str, Any] = {
         "schema_version": 1,
         "kind": "pallas_g43_verifier_input_release",
@@ -324,7 +347,9 @@ def verify_release(
             reward.get("task_id") != record["task_id"]
             or reward.get("kernel_sha256") != record["kernel_sha256"]
         ):
-            raise G43ExperimentError(f"G43_VERIFIER_RESULT_MISMATCH: {record['unit_id']}")
+            raise G43ExperimentError(
+                f"G43_VERIFIER_RESULT_MISMATCH: {record['unit_id']}"
+            )
         if reward.get("worker_recovery_required") is True:
             health = _worker_health(health_command)
             event = {"after_unit": record["unit_id"], **health}
@@ -350,8 +375,12 @@ def verify_release(
         "counts": {
             "units": len(result_records),
             "verified": sum(record["reward"] == 1 for record in result_records),
-            "candidate_failures": sum(record["reward"] == 0 for record in result_records),
-            "infrastructure_failures": sum(record["reward"] == -1 for record in result_records),
+            "candidate_failures": sum(
+                record["reward"] == 0 for record in result_records
+            ),
+            "infrastructure_failures": sum(
+                record["reward"] == -1 for record in result_records
+            ),
             "recovery_probes": len(recovery_events),
         },
         "records": result_records,
@@ -457,7 +486,9 @@ def summarize_results(
             raise G43ExperimentError(f"G43_RESULT_HASH_MISMATCH: {record['unit_id']}")
         rows.append({**record, **_load(output / "reward.json")})
     expected_cells = len({row["model_id"] for row in rows}) * 16
-    if len(rows) != expected_cells or any(row["seed"] != 0 or row["turn"] != 3 for row in rows):
+    if len(rows) != expected_cells or any(
+        row["seed"] != 0 or row["turn"] != 3 for row in rows
+    ):
         raise G43ExperimentError("G43_RESULT_MATRIX_INCOMPLETE")
     by_model = {
         model_id: _model_summary([row for row in rows if row["model_id"] == model_id])
@@ -509,8 +540,12 @@ def summarize_results(
     regressions_vs_g42 = []
     g42_rows = [row for row in rows if row["model_id"] == "g42-repair-sft"]
     for family in FAMILIES:
-        base_count = sum(row["reward"] == 1 for row in base_rows if row["family"] == family)
-        g42_count = sum(row["reward"] == 1 for row in g42_rows if row["family"] == family)
+        base_count = sum(
+            row["reward"] == 1 for row in base_rows if row["family"] == family
+        )
+        g42_count = sum(
+            row["reward"] == 1 for row in g42_rows if row["family"] == family
+        )
         n32_counts = [
             sum(
                 row["reward"] == 1
@@ -535,7 +570,9 @@ def summarize_results(
     performance = {}
     for model_id in by_model:
         model_headroom = [
-            row for row in rows if row["model_id"] == model_id and row["task_id"] in headroom_ids
+            row
+            for row in rows
+            if row["model_id"] == model_id and row["task_id"] in headroom_ids
         ]
         performance[model_id] = {
             "eligible_tasks": len(model_headroom),

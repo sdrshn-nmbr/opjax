@@ -135,13 +135,19 @@ and `1.01017x` for R1. The full result is in
 [`g6-results.json`](data/pallas/runs/g6-results.json).
 
 Laguna XS 2.1 now exists as an external base-model arm through SGLang. Its
-first frozen three-call run scored 0/16, with 16 candidate failures and no
-infrastructure failures. All 16 trajectories spent their three calls reading
-one file at a time, emitted empty patches, and stopped at the artifact
-contract. This is a real result for the three-call contract, but it confounds
-Pallas competence with the model's slower inspection policy. The preserved
-result is in
-[`laguna-xs-21-baseline-result.json`](data/pallas/runs/laguna-xs-21-baseline-result.json).
+paired six-call run captured and graded true prefixes at calls 3 and 6:
+
+| Horizon | Profile-verified | Non-empty patches | Infrastructure failures |
+|---|---:|---:|---:|
+| k=3 | 0/16 | 0/16 | 0/16 |
+| k=6 | 0/16 | 0/16 | 0/16 |
+
+Every trajectory read the instruction, API guide, starter kernel, and public
+check in separate calls. Most then listed files and reread the instruction.
+None edited or submitted. This is a real agent-policy result for both horizons,
+but it does not isolate Pallas competence from Laguna's one-file-per-call
+inspection policy. The preserved result is in
+[`laguna-xs-21-k6-result.json`](data/pallas/runs/laguna-xs-21-k6-result.json).
 
 ## What counts as a valid kernel
 
@@ -275,9 +281,9 @@ audited. Prime Intellect runtimes are deferred.
 
 The next probe is renderer and base-logit parity between the frozen Tinker
 contract and the Miles Inkling implementation, followed by a one-batch
-rank-64 SFT canary. Laguna runs as a parallel model arm: a separate six-call
-diagnostic comes first, followed by a Miles Laguna model-plugin port before
-matched training. DAPT, rollout, and G6 GRPO reproduction follow in that
+rank-64 SFT canary. Laguna runs as a parallel model arm: its six-call baseline
+is now frozen, and matched training requires a Miles Laguna model-plugin port.
+DAPT, rollout, and G6 GRPO reproduction follow in that
 order for each supported arm. Only after the reproduced S0 lane passes the
 unchanged frozen evaluation does Gate 7 run Miles OPD. The mapping and exact
 pass conditions are in
@@ -315,3 +321,4 @@ result is overturned, a later entry records the correction. The manifests in
 | 2026-08-06 | Ran matched four-turn online GRPO from S0 and S1 with real compiler, correctness, runtime, profile, and timing feedback on eight TPU workers. | R0 scored 7/16 versus S0 at 8/16; R1 scored 2/16 versus S1 at 1/16 but remained far below R0. Online reward rose in both lanes, so the result separates training-task repair from held-out weight improvement. |
 | 2026-08-06 | Inspected the pinned Tinker SDK and Cookbook through the project `uv` environment, then imported Miles and its `sglang-miles` rollout branch as pinned submodules and added an executable source-contract audit. | Miles has native Inkling Small, LoRA, GRPO, and OPD support. SGLang supplies Inkling rendering, inference, routed-expert capture, and adapter serving. Gate 7 paused at renderer, checkpoint, SFT, DAPT, rollout, and G6 reproduction canaries; no open-backend training result exists yet. |
 | 2026-08-06 | Added Laguna XS 2.1 as an exact-revision SGLang model arm and ran the frozen 16-task, three-call baseline through the authoritative TPU verifier. | BF16 tensor-parallel-1 inference fit on one H200. Laguna scored 0/16 with zero infrastructure failures because every trajectory used all three calls for inspection, emitted an empty patch, and failed the artifact contract. Miles training support remains unimplemented. |
+| 2026-08-06 | Extended the Laguna baseline to six calls while preserving immutable call-3 and call-6 snapshots from each trajectory. | Both horizons scored 0/16 with no infrastructure failures. Calls 4–6 continued inspection, no patch was created, and all 16 tasks remained fail-to-fail. The action-level k=3 prefix matched the original run on all tasks. |
