@@ -40,6 +40,8 @@ opjax-pallas-g43-corpus = "opjax.pallas.g43_corpus:main"
 opjax-pallas-g43-experiment = "opjax.pallas.g43_experiment:main"
 opjax-pallas-g43-sample = "opjax.pallas.g43_sampling:main"
 opjax-pallas-g43-train = "opjax.pallas.g43_training:main"
+opjax-pallas-g5-corpus = "opjax.pallas.g5_corpus:main"
+opjax-pallas-g5-train = "opjax.pallas.g5_training:main"
 
 [dependency-groups]
 dev = [

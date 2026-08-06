@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g5-dapt-ablation-inkling-small-v5e",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "repository_corpus_release_sha256": "bbaabb83c5c7c5d7e7a15a931680af809a32043754e9dea51919b3a0a5978355",
+  "hub_corpus_release_sha256": "d0343070235387c6cac7086dd220b9af69a3030eeebfaf939d8c7e1605302869",
+  "corpus_release_sha256": "f2abd50a7833b6155387c6c00250ec94f4528e51629d67ef31f0b97b01410673",
+  "dataset_sha256": "d4f54d975b5f12cbe12dbdb6b4e21f092fa6dd5cdb9190550756165ba71524bb",
+  "train_dataset_sha256": "1e7fe85c33263ea9953638e95c67bca917efce1a4a7a7acf5722d67a9ef4763a",
+  "validation_dataset_sha256": "b0b12f91471be27604672ee9c2008e7b3199b3132347b4ccfd171f2f46cdd872",
+  "validation_source_ids": [
+    "tokamax"
+  ],
+  "forbidden_source_ids": [
+    "pallasbench"
+  ],
+  "near_duplicate_threshold": 0.9,
+  "packing": {
+    "max_length": 8192,
+    "append_eos": true,
+    "shuffle_seed": 0,
+    "lane_token_weights": {
+      "pallas": 0.5,
+      "triton": 0.5
+    }
+  },
+  "training": {
+    "arm": "D0",
+    "lora_rank": 64,
+    "batch_size": 4,
+    "num_epochs": 1,
+    "learning_rate": 0.0001,
+    "lr_schedule": "constant",
+    "optimizer": {
+      "name": "adam",
+      "beta1": 0.9,
+      "beta2": 0.95,
+      "eps": 1e-8,
+      "weight_decay": 0.0,
+      "grad_clip_norm": 0.0
+    },
+    "loss_fn": "cross_entropy",
+    "training_seed": 0,
+    "checkpoint_every_steps": 50,
+    "validation_batch_size": 4
+  }
+}

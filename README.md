@@ -125,8 +125,10 @@ Speed is recorded separately. A fast wrong answer gets no credit.
   broad coverage.
 - The G4.2 dataset has 32 verified six-action runs and 192 training rows. The
   192 rows are prefixes of those 32 runs, not independent repairs.
-- The broad-kernel dataset has 830 approved rows. Domain-adaptive pretraining
-  (DAPT) has not started and remains an experiment, not an assumed improvement.
+- The corrected broad-kernel dataset has 854 approved rows: 179 clean
+  JAX/Tokamax/MaxText rows and 675 admitted Triton rows. The earlier 830-row
+  count used a superseded base that still contained 46 forbidden PallasBench
+  rows.
 
 Every SFT kernel must pass full-shape correctness on fixed seeds, real TPU
 lowering, profiling, license checks, duplicate checks, and JAXBench overlap
@@ -198,18 +200,10 @@ evidence separate. If any one changes, score the result again.
 
 ## Next step
 
-Gate 5 is the broad-kernel DAPT experiment. It is allowed to start, but the
-open questions from G4.2 should be resolved first:
-
-1. freeze a larger evaluation set with unseen operations and separate task
-   generation code;
-2. report results by task, not only by repeated model seeds;
-3. repeat checkpoint comparisons across training seeds;
-4. test solution exposure, shell-format training, verifier wording, and real
-   repair feedback separately; and
-5. add performance tasks where XLA has room to improve, including fusion,
-   ragged computation, structured sparsity, mixture-of-experts routing, and
-   larger model subgraphs.
+Gate 5 is active. It trains a DAPT-only checkpoint from Inkling-Small, applies
+the byte-identical G4.2 SFT recipe to that checkpoint, and benchmarks both
+checkpoints against their frozen controls. A negative result completes the
+method comparison and does not block the next post-training experiment.
 
 The JAXBench v5e check found one possible performance task: a corrected
 Megablox grouped matrix multiplication ran at `1.147x` XLA speed across three

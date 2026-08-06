@@ -272,6 +272,54 @@ def train_sft(
     )
 
 
+def _evaluate_datums(
+    *,
+    training: Any,
+    datums: list[tinker.Datum],
+    rows: list[dict[str, Any]],
+    batch_size: int,
+    loss_fn: str,
+    tokenizer: Any,
+) -> dict[str, Any]:
+    if not datums or len(datums) != len(rows) or batch_size <= 0:
+        raise TrainingError("VALIDATION_INPUT_INVALID")
+    logprobs = []
+    weights = []
+    targets = []
+    started = time.monotonic()
+    for offset in range(0, len(datums), batch_size):
+        batch = datums[offset : offset + batch_size]
+        forward = training.forward(batch, loss_fn=loss_fn).result()
+        logprobs.extend(output["logprobs"] for output in forward.loss_fn_outputs)
+        weights.extend(datum.loss_fn_inputs["weights"] for datum in batch)
+        targets.extend(datum.loss_fn_inputs["target_tokens"] for datum in batch)
+    by_lane: dict[str, dict[str, Any]] = {}
+    for lane in sorted({str(row["lane"]) for row in rows}):
+        indices = [index for index, row in enumerate(rows) if row["lane"] == lane]
+        by_lane[lane] = {
+            "sequences": len(indices),
+            "tokens": sum(rows[index]["token_count"] for index in indices),
+            "mean_nll": compute_mean_nll(
+                [logprobs[index] for index in indices],
+                [weights[index] for index in indices],
+            ),
+            "mean_bpb": compute_bpb(
+                [logprobs[index] for index in indices],
+                [weights[index] for index in indices],
+                [targets[index] for index in indices],
+                tokenizer,
+            ),
+        }
+    return {
+        "rows": len(rows),
+        "tokens": sum(row["token_count"] for row in rows),
+        "mean_nll": compute_mean_nll(logprobs, weights),
+        "mean_bpb": compute_bpb(logprobs, weights, targets, tokenizer),
+        "by_lane": by_lane,
+        "elapsed_seconds": time.monotonic() - started,
+    }
+
+
 def run_prepared_sft(
     *,
     preparation: dict[str, Any],
@@ -281,6 +329,12 @@ def run_prepared_sft(
     tokenizer: Any,
     repo_root: Path,
     out_dir: Path,
+    initial_state_path: str | None = None,
+    parent_run_sha256: str | None = None,
+    run_kind: str = "pallas_sft_run",
+    gate: str = "G4",
+    log_prefix: str = "PALLAS_G4_STEP",
+    validation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Execute an already validated and rendered SFT preparation."""
     if _tracked_dirty(repo_root):
@@ -292,7 +346,7 @@ def run_prepared_sft(
     training_config = preparation["training"]
     manifest = {
         "schema_version": 1,
-        "kind": "pallas_sft_run",
+        "kind": run_kind,
         "status": "running",
         "started_at": _utc_now(),
         "preparation_sha256": preparation["sha256"],
@@ -301,6 +355,8 @@ def run_prepared_sft(
         "corpus_release_sha256": preparation["corpus_release_sha256"],
         "dataset_sha256": preparation["dataset_sha256"],
         "base_model": preparation["base_model"],
+        "initial_state_path": initial_state_path,
+        "parent_run_sha256": parent_run_sha256,
         "completed_steps": 0,
         "total_steps": len(order) // training_config["batch_size"],
         "checkpoint": None,
@@ -310,7 +366,7 @@ def run_prepared_sft(
     service = tinker.ServiceClient(
         user_metadata={
             "project": "opjax",
-            "gate": "G4",
+            "gate": gate,
             "experiment_id": preparation["experiment_id"],
             "preparation_sha256": preparation["sha256"],
         }
@@ -320,17 +376,42 @@ def run_prepared_sft(
     }
     if preparation["base_model"] not in supported_models:
         raise TrainingError(f"BASE_MODEL_UNSUPPORTED: {preparation['base_model']}")
-    training = service.create_lora_training_client(
-        base_model=preparation["base_model"],
-        rank=training_config["lora_rank"],
-        seed=training_config["training_seed"],
-        train_mlp=True,
-        train_attn=True,
-        train_unembed=True,
-        user_metadata={"arm": training_config["arm"]},
-    )
+    if initial_state_path is None:
+        training = service.create_lora_training_client(
+            base_model=preparation["base_model"],
+            rank=training_config["lora_rank"],
+            seed=training_config["training_seed"],
+            train_mlp=True,
+            train_attn=True,
+            train_unembed=True,
+            user_metadata={"arm": training_config["arm"]},
+        )
+    else:
+        training = service.create_training_client_from_state(
+            initial_state_path,
+            user_metadata={"arm": training_config["arm"]},
+        )
     info = _json_value(training.get_info())
+    if (
+        info.get("is_lora") is not True
+        or info.get("lora_rank") != training_config["lora_rank"]
+        or info.get("model_data", {}).get("model_name") != preparation["base_model"]
+    ):
+        raise TrainingError(f"TRAINING_CLIENT_IDENTITY_MISMATCH: {info}")
     manifest["training_client"] = info
+    if validation is not None:
+        manifest["validation"] = {
+            "before": _evaluate_datums(
+                training=training,
+                datums=validation["datums"],
+                rows=validation["rows"],
+                batch_size=validation["batch_size"],
+                loss_fn=training_config["loss_fn"],
+                tokenizer=tokenizer,
+            ),
+            "after": None,
+        }
+        _write_json(out_dir / "validation.json", manifest["validation"])
     _write_json(out_dir / "manifest.json", manifest)
     optimizer = training_config["optimizer"]
     adam = tinker.AdamParams(
@@ -398,12 +479,22 @@ def run_prepared_sft(
             }
         _write_json(out_dir / "manifest.json", manifest)
         print(
-            "PALLAS_G4_STEP "
+            f"{log_prefix} "
             f"step={step}/{manifest['total_steps']} "
             f"nll={event['train_mean_nll']:.6f} "
             f"bpb={event['train_mean_bpb']:.6f}",
             flush=True,
         )
+    if validation is not None:
+        manifest["validation"]["after"] = _evaluate_datums(
+            training=training,
+            datums=validation["datums"],
+            rows=validation["rows"],
+            batch_size=validation["batch_size"],
+            loss_fn=training_config["loss_fn"],
+            tokenizer=tokenizer,
+        )
+        _write_json(out_dir / "validation.json", manifest["validation"])
     final_state = training.save_state("final", ttl_seconds=None).result()
     sampler_weights = training.save_weights_for_sampler(
         "final", ttl_seconds=None
@@ -417,6 +508,11 @@ def run_prepared_sft(
             "artifacts": {
                 "events.jsonl": _sha256_file(events_path),
                 "preparation.json": _sha256_file(out_dir / "preparation.json"),
+                **(
+                    {"validation.json": _sha256_file(out_dir / "validation.json")}
+                    if validation is not None
+                    else {}
+                ),
             },
         }
     )
