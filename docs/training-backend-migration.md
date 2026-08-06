@@ -17,6 +17,10 @@ and frozen evaluation. The training runtime becomes replaceable.
   the serving half of the Miles Inkling contract: it renders Inkling messages,
   serves the base and LoRA adapters, returns rollout log probabilities and MoE
   routed-expert IDs, and receives updated adapter tensors.
+- **Laguna XS 2.1 is a parallel model arm.** The pinned SGLang source can serve
+  its base checkpoint today. The pinned Miles source has no Laguna model or
+  training plugin, so matched SFT, DAPT, GRPO, and OPD remain blocked on that
+  port. Inkling Small remains the primary training arm until this gap closes.
 - **Palinkle keeps its current harness and verifier.** Migrating the trainer
   does not authorize replacing the isolated Git workspace, patch snapshots,
   remote TPU verifier, or evidence schemas.
@@ -32,7 +36,8 @@ or execution targets for this migration.
 | Tinker SDK | `0.24.0` | Managed LoRA client, forward/backward, optimizer, sampler materialization, checkpoint state |
 | Tinker Cookbook | `0.5.3` | Inkling tokenizer/renderer, supervised datum construction, rollout and RL recipes |
 | Miles | `b1860dd264e17c96d5d92da96c957d88cfd3a1f8` | Inkling Small LoRA, SGLang rollout, Megatron trainer, GRPO, OPD |
-| SGLang `sglang-miles` | `cb05a44f35a7c9e27e46d74112cc841ca674ef43` | Inkling model, renderer, LoRA serving, routed-expert capture, dynamic adapter loading |
+| SGLang `sglang-miles` | `cb05a44f35a7c9e27e46d74112cc841ca674ef43` | Inkling and Laguna inference, Poolside reasoning parser, LoRA serving, routed-expert capture, dynamic adapter loading |
+| Laguna XS 2.1 | `e9df9a59996d790b94b70f3fef343fe1d9e34bdf` | External 33B-total, 3B-active code-model arm; SGLang inference only at this boundary |
 
 Run the contract audit after checkout, dependency changes, or submodule
 updates:
@@ -99,6 +104,47 @@ Routing Replay for selected expert IDs, and adapter-only synchronization. The
 reported train-rollout KL near `1e-3` is a useful diagnostic target, not a pass
 condition copied into Palinkle without measurement.
 
+## Laguna XS 2.1 baseline
+
+The [model card](https://huggingface.co/poolside/Laguna-XS-2.1) and
+[technical report](https://poolside.ai/assets/laguna/laguna-m1-xs2-technical-report.pdf)
+describe a 33B-total, 3B-active mixture-of-experts code model. Inkling Small is
+276B total and 12B active. At equal precision, Laguna therefore has about
+`8.36x` less weight residency and `4x` less active forward compute. This is a
+model-capacity estimate, not an end-to-end throughput claim.
+
+The estimate held at the deployment boundary. The exact BF16 Laguna revision
+served with tensor parallelism 1 on one H200. After CUDA graph capture,
+`nvidia-smi` reported 106,044 MiB used out of 143,771 MiB. The frozen SGLang
+configuration used a 32,768-token context and the `poolside_v1` reasoning
+parser.
+
+The first frozen benchmark used the same 16 near-held-out tasks, seed 0, three
+model calls, temperature 0.2, top-p 0.95, hidden verifier, and TPU evidence
+contract as the existing model arms. It produced:
+
+| Result | Count |
+|---|---:|
+| Profile-verified | 0/16 |
+| Candidate failures | 16/16 |
+| Infrastructure failures | 0/16 |
+| Non-empty patches | 0/16 |
+
+Every trajectory read `instruction.md`, `PALLAS_API.md`, and `kernel.py` in
+three separate actions. It then exhausted the call budget without editing or
+submitting. Every TPU result therefore stopped at `artifact_contract`. This is
+a valid result for the frozen three-call agent contract. It does not isolate
+Laguna's underlying Pallas ability from its inspection policy. A separate
+six-call diagnostic is the next fair way to test that interaction; it must not
+replace or relabel the three-call result.
+
+Prime Intellect's
+[Laguna Jacobian-lens artifact](https://huggingface.co/PrimeIntellect/Laguna-XS.2-jlens)
+adds a useful diagnostics surface for layer convergence, representation
+similarity, and module-level probes. It is not a stronger generation
+checkpoint. Any use must first establish exact checkpoint and corpus alignment
+with the model arm under test.
+
 ## Conformance gates
 
 No result is compared with Tinker until the applicable lower gate passes.
@@ -139,7 +185,14 @@ optimizer, rollout policy, verifier, and checkpoint hashes.
   rendering, packing, and any media expansion.
 - The official full Inkling Small checkpoint conversion has not been run in
   this repository.
+- Miles has no Laguna XS 2.1 model, checkpoint conversion, LoRA, or optimizer
+  plugin at the pinned revision. SGLang inference support alone does not prove
+  train-inference parity for Laguna.
 
-Gate 7 is therefore paused at backend conformance. The next executable probe
-is Miles renderer and base-logit parity, followed by a one-batch SFT canary.
-This changes the runtime, not the task distribution, reward, or evaluation.
+Gate 7 is therefore paused at backend conformance. The next primary probe is
+Miles renderer and base-logit parity for Inkling Small, followed by a one-batch
+SFT canary. In parallel, Laguna gets a six-call inference diagnostic and then a
+Miles model-plugin port. Once the port passes the same conversion, renderer,
+one-step, rollout, and reload checks, the experiment factory can cross the
+model arm with the existing SFT, DAPT, GRPO, and OPD recipes without changing
+the data, harness, reward, or evaluation.

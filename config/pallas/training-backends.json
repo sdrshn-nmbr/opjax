@@ -33,15 +33,33 @@
         "inkling",
         "inkling_lora",
         "inkling_renderer",
+        "laguna_xs_21_inference",
+        "poolside_v1_reasoning_parser",
         "routed_expert_capture",
         "dynamic_adapter_loading",
         "rollout_logprobs"
       ],
       "known_gaps": [
+        "laguna_xs_21_miles_training",
         "verified_inkling_small_launch",
         "verified_tinker_renderer_parity",
         "verified_miles_train_inference_parity"
       ]
+    }
+  },
+  "model_arms": {
+    "inkling_small": {
+      "role": "primary_training_and_evaluation_arm",
+      "training_backend": "miles",
+      "inference_backend": "sglang"
+    },
+    "laguna_xs_21": {
+      "model_id": "poolside/Laguna-XS-2.1",
+      "revision": "e9df9a59996d790b94b70f3fef343fe1d9e34bdf",
+      "role": "parallel_external_model_arm",
+      "training_backend": null,
+      "inference_backend": "sglang",
+      "training_status": "blocked_on_miles_model_plugin"
     }
   },
   "conformance_order": [

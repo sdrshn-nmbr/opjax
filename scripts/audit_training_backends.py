@@ -51,6 +51,8 @@ SOURCE_CONTRACTS = {
         },
     },
     "sglang": {
+        "python/sglang/srt/configs/laguna.py": {"LagunaConfig"},
+        "python/sglang/srt/models/laguna.py": {"LagunaForCausalLM"},
         "python/sglang/srt/models/inkling.py": {
             "InklingCausalLLM",
             "InklingForConditionalGeneration",
@@ -59,6 +61,7 @@ SOURCE_CONTRACTS = {
             "render_inkling_messages"
         },
         "python/sglang/srt/parser/inkling_tokenizer.py": {"InklingTokenizer"},
+        "python/sglang/srt/parser/reasoning_parser.py": {"_PoolsideV1Detector"},
         "python/sglang/srt/lora/lora.py": {"LoRAAdapter", "LoRALayer"},
         "python/sglang/srt/lora/lora_manager.py": {"LoRAManager"},
         "python/sglang/srt/managers/io_struct.py": {
