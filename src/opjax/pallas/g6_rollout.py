@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -16,6 +17,7 @@ from opjax.pallas.g42_harness import (
     G42HarnessError,
     TaskPackage,
     create_agent_workspace,
+    file_sha256,
     parse_action,
     snapshot_workspace,
 )
@@ -264,6 +266,14 @@ def _write_step(step_result: RolloutStep, out_dir: Path) -> None:
             "trajectories": len(step_result.trajectories),
             "turn_samples": len(records),
             "trainable_samples": len(step_result.trainable_samples),
+            "verifier_executions": sum(
+                record["verifier_result"].get("cache", {}).get("hit") is False
+                for record in records
+            ),
+            "verifier_cache_hits": sum(
+                record["verifier_result"].get("cache", {}).get("hit") is True
+                for record in records
+            ),
         },
         "advantages": {
             task_id: {
@@ -305,6 +315,7 @@ def collect_rollout_step(
             create_agent_workspace(task, root / "workspace")
             states.append(TrajectoryState(task, trajectory, root / "workspace"))
     base_seed = int(rollout["sampling_seed"]) + step * 10_000_000
+    verifier_cache: dict[tuple[str, str], tuple[dict[str, Any], str]] = {}
     for turn in range(1, turn_count + 1):
         samples: list[tuple[TrajectoryState, TurnSample]] = []
         if turn == 1:
@@ -373,24 +384,42 @@ def collect_rollout_step(
                 future.result()
         candidates = []
         by_unit = {}
+        key_by_unit = {}
+        pending_keys = set()
         for state, sample in samples:
             state.samples.append(sample)
             unit_id = f"{state.task.task_id}--trajectory-{state.trajectory:02d}--turn-{turn}"
-            candidate = VerifierCandidate(
-                unit_id=unit_id,
-                task_path=state.task.root / "tests" / "task.json",
-                kernel_path=state.workspace.parent / "snapshots" / f"turn-{turn}-kernel.py",
-            )
-            candidates.append(candidate)
+            kernel_path = state.workspace.parent / "snapshots" / f"turn-{turn}-kernel.py"
+            key = (state.task.task_sha256, file_sha256(kernel_path))
+            key_by_unit[unit_id] = key
+            if key not in verifier_cache and key not in pending_keys:
+                candidate = VerifierCandidate(
+                    unit_id=unit_id,
+                    task_path=state.task.root / "tests" / "task.json",
+                    kernel_path=kernel_path,
+                )
+                candidates.append(candidate)
+                pending_keys.add(key)
             by_unit[unit_id] = sample
-        results = verifier.verify(
-            candidates=candidates,
-            batch_root=out_dir / "verifier" / f"turn-{turn}",
-        )
-        for unit_id, result in results.items():
+        if candidates:
+            results = verifier.verify(
+                candidates=candidates,
+                batch_root=out_dir / "verifier" / f"turn-{turn}",
+            )
+            for candidate in candidates:
+                key = key_by_unit[candidate.unit_id]
+                verifier_cache[key] = (results[candidate.unit_id], candidate.unit_id)
+        for unit_id, sample in by_unit.items():
+            result, source_unit_id = verifier_cache[key_by_unit[unit_id]]
+            result = copy.deepcopy(result)
+            result["cache"] = {
+                "hit": unit_id != source_unit_id,
+                "source_unit_id": source_unit_id,
+                "task_sha256": key_by_unit[unit_id][0],
+                "kernel_sha256": key_by_unit[unit_id][1],
+            }
             if result.get("infrastructure_error") is True:
                 raise G6RolloutError(f"G6_VERIFIER_INFRASTRUCTURE_FAILURE: {unit_id}")
-            sample = by_unit[unit_id]
             sample.verifier_result = result
             sample.feedback = feedback_from_result(result)
             sample.score = kernel_score(
@@ -398,7 +427,8 @@ def collect_rollout_step(
             )
         print(
             f"G6_ROLLOUT step={step} turn={turn}/{turn_count} "
-            f"verified={sum(sample.score > 0 for _, sample in samples)}/{len(samples)}",
+            f"verified={sum(sample.score > 0 for _, sample in samples)}/{len(samples)} "
+            f"executed={len(candidates)} cache_hits={len(samples) - len(candidates)}",
             flush=True,
         )
     advantages = {}

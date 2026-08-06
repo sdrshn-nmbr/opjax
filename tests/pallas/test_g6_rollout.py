@@ -82,7 +82,11 @@ def test_deterministic_online_step_preserves_16_by_4_credit_contract(
             return "```mswea_bash_command\ntrue\n```"
 
     class FakeVerifier:
+        def __init__(self):
+            self.calls = []
+
         def verify(self, *, candidates, batch_root):
+            self.calls.append(len(candidates))
             return {
                 candidate.unit_id: (
                     {
@@ -121,6 +125,7 @@ def test_deterministic_online_step_preserves_16_by_4_credit_contract(
 
     monkeypatch.setattr("opjax.pallas.g6_rollout._sample", fake_sample)
     monkeypatch.setattr("opjax.pallas.g6_rollout._execute_action", fake_execute)
+    verifier = FakeVerifier()
     result = collect_rollout_step(
         step=1,
         tasks=tasks,
@@ -140,12 +145,16 @@ def test_deterministic_online_step_preserves_16_by_4_credit_contract(
             "sampling_seed": 0,
             "max_sampling_concurrency": 64,
         },
-        verifier=FakeVerifier(),
+        verifier=verifier,
         out_dir=tmp_path / "step",
     )
     assert len(result.trajectories) == 128
     assert len(result.trainable_samples) == 512
     assert all(batch.trainable for batch in result.advantages.values())
+    assert verifier.calls == [8]
+    trajectory = json.loads((tmp_path / "step/trajectory.json").read_text())
+    assert trajectory["counts"]["verifier_executions"] == 8
+    assert trajectory["counts"]["verifier_cache_hits"] == 504
     successful = next(
         state for state in result.trajectories if state.trajectory == 0
     )

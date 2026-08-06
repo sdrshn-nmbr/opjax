@@ -9,7 +9,13 @@ from pathlib import Path
 from typing import Any
 
 from opjax.pallas.g42_experiment import _worker_health
-from opjax.pallas.g42_harness import canonical_sha256, file_sha256
+from opjax.pallas.environment import verify_static
+from opjax.pallas.g42_harness import (
+    MANDATORY_STAGES,
+    canonical_sha256,
+    file_sha256,
+    write_verifier_artifacts,
+)
 from opjax.pallas.g42_verifier import run_fresh_verifier
 
 
@@ -22,6 +28,37 @@ def _load(path: Path) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise G6RemoteError(f"G6_REMOTE_JSON_OBJECT_REQUIRED: {path}")
     return value
+
+
+def _static_preflight(*, task: dict[str, Any], kernel_path: Path, output: Path) -> dict[str, Any] | None:
+    source = kernel_path.read_text(encoding="utf-8")
+    verdict = verify_static(f"```python\n{source}\n```")
+    if verdict.passed:
+        return None
+    stage = "artifact_contract" if verdict.stage == "output_contract" else verdict.stage
+    stages = {name: False for name in MANDATORY_STAGES}
+    if stage != "artifact_contract":
+        stages["artifact_contract"] = True
+    result = {
+        "passed": False,
+        "stage": stage,
+        "error": verdict.feedback,
+        "hardware": {"target": "tpu", "execution": "static_preflight"},
+        "kernel_sha256": file_sha256(kernel_path),
+        "stages": stages,
+        "authentic": False,
+        "correct": False,
+        "normal_lowered": False,
+        "infrastructure_error": False,
+        "preflight_evidence": verdict.evidence,
+    }
+    write_verifier_artifacts(
+        result=result,
+        output_dir=output,
+        task_id=task["task_id"],
+        kernel_sha256=result["kernel_sha256"],
+    )
+    return result
 
 
 def verify_batch(*, batch_root: Path, timeout_seconds: int) -> dict[str, Any]:
@@ -52,12 +89,16 @@ def verify_batch(*, batch_root: Path, timeout_seconds: int) -> dict[str, Any]:
         if run_log.is_file():
             result = _load(run_log)
         else:
-            result = run_fresh_verifier(
-                task_path=task_path,
-                kernel_path=kernel_path,
-                output_dir=output,
-                timeout_seconds=timeout_seconds,
-            )["result"]
+            result = _static_preflight(
+                task=_load(task_path), kernel_path=kernel_path, output=output
+            )
+            if result is None:
+                result = run_fresh_verifier(
+                    task_path=task_path,
+                    kernel_path=kernel_path,
+                    output_dir=output,
+                    timeout_seconds=timeout_seconds,
+                )["result"]
         if result.get("worker_recovery_required") is True:
             health = _worker_health(None)
             recovery_events.append({"after_unit": record["unit_id"], **health})
