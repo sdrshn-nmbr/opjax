@@ -221,7 +221,7 @@ class RemoteTPUPoolVerifier:
         remote_command = (
             f"rm -rf {remote_root} {remote_output} && mkdir -p {remote_root} && "
             f"tar -xzf {remote_archive} -C {remote_root} && "
-            f"cd {self.remote_repo} && .venv/bin/python -m opjax.pallas.g6_remote "
+            f"cd {self.remote_repo} && PYTHONPATH=src .venv/bin/python -m opjax.pallas.g6_remote "
             f"--batch-root {remote_root}/batch --timeout-seconds {self.timeout_seconds} && "
             f"tar -czf {remote_output} -C {remote_root}/batch results.json results"
         )
