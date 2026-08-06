@@ -269,7 +269,8 @@ def train_lane(
                     update_metrics.append(
                         {
                             "update": update,
-                            "loss": _json(forward_result).get("loss"),
+                            "loss_fn_output_type": forward_result.loss_fn_output_type,
+                            "forward_metrics": forward_result.metrics,
                             "optimizer_metrics": _json(optimizer_result).get("metrics"),
                         }
                     )
