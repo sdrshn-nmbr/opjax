@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "tinker": {
+    "sdk_version": "0.24.0",
+    "cookbook_version": "0.5.3",
+    "role": "frozen_behavioral_reference"
+  },
+  "backends": {
+    "miles": {
+      "revision": "b1860dd264e17c96d5d92da96c957d88cfd3a1f8",
+      "role": "primary_inkling_small_runtime",
+      "capabilities": [
+        "inkling_small",
+        "lora",
+        "sft",
+        "grpo",
+        "opd",
+        "sglang_rollout",
+        "megatron_training"
+      ],
+      "known_gaps": [
+        "opsd",
+        "rmsd",
+        "verified_official_checkpoint_conversion",
+        "verified_tinker_renderer_parity"
+      ]
+    },
+    "sglang": {
+      "revision": "cb05a44f35a7c9e27e46d74112cc841ca674ef43",
+      "branch": "sglang-miles",
+      "role": "inkling_small_rollout_runtime",
+      "capabilities": [
+        "inkling",
+        "inkling_lora",
+        "inkling_renderer",
+        "routed_expert_capture",
+        "dynamic_adapter_loading",
+        "rollout_logprobs"
+      ],
+      "known_gaps": [
+        "verified_inkling_small_launch",
+        "verified_tinker_renderer_parity",
+        "verified_miles_train_inference_parity"
+      ]
+    }
+  },
+  "conformance_order": [
+    "checkout_audit",
+    "renderer_parity",
+    "forward_parity",
+    "sft_one_step_parity",
+    "dapt_one_step_parity",
+    "rollout_parity",
+    "g6_grpo_reproduction",
+    "gate7_miles_opd"
+  ]
+}

@@ -64,6 +64,14 @@ The coding harness uses
 reference is [Kevin](https://arxiv.org/abs/2507.11948), with a local extraction
 in [`kevin32b.md`](kevin32b.md). `composer2.md` contains the Composer 2 notes.
 
+The open training-backend migration uses pinned git submodules for
+[Miles](references/miles) and its [SGLang](references/sglang) rollout runtime.
+Miles provides the Inkling Small model, LoRA, Megatron training, GRPO, and OPD;
+the `sglang-miles` branch provides Inkling rendering, inference, routed-expert
+capture, and adapter serving. See the
+[`training backend migration`](docs/training-backend-migration.md) for the
+mapping and conformance gates.
+
 ## Current result
 
 G4.2 is the first checkpoint that clearly improved Pallas kernel generation.
@@ -178,6 +186,8 @@ checks.
 | [`tests_tinker/pallas`](tests_tinker/pallas) | Tinker and agent integration tests |
 | [`environments/pallas-eval`](environments/pallas-eval) | Isolated TPU test environment |
 | [`data/pallas/runs`](data/pallas/runs) | Run manifests and evidence |
+| [`references/miles`](references/miles) | Pinned Miles runtime, Inkling Small model, LoRA, rollout, GRPO, and OPD source |
+| [`references/sglang`](references/sglang) | Pinned `sglang-miles` rollout, Inkling renderer, model, LoRA, and route-capture source |
 | [`docs/model-factory`](docs/model-factory) | Earlier model-training experiments |
 | [`archive`](archive) | Old plans, references, and work logs kept for provenance |
 
@@ -204,6 +214,7 @@ uv run opjax-pallas-g42-agent --help
 uv run opjax-pallas-g42-experiment --help
 uv run opjax-pallas-g5-corpus --help
 uv run opjax-pallas-g5-experiment --help
+uv run --no-default-groups --group tinker python scripts/audit_training_backends.py
 ```
 
 Local tests do not prove that a kernel works on a TPU. TPU runs use the pinned
@@ -246,10 +257,19 @@ evidence separate. If any one changes, score the result again.
 
 ## Next step
 
-Gate 7 is active. It runs matched online policy distillation from S0 and S1
-using the same task distribution, isolated workspace, hidden TPU verifier,
-rollout budget, reward, and frozen evaluation matrix as Gate 6. The teacher,
-token alignment, and OPD objective must be frozen before the first update.
+Gate 7 is paused at backend conformance while training moves from Tinker to an
+open GPU runtime. Miles is the first execution target because the pinned source
+already supports Inkling Small, LoRA, SGLang rollouts, GRPO, and OPD. The
+matching `sglang-miles` source is pinned separately so renderer, routed-expert
+capture, behavior log probabilities, and adapter synchronization can be
+audited. Prime Intellect runtimes are deferred.
+
+The next probe is renderer and base-logit parity between the frozen Tinker
+contract and the Miles Inkling implementation, followed by a one-batch
+rank-64 SFT canary. DAPT, rollout, and G6 GRPO reproduction follow in that
+order. Only after the reproduced S0 lane passes the unchanged frozen
+evaluation does Gate 7 run Miles OPD. The mapping and exact pass conditions are
+in [`training-backend-migration.md`](docs/training-backend-migration.md).
 
 The JAXBench v5e check found one possible performance task: a corrected
 Megablox grouped matrix multiplication ran at `1.147x` XLA speed across three
@@ -281,3 +301,4 @@ result is overturned, a later entry records the correction. The manifests in
 | 2026-08-05 | Ran a three-seed 8/16/32-trajectory SFT learning curve on 16 unseen tasks. | The curve was non-monotonic and seed-sensitive. G4.2 remained strongest at 8/16; the best new arms reached 7/16. |
 | 2026-08-05 | Corrected the DAPT corpus to 854 rows, trained D0, continued it through the identical G4.2 SFT recipe as S1, and ran the frozen 16-task TPU benchmark. | DAPT reduced validation NLL by 38.25%, but D0 scored 0/16 and S1 scored 1/16 versus S0 at 8/16. Gate 5 closed negative and Gate 6 GRPO became active. |
 | 2026-08-06 | Ran matched four-turn online GRPO from S0 and S1 with real compiler, correctness, runtime, profile, and timing feedback on eight TPU workers. | R0 scored 7/16 versus S0 at 8/16; R1 scored 2/16 versus S1 at 1/16 but remained far below R0. Online reward rose in both lanes, so the result separates training-task repair from held-out weight improvement. |
+| 2026-08-06 | Inspected the pinned Tinker SDK and Cookbook through the project `uv` environment, then imported Miles and its `sglang-miles` rollout branch as pinned submodules and added an executable source-contract audit. | Miles has native Inkling Small, LoRA, GRPO, and OPD support. SGLang supplies Inkling rendering, inference, routed-expert capture, and adapter serving. Gate 7 paused at renderer, checkpoint, SFT, DAPT, rollout, and G6 reproduction canaries; no open-backend training result exists yet. |
