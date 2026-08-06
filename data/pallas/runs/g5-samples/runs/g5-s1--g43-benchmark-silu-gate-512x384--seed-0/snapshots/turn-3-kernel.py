@@ -1,0 +1,21 @@
+import jax
+import jax.numpy as jnp
+import jax.experimental.pallas as pl
+
+def workload(x_ref, y_ref, o_ref):
+    x = x_ref[...]
+    y = y_ref[...]
+    o_ref[...] = jax.nn.silu(x) * y
+
+@jax.jit
+def kernel(x, y):
+    return pl.pallas_call(
+        workload,
+        out_shape=jax.ShapeDtypeStruct.like(x),
+        grid=(x.shape[0],),
+        in_specs=[
+            pl.BlockSpec((1, x.shape[1]), lambda i: (i, 0)),
+            pl.BlockSpec((1, x.shape[1]), lambda i: (i, 0)),
+        ],
+        out_specs=pl.BlockSpec((1, x.shape[1]), lambda i: (i, 0)),
+    )(x, y)

@@ -1,0 +1,51 @@
+{
+  "admission_release_sha256": "c6751950420b7aef43b85156403badbb60d60228dfd388381487103ad2f0ba19",
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "config_sha256": "8c09fa971343e1b8d97aec666a65d7e363206610ef73d9bdc67201537af24fb4",
+  "control_checkpoints": {
+    "s0": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final"
+  },
+  "control_result_sha256": "bff8656684f94d8a1e599e29f83c75a4003a3dea406865d45ab1bd6683389877",
+  "controls": {
+    "base": "inkling-small-base",
+    "s0": "g42-repair-sft"
+  },
+  "evaluation_seed": 0,
+  "experiment_id": "pallas-g5-dapt-ablation-inkling-small-v5e",
+  "headroom_task_ids": [
+    "g43-benchmark-transpose-abs-384x640"
+  ],
+  "kind": "pallas_g5_evaluation_config",
+  "lineage": {
+    "d0_run_sha256": "19a92021c16b624540e820416b206d4ac0b7fdd0f61f090f81c3e3be1076752c",
+    "s0_recipe_sha256": "eaffc9260966c51a16cad605ddaa1fbe245fe360170b79cc84c71eeb0293ee2f",
+    "s0_run_sha256": "64b3adbfb7402dd3f5c74a5286e0783422785f608a585a61acaa6dba4a8b9b60",
+    "s1_parent_run_sha256": "19a92021c16b624540e820416b206d4ac0b7fdd0f61f090f81c3e3be1076752c",
+    "s1_recipe_sha256": "eaffc9260966c51a16cad605ddaa1fbe245fe360170b79cc84c71eeb0293ee2f",
+    "s1_run_sha256": "c599ff939bb7fe4bad4fa15e8ae01af54cb4acdd87c1e084af3b9bc0467a1d8e"
+  },
+  "max_sampling_workers": 4,
+  "models": [
+    {
+      "checkpoint": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "19a92021c16b624540e820416b206d4ac0b7fdd0f61f090f81c3e3be1076752c",
+      "group": "dapt",
+      "model_id": "g5-d0",
+      "training_seed": 0,
+      "trajectory_count": 0
+    },
+    {
+      "checkpoint": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/sampler_weights/final",
+      "checkpoint_run_sha256": "c599ff939bb7fe4bad4fa15e8ae01af54cb4acdd87c1e084af3b9bc0467a1d8e",
+      "group": "dapt_sft",
+      "model_id": "g5-s1",
+      "training_seed": 0,
+      "trajectory_count": 32
+    }
+  ],
+  "schema_version": 1,
+  "snapshot_turns": [
+    3
+  ],
+  "turn_limit": 3
+}

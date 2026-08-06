@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "task_id": "g43-benchmark-matmul-square-384x256x384",
+  "tests": [
+    {
+      "message": null,
+      "name": "artifact_contract",
+      "status": "passed"
+    },
+    {
+      "message": null,
+      "name": "pallas_api",
+      "status": "passed"
+    },
+    {
+      "message": "ValueError: The Pallas TPU lowering currently requires that the last two dimensions of your block shape are divisible by 8 and 128 respectively, or be equal to the respective dimensions of the overall array. Block spec for args[0] in pallas_call kernel at /tmp/opjax-g5/g5-verifier/units/g5-s1--g43-benchmark-matmul-square-384x256x384--seed-0--turn-3/kernel.py:10 has block shape (Blocked(block_size=1), Blocked(block_size=256)), array shape (384, 256), and index_map { lambda ; a:i32[] b:i32[]. let  in (a, 0:i32[]) }, in memory space None.\nSee details at https://docs.jax.dev/en/latest/pallas/grid_blockspec.html#pallas-blockspec",
+      "name": "tpu_compile",
+      "status": "failed"
+    },
+    {
+      "message": null,
+      "name": "full_shape_correctness",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "normal_lowering",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "runtime_safety",
+      "status": "not_run"
+    },
+    {
+      "message": null,
+      "name": "profile",
+      "status": "not_run"
+    }
+  ]
+}

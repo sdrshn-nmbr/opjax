@@ -1,0 +1,15 @@
+import jax
+import jax.numpy as jnp
+import jax.experimental.pallas as pl
+
+def workload(x_ref, o_ref):
+    o_ref[...] = jnp.max(x_ref[...], axis=0)
+
+def kernel(x, o):
+    pl.pallas_call(
+        workload,
+        out_shape=o,
+        grid=(),
+        in_specs=[pl.BlockSpec((320, 512), lambda: (0, 0))],
+        out_specs=pl.BlockSpec((512,), lambda: (0,)),
+    )(x)

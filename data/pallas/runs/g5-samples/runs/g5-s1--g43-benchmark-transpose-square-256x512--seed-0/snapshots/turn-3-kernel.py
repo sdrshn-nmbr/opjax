@@ -1,0 +1,17 @@
+import jax
+import jax.numpy as jnp
+import jax.experimental.pallas as pl
+
+def workload(*inputs):
+    x, = inputs
+
+    def kernel(x_ref, o_ref):
+        o_ref[...] = jnp.transpose(x_ref[...], (1, 0))
+
+    return pl.pallas_call(
+        kernel,
+        out_shape=jax.ShapeDtypeStruct((512, 256), x.dtype),
+        grid=(),
+        in_specs=[pl.BlockSpec((256, 512), lambda: (0, 0))],
+        out_specs=pl.BlockSpec((512, 256), lambda: (0, 0)),
+    )(x)

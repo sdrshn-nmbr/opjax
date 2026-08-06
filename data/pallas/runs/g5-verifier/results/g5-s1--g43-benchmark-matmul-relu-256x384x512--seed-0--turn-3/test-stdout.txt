@@ -1,0 +1,36 @@
+{
+  "authentic": true,
+  "correct": false,
+  "error": "XlaRuntimeError: RESOURCE_EXHAUSTED: Ran out of memory in memory space vmem while allocating on stack for %main.1 = f32[256,512]{1,0:T(8,128)} custom-call(%Arg_0.1, %Arg_1.2), custom_call_target=\"tpu_custom_call\", operand_layout_constraints={f32[256,384]{1,0}, f32[384,512]{1,0}}, metadata={op_name=\"jit(workload)/jit(main)/pallas_call\" source_file=\"/tmp/opjax-g5/g5-verifier/units/g5-s1--g43-benchmark-matmul-relu-256x384x512--seed-0--turn-3/kernel.py\" source_line=16}. Scoped allocation with size 42.25M and limit 16.00M exceeded scoped vmem limit by 26.25M. It should not be possible to run out of scoped vmem - please file a bug against XLA.",
+  "hardware": {
+    "device_count": 1,
+    "device_kinds": [
+      "TPU v5 lite"
+    ],
+    "platforms": [
+      "tpu"
+    ],
+    "process_count": 1,
+    "process_index": 0
+  },
+  "infrastructure_error": false,
+  "kernel_sha256": "fc2915efe09b4560d712c0b6198d24b27c8f141c21ead1b5aab4ca55584fc077",
+  "normal_lowered": false,
+  "passed": false,
+  "process": {
+    "returncode": 2,
+    "stderr": "/tmp/opjax-g5/environments/pallas-eval/.venv/lib/python3.10/site-packages/jax/_src/cloud_tpu_init.py:84: UserWarning: Transparent hugepages are not enabled. TPU runtime startup and shutdown time should be significantly improved on TPU v5e and newer. If not already set, you may need to enable transparent hugepages in your VM image (sudo sh -c \"echo always > /sys/kernel/mm/transparent_hugepage/enabled\")\n  warnings.warn(\n",
+    "stdout": "{\"authentic\": true, \"correct\": false, \"error\": \"XlaRuntimeError: RESOURCE_EXHAUSTED: Ran out of memory in memory space vmem while allocating on stack for %main.1 = f32[256,512]{1,0:T(8,128)} custom-call(%Arg_0.1, %Arg_1.2), custom_call_target=\\\"tpu_custom_call\\\", operand_layout_constraints={f32[256,384]{1,0}, f32[384,512]{1,0}}, metadata={op_name=\\\"jit(workload)/jit(main)/pallas_call\\\" source_file=\\\"/tmp/opjax-g5/g5-verifier/units/g5-s1--g43-benchmark-matmul-relu-256x384x512--seed-0--turn-3/kernel.py\\\" source_line=16}. Scoped allocation with size 42.25M and limit 16.00M exceeded scoped vmem limit by 26.25M. It should not be possible to run out of scoped vmem - please file a bug against XLA.\", \"hardware\": {\"device_count\": 1, \"device_kinds\": [\"TPU v5 lite\"], \"platforms\": [\"tpu\"], \"process_count\": 1, \"process_index\": 0}, \"infrastructure_error\": false, \"kernel_sha256\": \"fc2915efe09b4560d712c0b6198d24b27c8f141c21ead1b5aab4ca55584fc077\", \"normal_lowered\": false, \"passed\": false, \"stage\": \"tpu_compile\", \"stages\": {\"artifact_contract\": true, \"full_shape_correctness\": false, \"normal_lowering\": false, \"pallas_api\": true, \"profile\": false, \"runtime_safety\": false, \"tpu_compile\": false}}\n",
+    "timed_out": false
+  },
+  "stage": "tpu_compile",
+  "stages": {
+    "artifact_contract": true,
+    "full_shape_correctness": false,
+    "normal_lowering": false,
+    "pallas_api": true,
+    "profile": false,
+    "runtime_safety": false,
+    "tpu_compile": false
+  }
+}

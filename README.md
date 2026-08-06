@@ -92,6 +92,22 @@ not yet show broad transfer, learned repair, or kernel optimization skill. The
 full result is in
 [`g42-final-results.json`](data/pallas/runs/g42-final-results.json).
 
+Gate 5 tested domain-adaptive LoRA on the corrected 854-row broad-kernel
+corpus. It improved held-out corpus likelihood but hurt the frozen agent task:
+
+| Model | Profile-verified kernels on 16 unseen tasks |
+|---|---:|
+| Inkling Small base | 0/16 |
+| G4.2 SFT (S0) | **8/16** |
+| DAPT only (D0) | 0/16 |
+| DAPT then identical SFT (S1) | 1/16 |
+
+D0 reduced held-out mean NLL from `1.10265` to `0.68093` (`-38.25%`), so the
+domain-modeling intervention worked on its own objective. It did not transfer
+to three-call kernel generation. S1's only valid kernel was binary add at
+`0.99842x` XLA. The full result is in
+[`g5-results.json`](data/pallas/runs/g5-results.json).
+
 ## What counts as a valid kernel
 
 A generated kernel must:
@@ -168,6 +184,8 @@ uv run opjax-pallas --help
 uv run opjax-pallas validate-corpus --help
 uv run opjax-pallas-g42-agent --help
 uv run opjax-pallas-g42-experiment --help
+uv run opjax-pallas-g5-corpus --help
+uv run opjax-pallas-g5-experiment --help
 ```
 
 Local tests do not prove that a kernel works on a TPU. TPU runs use the pinned
@@ -194,16 +212,24 @@ cloud environment and produce evidence manifests.
   seeing the solution pattern and learning the shell format.
 - Add and dense matrix multiplication are useful basic tests but weak speed
   tests because XLA already handles them well.
+- Lower domain validation loss is not agent capability. Gate 5 reduced DAPT
+  validation NLL by 38.25%, while D0 remained at 0/16 and S1 regressed from
+  the S0 control's 8/16 to 1/16.
+- For small elementwise kernels, end-to-end latency can hide device behavior.
+  Gate 5 binary add spent about 5.54 microseconds in the TPU program but about
+  53.21 microseconds in the blocking region, so its 0.99842x end-to-end result
+  is dispatch and synchronization dominated.
 
 The main lesson is simple: keep the claim, the training change, and the
 evidence separate. If any one changes, score the result again.
 
 ## Next step
 
-Gate 5 is active. It trains a DAPT-only checkpoint from Inkling-Small, applies
-the byte-identical G4.2 SFT recipe to that checkpoint, and benchmarks both
-checkpoints against their frozen controls. A negative result completes the
-method comparison and does not block the next post-training experiment.
+Gate 6 is active. It runs matched multi-turn GRPO from S0 and S1 using the
+existing isolated workspace and hidden TPU verifier. Online trajectories
+receive sanitized compiler, runtime, correctness, timing, and profiler
+feedback. The two lanes measure GRPO lift and whether the negative DAPT
+initialization changes that lift.
 
 The JAXBench v5e check found one possible performance task: a corrected
 Megablox grouped matrix multiplication ran at `1.147x` XLA speed across three
@@ -232,3 +258,5 @@ result is overturned, a later entry records the correction. The manifests in
 | 2026-08-04 | Fixed hidden interface details in the training prompts and allowed up to three feedback attempts in G4.1. | G4.1 recovered some kernels after feedback but did not beat the base model: 1/4 versus 1/4. |
 | 2026-08-04 to 2026-08-05 | Built the G4.2 patch-based agent test, hidden verifier, 32-task repair dataset, six-action runs, and matched three-model comparison. | G4.2 reached 7/12 after both three and six calls, versus base at 0/12 and 4/12. This was the first positive checkpoint result, but speed stayed near XLA and the test covered only four tasks. |
 | 2026-08-05 | Tested all eight optimized JAXBench references on a v5e before choosing speed tasks. | None worked as a strict shared-environment comparison. A corrected setup found stable `1.147x` Megablox headroom, which remains provisional. |
+| 2026-08-05 | Ran a three-seed 8/16/32-trajectory SFT learning curve on 16 unseen tasks. | The curve was non-monotonic and seed-sensitive. G4.2 remained strongest at 8/16; the best new arms reached 7/16. |
+| 2026-08-05 | Corrected the DAPT corpus to 854 rows, trained D0, continued it through the identical G4.2 SFT recipe as S1, and ran the frozen 16-task TPU benchmark. | DAPT reduced validation NLL by 38.25%, but D0 scored 0/16 and S1 scored 1/16 versus S0 at 8/16. Gate 5 closed negative and Gate 6 GRPO became active. |

@@ -1,0 +1,24 @@
+{
+  "authentic": false,
+  "beats_xla": false,
+  "correct": false,
+  "failure_stage": "pallas_api",
+  "infrastructure_error": false,
+  "kernel_sha256": "9f8131ad176c08846688e949f589c2303c436fbf9a26ee36aedcb6ed9d667291",
+  "normal_lowered": false,
+  "profiled": false,
+  "reward": 0,
+  "schema_version": 1,
+  "speedup": null,
+  "stage_fractions": {
+    "artifact_contract": 1.0,
+    "full_shape_correctness": 0.0,
+    "normal_lowering": 0.0,
+    "pallas_api": 0.0,
+    "profile": 0.0,
+    "runtime_safety": 0.0,
+    "tpu_compile": 0.0
+  },
+  "task_id": "g43-benchmark-activation-relu-768x512",
+  "worker_recovery_required": false
+}

@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-label="Roofline chart">
+<rect x="0" y="0" width="900" height="560" fill="#ffffff"/>
+<text x="35.0" y="34.0" font-family="Inter, ui-sans-serif, system-ui" font-size="22" text-anchor="start" fill="#18212f" font-weight="700">Classical roofline</text>
+<text x="35.0" y="55.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="start" fill="#667085" font-weight="400">The point is bounded by memory slope and compute ceiling</text>
+<line x1="95.00" y1="65" x2="95.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="95.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^-4</text>
+<line x1="180.00" y1="65" x2="180.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="180.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^-3</text>
+<line x1="265.00" y1="65" x2="265.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="265.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^-2</text>
+<line x1="350.00" y1="65" x2="350.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="350.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^-1</text>
+<line x1="435.00" y1="65" x2="435.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="435.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^0</text>
+<line x1="520.00" y1="65" x2="520.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="520.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^1</text>
+<line x1="605.00" y1="65" x2="605.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="605.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^2</text>
+<line x1="690.00" y1="65" x2="690.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="690.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^3</text>
+<line x1="775.00" y1="65" x2="775.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="775.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^4</text>
+<line x1="860.00" y1="65" x2="860.00" y2="480" stroke="#d0d5dd" stroke-width="1"/>
+<text x="860.0" y="505.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#667085" font-weight="400">10^5</text>
+<line x1="95" y1="480.00" x2="860" y2="480.00" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="485.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^6</text>
+<line x1="95" y1="433.89" x2="860" y2="433.89" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="438.9" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^7</text>
+<line x1="95" y1="387.78" x2="860" y2="387.78" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="392.8" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^8</text>
+<line x1="95" y1="341.67" x2="860" y2="341.67" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="346.7" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^9</text>
+<line x1="95" y1="295.56" x2="860" y2="295.56" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="300.6" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^10</text>
+<line x1="95" y1="249.44" x2="860" y2="249.44" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="254.4" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^11</text>
+<line x1="95" y1="203.33" x2="860" y2="203.33" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="208.3" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^12</text>
+<line x1="95" y1="157.22" x2="860" y2="157.22" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="162.2" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^13</text>
+<line x1="95" y1="111.11" x2="860" y2="111.11" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="116.1" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^14</text>
+<line x1="95" y1="65.00" x2="860" y2="65.00" stroke="#d0d5dd" stroke-width="1"/>
+<text x="83.0" y="70.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="end" fill="#667085" font-weight="400">10^15</text>
+<polyline points="95.00,390.82 102.73,386.63 110.45,382.44 118.18,378.25 125.91,374.05 133.64,369.86 141.36,365.67 149.09,361.48 156.82,357.29 164.55,353.09 172.27,348.90 180.00,344.71 187.73,340.52 195.45,336.33 203.18,332.13 210.91,327.94 218.64,323.75 226.36,319.56 234.09,315.37 241.82,311.18 249.55,306.98 257.27,302.79 265.00,298.60 272.73,294.41 280.45,290.22 288.18,286.02 295.91,281.83 303.64,277.64 311.36,273.45 319.09,269.26 326.82,265.06 334.55,260.87 342.27,256.68 350.00,252.49 357.73,248.30 365.45,244.10 373.18,239.91 380.91,235.72 388.64,231.53 396.36,227.34 404.09,223.14 411.82,218.95 419.55,214.76 427.27,210.57 435.00,206.38 442.73,202.19 450.45,197.99 458.18,193.80 465.91,189.61 473.64,185.42 481.36,181.23 489.09,177.03 496.82,172.84 504.55,168.65 512.27,164.46 520.00,160.27 527.73,156.07 535.45,151.88 543.18,147.69 550.91,143.50 558.64,139.31 566.36,135.11 574.09,130.92 581.82,126.73 589.55,122.54 597.27,118.35 605.00,114.15 612.73,109.96 620.45,105.77 628.18,101.58 635.91,97.39 643.64,93.20 651.36,89.00 659.09,84.81 666.82,80.62 674.55,76.43 682.27,72.24 690.00,68.04" fill="none" stroke="#0891b2" stroke-width="2" stroke-dasharray="8 6"/>
+<polyline points="95.00,390.82 102.73,386.63 110.45,382.44 118.18,378.25 125.91,374.05 133.64,369.86 141.36,365.67 149.09,361.48 156.82,357.29 164.55,353.09 172.27,348.90 180.00,344.71 187.73,340.52 195.45,336.33 203.18,332.13 210.91,327.94 218.64,323.75 226.36,319.56 234.09,315.37 241.82,311.18 249.55,306.98 257.27,302.79 265.00,298.60 272.73,294.41 280.45,290.22 288.18,286.02 295.91,281.83 303.64,277.64 311.36,273.45 319.09,269.26 326.82,265.06 334.55,260.87 342.27,256.68 350.00,252.49 357.73,248.30 365.45,244.10 373.18,239.91 380.91,235.72 388.64,231.53 396.36,227.34 404.09,223.14 411.82,218.95 419.55,214.76 427.27,210.57 435.00,206.38 442.73,202.19 450.45,197.99 458.18,193.80 465.91,189.61 473.64,185.42 481.36,181.23 489.09,177.03 496.82,172.84 504.55,168.65 512.27,164.46 520.00,160.27 527.73,156.07 535.45,151.88 543.18,147.69 550.91,143.50 558.64,139.31 566.36,135.11 574.09,130.92 581.82,126.73 589.55,122.54 597.27,118.35 605.00,114.15 612.73,109.96 620.45,105.77 628.18,101.58 635.91,97.53 643.64,97.53 651.36,97.53 659.09,97.53 666.82,97.53 674.55,97.53 682.27,97.53 690.00,97.53 697.73,97.53 705.45,97.53 713.18,97.53 720.91,97.53 728.64,97.53 736.36,97.53 744.09,97.53 751.82,97.53 759.55,97.53 767.27,97.53 775.00,97.53 782.73,97.53 790.45,97.53 798.18,97.53 805.91,97.53 813.64,97.53 821.36,97.53 829.09,97.53 836.82,97.53 844.55,97.53 852.27,97.53 860.00,97.53" fill="none" stroke="#16a34a" stroke-width="4"/>
+<line x1="635.64" y1="65" x2="635.64" y2="480" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4 5"/>
+<circle cx="343.27" cy="256.14" r="7" fill="#16a34a" stroke="white" stroke-width="2"/>
+<text x="355.3" y="246.1" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="start" fill="#16a34a" font-weight="600">attainable ceiling</text>
+<circle cx="343.27" cy="321.77" r="7" fill="#dc2626" stroke="white" stroke-width="2"/>
+<text x="355.3" y="343.8" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="start" fill="#dc2626" font-weight="600">measured</text>
+<text x="643.6" y="83.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="start" fill="#7c3aed" font-weight="600">ridge = 229.34 op/B</text>
+<text x="477.5" y="535.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#18212f" font-weight="600">Arithmetic intensity (operations / byte)</text>
+<g transform="translate(24,272.5) rotate(-90)"><text x="0.0" y="0.0" font-family="Inter, ui-sans-serif, system-ui" font-size="13" text-anchor="middle" fill="#18212f" font-weight="600">Throughput (operations / second)</text></g>
+</svg>

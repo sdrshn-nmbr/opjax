@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "trace_sha256": "fff35314ded812a2b83c9b49abe2938a5bd251b7579631218232898f3076286b",
+  "query": "select name, count(*) as n, round(avg(dur)/1000.0,3) as avg_us, round(max(dur)/1000.0,3) as max_us from slice where dur > 0 group by name order by max(dur) desc limit 20;",
+  "selected_rows": [
+    {
+      "name": "candidate",
+      "count": 3,
+      "average_us": 78.357,
+      "maximum_us": 110.32
+    },
+    {
+      "name": "$api.py:3106 block_until_ready",
+      "count": 3,
+      "average_us": 53.21,
+      "maximum_us": 54.48
+    },
+    {
+      "name": "TfrtTpuLoadedExecutable::Execute",
+      "count": 3,
+      "average_us": 39.827,
+      "maximum_us": 53.48
+    },
+    {
+      "name": "tpu::System::Execute=>Done",
+      "count": 3,
+      "average_us": 8.107,
+      "maximum_us": 12.06
+    },
+    {
+      "name": "main.1",
+      "count": 3,
+      "average_us": 5.543,
+      "maximum_us": 5.569
+    }
+  ],
+  "interpretation": "The device program is about 5.54 microseconds in the trace, close to the 4.12 microsecond idealized HBM floor. The 78.36 microsecond annotated host region and 53.21 microsecond blocking region show that end-to-end latency is dominated by dispatch and synchronization at this small problem size."
+}

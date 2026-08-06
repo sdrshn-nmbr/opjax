@@ -1,0 +1,25 @@
+{
+  "name": "G5 S1 binary add on one TPU v5e chip",
+  "mode": "kernel",
+  "hardware": {
+    "label": "one TPU v5e chip, theoretical ceilings",
+    "compute_peak_ops_s": 197000000000000,
+    "memory_bandwidth_bytes_s": 858993459200,
+    "effective_compute_fraction": 1.0,
+    "effective_memory_fraction": 1.0
+  },
+  "workload": {
+    "operations": 294912,
+    "bytes_read": 2359296,
+    "bytes_written": 1179648,
+    "measured_time_s": 0.00010921650000454974
+  },
+  "assumptions": [
+    "One float32 addition is counted per output element.",
+    "The byte ledger is compiler cost analysis: two 1179648-byte inputs and one 1179648-byte output.",
+    "The 197 TFLOP/s BF16 peak is only a loose compute ceiling for this float32 vector operation.",
+    "The 800 GiB/s HBM figure is the vendor theoretical peak; no empirical bandwidth efficiency factor is applied.",
+    "Measured time is the median of three post-warmup candidate executions from the authoritative verifier.",
+    "Launch, synchronization, vector-unit limits, VMEM traffic, and compiler scheduling are not represented in the idealized roofline floor."
+  ]
+}
