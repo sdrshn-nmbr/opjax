@@ -379,6 +379,37 @@ def _model_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def _paired_summary(
+    candidate_rows: list[dict[str, Any]], baseline_rows: list[dict[str, Any]]
+) -> dict[str, Any]:
+    candidate = {row["task_id"]: row["reward"] == 1 for row in candidate_rows}
+    baseline = {row["task_id"]: row["reward"] == 1 for row in baseline_rows}
+    if candidate.keys() != baseline.keys():
+        raise G43ExperimentError("G43_PAIRED_TASK_MISMATCH")
+    transitions = {
+        "fail_to_pass": 0,
+        "pass_to_pass": 0,
+        "fail_to_fail": 0,
+        "pass_to_fail": 0,
+    }
+    for task_id in sorted(candidate):
+        before = baseline[task_id]
+        after = candidate[task_id]
+        key = {
+            (False, True): "fail_to_pass",
+            (True, True): "pass_to_pass",
+            (False, False): "fail_to_fail",
+            (True, False): "pass_to_fail",
+        }[(before, after)]
+        transitions[key] += 1
+    return {
+        "profile_verified_delta": sum(candidate.values()) - sum(baseline.values()),
+        "pass_rate_delta": (sum(candidate.values()) - sum(baseline.values()))
+        / len(candidate),
+        "transitions": transitions,
+    }
+
+
 def summarize_results(
     *, verifier_root: Path, admission_root: Path, out_path: Path
 ) -> dict[str, Any]:
@@ -405,6 +436,20 @@ def summarize_results(
     by_model = {
         model_id: _model_summary([row for row in rows if row["model_id"] == model_id])
         for model_id in sorted({row["model_id"] for row in rows})
+    }
+    control_rows = {
+        model_id: [row for row in rows if row["model_id"] == model_id]
+        for model_id in ("inkling-small-base", "g42-repair-sft")
+    }
+    paired_comparisons = {
+        model_id: {
+            control_id: _paired_summary(
+                [row for row in rows if row["model_id"] == model_id], baseline_rows
+            )
+            for control_id, baseline_rows in control_rows.items()
+        }
+        for model_id in sorted(by_model)
+        if model_id.startswith("g43-")
     }
     learning_curve = {}
     means = []
@@ -451,7 +496,7 @@ def summarize_results(
             "n32_profile_verified_by_training_seed": n32_counts,
             "n32_mean_profile_verified": mean_count,
         }
-        if mean_count < base_count:
+        if min(n32_counts) < base_count:
             regressions.append(family)
     admission = _load(admission_root / "manifest.json")
     headroom_ids = set(admission["headroom_task_ids"])
@@ -478,11 +523,13 @@ def summarize_results(
         "rows": rows,
         "summary": {
             "models": by_model,
+            "paired_comparisons_vs_controls": paired_comparisons,
             "learning_curve": learning_curve,
             "slope_pass_rate_per_data_doubling": slope,
             "monotonic_non_decreasing": monotonic,
             "n32_family_comparison": family_results,
             "n32_regressions_vs_base": regressions,
+            "n32_regression_rule": "any_training_seed_below_base",
             "performance_headroom_task_ids": sorted(headroom_ids),
             "performance_on_headroom_tasks": performance,
             "training_seed_variance_measured": True,
