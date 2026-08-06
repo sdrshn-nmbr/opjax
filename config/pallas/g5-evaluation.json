@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "experiment_id": "pallas-g5-dapt-ablation-inkling-small-v5e",
+  "benchmark_release_sha256": "f2926ae9a13cd869ed7aa8685bd11315ea9ef1efd728f052fc86c732af6565fd",
+  "admission_release_sha256": "c6751950420b7aef43b85156403badbb60d60228dfd388381487103ad2f0ba19",
+  "control_result_sha256": "bff8656684f94d8a1e599e29f83c75a4003a3dea406865d45ab1bd6683389877",
+  "evaluation_seed": 0,
+  "turn_limit": 3,
+  "snapshot_turns": [
+    3
+  ],
+  "max_sampling_workers": 4
+}

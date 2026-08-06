@@ -1,0 +1,94 @@
+{
+  "artifacts": {
+    "events.jsonl": "6274de399798b96c1ef09df8b2ec41bff871aa28c12614315bf228615bf2d8b5",
+    "preparation.json": "45ba91124a459681119462e2cf2c94e477ee5939f410dc3e75e8e47c9d354766",
+    "validation.json": "45e41a5404516271dbaf0745eddc637228ddc251f757359fb0972f59cf26dd92"
+  },
+  "base_model": "thinkingmachines/Inkling-Small",
+  "checkpoint": {
+    "response": {
+      "path": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/weights/step-0050",
+      "type": "save_weights"
+    },
+    "step": 50
+  },
+  "completed_at": "2026-08-06T04:58:41.429658+00:00",
+  "completed_steps": 85,
+  "contract_sha256": "d8b4a918430d02c745e6f78037bc687dff988e9ae9bdfda6bb07acd8682d7256",
+  "corpus_release_sha256": "f2abd50a7833b6155387c6c00250ec94f4528e51629d67ef31f0b97b01410673",
+  "dataset_sha256": "d4f54d975b5f12cbe12dbdb6b4e21f092fa6dd5cdb9190550756165ba71524bb",
+  "experiment_id": "pallas-g5-dapt-ablation-inkling-small-v5e",
+  "final_state": {
+    "path": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/weights/final",
+    "type": "save_weights"
+  },
+  "initial_state_path": null,
+  "kind": "pallas_g5_dapt_run",
+  "parent_run_sha256": null,
+  "preparation_sha256": "ab81c216453c9f1ff081774060f0c50fc66c28282a596714a2bb2d15b7ed6828",
+  "run_sha256": "19a92021c16b624540e820416b206d4ac0b7fdd0f61f090f81c3e3be1076752c",
+  "sampler_weights": {
+    "path": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/sampler_weights/final",
+    "type": null
+  },
+  "schema_version": 1,
+  "started_at": "2026-08-06T04:49:11.532204+00:00",
+  "status": "completed",
+  "total_steps": 85,
+  "training_client": {
+    "is_lora": true,
+    "lora_rank": 64,
+    "model_data": {
+      "arch": null,
+      "model_name": "thinkingmachines/Inkling-Small",
+      "tokenizer_id": "thinkingmachines/Inkling-Small"
+    },
+    "model_id": "de89548e-9639-5153-92f8-e37d92f932c5:train:0",
+    "model_name": null,
+    "type": "get_info"
+  },
+  "validation": {
+    "after": {
+      "by_lane": {
+        "pallas": {
+          "mean_bpb": 0.2888624788674024,
+          "mean_nll": 0.7237927913665771,
+          "sequences": 36,
+          "tokens": 289151
+        },
+        "triton": {
+          "mean_bpb": 0.15749374653321663,
+          "mean_nll": 0.372344434261322,
+          "sequences": 5,
+          "tokens": 34926
+        }
+      },
+      "elapsed_seconds": 50.22402649978176,
+      "mean_bpb": 0.2761329576000645,
+      "mean_nll": 0.6809331774711609,
+      "rows": 41,
+      "tokens": 324077
+    },
+    "before": {
+      "by_lane": {
+        "pallas": {
+          "mean_bpb": 0.4391432988114888,
+          "mean_nll": 1.0961933135986328,
+          "sequences": 36,
+          "tokens": 289151
+        },
+        "triton": {
+          "mean_bpb": 0.5536172671162399,
+          "mean_nll": 1.1491684913635254,
+          "sequences": 5,
+          "tokens": 34926
+        }
+      },
+      "elapsed_seconds": 74.96555837499909,
+      "mean_bpb": 0.4502357314489977,
+      "mean_nll": 1.1026537418365479,
+      "rows": 41,
+      "tokens": 324077
+    }
+  }
+}

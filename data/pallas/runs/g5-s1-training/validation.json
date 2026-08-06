@@ -1,0 +1,44 @@
+{
+  "after": {
+    "by_lane": {
+      "pallas": {
+        "mean_bpb": 0.2960086342702131,
+        "mean_nll": 0.7417519092559814,
+        "sequences": 36,
+        "tokens": 289151
+      },
+      "triton": {
+        "mean_bpb": 0.16415932905401595,
+        "mean_nll": 0.3882075548171997,
+        "sequences": 5,
+        "tokens": 34926
+      }
+    },
+    "elapsed_seconds": 53.26346116606146,
+    "mean_bpb": 0.2832325458889709,
+    "mean_nll": 0.6986367106437683,
+    "rows": 41,
+    "tokens": 324077
+  },
+  "before": {
+    "by_lane": {
+      "pallas": {
+        "mean_bpb": 0.28886670642822987,
+        "mean_nll": 0.7238197326660156,
+        "sequences": 36,
+        "tokens": 289151
+      },
+      "triton": {
+        "mean_bpb": 0.15750069499958347,
+        "mean_nll": 0.37238532304763794,
+        "sequences": 5,
+        "tokens": 34926
+      }
+    },
+    "elapsed_seconds": 171.23975470801815,
+    "mean_bpb": 0.2761374488143833,
+    "mean_nll": 0.6809618473052979,
+    "rows": 41,
+    "tokens": 324077
+  }
+}

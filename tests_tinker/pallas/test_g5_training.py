@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from opjax.pallas.g5_training import prepare_g5_dapt
+from opjax.pallas.g5_training import prepare_g5_dapt, validate_g5_training_run
 from opjax.pallas.training import TrainingError
 
 
@@ -49,3 +49,19 @@ def test_g5_preparation_rejects_composite_dataset_hash_change(tmp_path: Path) ->
 
     with pytest.raises(TrainingError, match="G5_DAPT_DATASET_HASH_MISMATCH"):
         prepare_g5_dapt(config_path=path, corpus_root=CORPUS, repo_root=REPO_ROOT)
+
+
+@pytest.mark.parametrize(
+    ("run_name", "kind"),
+    [
+        ("g5-d0-training", "pallas_g5_dapt_run"),
+        ("g5-s1-training", "pallas_g5_s1_run"),
+    ],
+)
+def test_g5_live_training_release_is_self_consistent(run_name: str, kind: str) -> None:
+    result = validate_g5_training_run(
+        REPO_ROOT / "data/pallas/runs" / run_name,
+        expected_kind=kind,
+    )
+    assert result["ok"] is True
+    assert result["completed_steps"] > 0

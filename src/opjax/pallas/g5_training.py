@@ -360,6 +360,67 @@ def _completed_parent_state(path: Path) -> tuple[str, str]:
     return state_path, run_sha256
 
 
+def validate_g5_training_run(root: Path, *, expected_kind: str) -> dict[str, Any]:
+    manifest = _load(root / "manifest.json")
+    payload = dict(manifest)
+    expected_run_sha256 = payload.pop("run_sha256", None)
+    if (
+        manifest.get("status") != "completed"
+        or manifest.get("kind") != expected_kind
+        or canonical_sha256(payload) != expected_run_sha256
+        or manifest.get("completed_steps") != manifest.get("total_steps")
+    ):
+        raise TrainingError(f"G5_TRAINING_RUN_INVALID: {expected_kind}")
+    artifacts = manifest.get("artifacts")
+    if not isinstance(artifacts, dict) or set(artifacts) != {
+        "events.jsonl",
+        "preparation.json",
+        "validation.json",
+    }:
+        raise TrainingError("G5_TRAINING_ARTIFACT_SET_INVALID")
+    for relative, expected_hash in artifacts.items():
+        path = (root / relative).resolve()
+        if (
+            not path.is_relative_to(root.resolve())
+            or not path.is_file()
+            or file_sha256(path) != expected_hash
+        ):
+            raise TrainingError(f"G5_TRAINING_ARTIFACT_HASH_MISMATCH: {relative}")
+    preparation = _load(root / "preparation.json")
+    if (
+        preparation.get("sha256") != manifest.get("preparation_sha256")
+        or preparation.get("corpus_release_sha256")
+        != manifest.get("corpus_release_sha256")
+        or preparation.get("dataset_sha256") != manifest.get("dataset_sha256")
+    ):
+        raise TrainingError("G5_TRAINING_PREPARATION_MISMATCH")
+    events = _rows(root / "events.jsonl")
+    if (
+        len(events) != manifest["completed_steps"]
+        or [event.get("step") for event in events]
+        != list(range(1, manifest["completed_steps"] + 1))
+        or any(
+            not isinstance(event.get("train_mean_nll"), (int, float))
+            or event["train_mean_nll"] < 0
+            for event in events
+        )
+    ):
+        raise TrainingError("G5_TRAINING_EVENTS_INVALID")
+    validation = _load(root / "validation.json")
+    if validation != manifest.get("validation") or any(
+        not isinstance(validation.get(stage, {}).get("mean_nll"), (int, float))
+        for stage in ("before", "after")
+    ):
+        raise TrainingError("G5_TRAINING_VALIDATION_INVALID")
+    return {
+        "ok": True,
+        "kind": expected_kind,
+        "run_sha256": expected_run_sha256,
+        "completed_steps": manifest["completed_steps"],
+        "validation": validation,
+    }
+
+
 def train_g5_s1(
     *,
     g5_config_path: Path,
@@ -425,6 +486,13 @@ def main(argv: list[str] | None = None) -> int:
     s1.add_argument("--repo-root", type=Path, default=Path("."))
     s1.add_argument("--out-dir", type=Path, required=True)
     s1.add_argument("--dry-run", action="store_true")
+    validate = commands.add_parser("validate")
+    validate.add_argument("--root", type=Path, required=True)
+    validate.add_argument(
+        "--kind",
+        choices=("pallas_g5_dapt_run", "pallas_g5_s1_run"),
+        required=True,
+    )
     args = parser.parse_args(argv)
     try:
         if args.command == "dapt":
@@ -435,7 +503,7 @@ def main(argv: list[str] | None = None) -> int:
                 out_dir=args.out_dir,
                 dry_run=args.dry_run,
             )
-        else:
+        elif args.command == "s1":
             result = train_g5_s1(
                 g5_config_path=args.g5_config,
                 g5_corpus_root=args.g5_corpus_root,
@@ -446,6 +514,8 @@ def main(argv: list[str] | None = None) -> int:
                 out_dir=args.out_dir,
                 dry_run=args.dry_run,
             )
+        else:
+            result = validate_g5_training_run(args.root, expected_kind=args.kind)
     except (TrainingError, OSError, ValueError, json.JSONDecodeError) as exc:
         print(f"G5_TRAINING_ERROR {exc}", file=sys.stderr)
         return 2
