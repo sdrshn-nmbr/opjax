@@ -302,6 +302,7 @@ def collect_rollout_step(
     verifier: VerifierBackend,
     out_dir: Path,
 ) -> RolloutStep:
+    out_dir = out_dir.resolve()
     if out_dir.exists():
         raise G6RolloutError(f"G6_ROLLOUT_OUTPUT_EXISTS: {out_dir}")
     group_size = int(rollout["parallel_trajectories"])

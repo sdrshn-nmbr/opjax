@@ -70,6 +70,7 @@ def test_deterministic_online_step_preserves_16_by_4_credit_contract(
         return prompt, [sequence for _ in range(kwargs["count"])]
 
     def fake_execute(state, sample):
+        assert state.workspace.is_absolute()
         snapshots = state.workspace.parent / "snapshots"
         snapshots.mkdir(parents=True, exist_ok=True)
         kernel = snapshots / f"turn-{sample.turn}-kernel.py"
