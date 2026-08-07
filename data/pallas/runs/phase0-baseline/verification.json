@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "kind": "opjax_phase0_archive_verification",
+  "verified_at": "2026-08-07T06:00:20Z",
+  "status": "passed",
+  "checks": {
+    "checkpoint_count": 5,
+    "external_baseline_count": 3,
+    "private_model_repositories": 5,
+    "adapter_bytes": 84507051680,
+    "repo_revisions_match": true,
+    "adapter_sizes_match": true,
+    "adapter_lfs_sha256_match": true,
+    "source_manifest_sha256_match": true,
+    "evaluation_result_ids_match": true,
+    "remote_index_byte_parity": true,
+    "remote_best_pointer_byte_parity": true,
+    "remote_latest_pointer_byte_parity": true
+  },
+  "bucket_objects": [
+    {
+      "path": "manifests/checkpoint-index.json",
+      "size_bytes": 7255,
+      "sha256": "b1ffa408dde4217b9aaea63b3b85f7efc5063c5fbb9ce085e0e5d45ebc9a9d86",
+      "xet_hash": "b560a92f11a1715c4b1d16499107ecb5bc048c27167f2b23d3a93847e8e8e1f2"
+    },
+    {
+      "path": "pointers/best.json",
+      "size_bytes": 507,
+      "sha256": "a96291cb0c3ff0fad51336cffcf12d41d1438d849fa10005da7e9a2d2ef4f25b",
+      "xet_hash": "cde7d4852468ccd78003900ee3b93d1c32f3a44c1941f37a64af48597bf03ce3"
+    },
+    {
+      "path": "pointers/latest.json",
+      "size_bytes": 495,
+      "sha256": "d36dd30888257be67d0a5c66fa0c623c99752430689b267e3b71c58fb3f9b3e3",
+      "xet_hash": "0b1ce978e02df20f139db1ec00705ae4edb71d6e911cf71aa57f6f51dcb2b7f9"
+    }
+  ],
+  "weight_copy_probe": {
+    "attempted": true,
+    "result": "rejected_before_upload",
+    "reason": "private_bucket_storage_limit",
+    "bucket_weight_bytes": 0,
+    "canonical_weight_location": "private_model_repository_revision"
+  },
+  "remaining_boundary": "Cross-provider optimizer resume equivalence and frozen-prompt SGLang logit parity are Phase 1."
+}

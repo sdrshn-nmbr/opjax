@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "opjax_checkpoint_pointer",
+  "name": "best",
+  "checkpoint_label": "g42-sft-s0",
+  "index_uri": "hf://buckets/sdrshn-nmbr/opjax-checkpoints/manifests/checkpoint-index.json",
+  "repo_id": "sdrshn-nmbr/opjax-g42-sft-s0",
+  "repo_revision": "532d9fd82fc7bdbc177323093ac9e7ec12170aa8",
+  "adapter_sha256": "b89338106b7473765d8e592ecaae175538f52344ec06a0e06a3184fa7bf0a78f",
+  "selection_rule": "highest profile-verified pass count on the frozen 16-task Phase 0 evaluation"
+}

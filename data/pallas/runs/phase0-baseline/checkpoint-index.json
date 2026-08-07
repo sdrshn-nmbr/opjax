@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "kind": "opjax_phase0_checkpoint_index",
+  "phase": 0,
+  "status": "complete",
+  "archived_at": "2026-08-07T06:00:00Z",
+  "base_model": "thinkingmachines/Inkling-Small",
+  "bucket_uri": "hf://buckets/sdrshn-nmbr/opjax-checkpoints",
+  "weight_storage": {
+    "layout": "private_model_repo_revision_and_lfs_sha256",
+    "reason": "The private Bucket rejected a 16.9 GB adapter at its storage limit. The Bucket stores the canonical index and pointers; immutable private model revisions store loadable weights.",
+    "total_adapter_bytes": 84507051680
+  },
+  "best_checkpoint": "g42-sft-s0",
+  "latest_checkpoint": "g6-grpo-r1",
+  "checkpoints": [
+    {
+      "label": "g42-sft-s0",
+      "intervention": "repair_curriculum_sft",
+      "repo_id": "sdrshn-nmbr/opjax-g42-sft-s0",
+      "repo_revision": "532d9fd82fc7bdbc177323093ac9e7ec12170aa8",
+      "adapter_path": "adapter_model.safetensors",
+      "adapter_sha256": "b89338106b7473765d8e592ecaae175538f52344ec06a0e06a3184fa7bf0a78f",
+      "adapter_size_bytes": 16901410336,
+      "sampler_checkpoint": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/sampler_weights/final",
+      "resumable_training_state": "tinker://964522d8-74fd-5b67-9865-9da6009e570f:train:0/weights/final",
+      "source_manifest": "data/pallas/runs/g42-training/manifest.json",
+      "source_manifest_sha256": "c165e1a54ae8a3ab058d8bc6cc82202a78fbafc211796171b8fab13a30a7cedd",
+      "evaluation": {
+        "result": "data/pallas/runs/g5-results.json",
+        "result_sha256": "b1d17ed21d48890c33ba970c6e1a7925ba4fe2ff803dc33cbfe752998f73abb1",
+        "profile_verified": 8,
+        "total": 16,
+        "beats_xla": 6,
+        "median_verified_speedup": 1.0031
+      }
+    },
+    {
+      "label": "g5-dapt-d0",
+      "intervention": "domain_adaptive_pretraining",
+      "repo_id": "sdrshn-nmbr/opjax-g5-dapt-d0",
+      "repo_revision": "10bc18edcbe93a390796d359c61acb72c8d67a30",
+      "adapter_path": "adapter_model.safetensors",
+      "adapter_sha256": "ab96842227ad2233141bafbcc4b6794ecb26a613de64f369a7d96b7a3627cb80",
+      "adapter_size_bytes": 16901410336,
+      "sampler_checkpoint": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/sampler_weights/final",
+      "resumable_training_state": "tinker://de89548e-9639-5153-92f8-e37d92f932c5:train:0/weights/final",
+      "source_manifest": "data/pallas/runs/g5-d0-training/manifest.json",
+      "source_manifest_sha256": "bbc05c2251f2a489d1341487772f423708f6d0f952b3fe069e03d8e40ce8132b",
+      "evaluation": {
+        "result": "data/pallas/runs/g5-results.json",
+        "result_sha256": "b1d17ed21d48890c33ba970c6e1a7925ba4fe2ff803dc33cbfe752998f73abb1",
+        "profile_verified": 0,
+        "total": 16
+      },
+      "domain_validation_nll_reduction_percent": 38.25
+    },
+    {
+      "label": "g5-dapt-sft-s1",
+      "intervention": "domain_adaptive_pretraining_then_repair_curriculum_sft",
+      "repo_id": "sdrshn-nmbr/opjax-g5-dapt-sft-s1",
+      "repo_revision": "20ea2ce1d21280f980369e8add8715abd8b9cd76",
+      "adapter_path": "adapter_model.safetensors",
+      "adapter_sha256": "310e46b2c91af11a64c369c2a722e45fdf4c4a8bfc2ce098e1af1a37dad57fc0",
+      "adapter_size_bytes": 16901410336,
+      "sampler_checkpoint": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/sampler_weights/final",
+      "resumable_training_state": "tinker://2dfb6585-8b88-558e-bc75-3da28544579e:train:0/weights/final",
+      "source_manifest": "data/pallas/runs/g5-s1-training/manifest.json",
+      "source_manifest_sha256": "3d763bf297f9e61e39b47ba5ff0c7d365021660f1a6922135833a6f325d94c1b",
+      "evaluation": {
+        "result": "data/pallas/runs/g5-results.json",
+        "result_sha256": "b1d17ed21d48890c33ba970c6e1a7925ba4fe2ff803dc33cbfe752998f73abb1",
+        "profile_verified": 1,
+        "total": 16,
+        "median_verified_speedup": 0.9984
+      }
+    },
+    {
+      "label": "g6-grpo-r0",
+      "intervention": "grpo_from_g42_sft_s0",
+      "repo_id": "sdrshn-nmbr/opjax-g6-grpo-r0",
+      "repo_revision": "9a327f237351894ac0786580458c9b766766109d",
+      "adapter_path": "adapter_model.safetensors",
+      "adapter_sha256": "00b1e7195822af6f7e47bca0aecfdf165ca0ce43c7b9ea05d65be3e814536923",
+      "adapter_size_bytes": 16901410336,
+      "sampler_checkpoint": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/sampler_weights/final",
+      "resumable_training_state": "tinker://62097428-8443-5b9c-aad0-a066fec587bb:train:0/weights/final",
+      "source_manifest": "data/pallas/runs/g6-r0-training/manifest.json",
+      "source_manifest_sha256": "97486964753e3fee945562a5db30e97a915ca4cc2c0c38fcdba73179060cfe81",
+      "evaluation": {
+        "result": "data/pallas/runs/g6-results.json",
+        "result_sha256": "19c69d72362725f44bbbe26b3a6e157c1411516d6988feca0cadbf9b11d45e6c",
+        "profile_verified": 7,
+        "total": 16,
+        "beats_xla": 1,
+        "median_verified_speedup": 0.9894
+      }
+    },
+    {
+      "label": "g6-grpo-r1",
+      "intervention": "grpo_from_g5_dapt_sft_s1",
+      "repo_id": "sdrshn-nmbr/opjax-g6-grpo-r1",
+      "repo_revision": "2962952bcf8af5d415a480679fac569d47b4d675",
+      "adapter_path": "adapter_model.safetensors",
+      "adapter_sha256": "2b76216db17e43589e0362158faccfc7a7adab9b6be6180704723d58e0a978b5",
+      "adapter_size_bytes": 16901410336,
+      "sampler_checkpoint": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/sampler_weights/final",
+      "resumable_training_state": "tinker://b31f9810-fda5-52a3-9428-db907bad1e0d:train:0/weights/final",
+      "source_manifest": "data/pallas/runs/g6-r1-training/manifest.json",
+      "source_manifest_sha256": "4d2ef0b38dca30ead4e02f20084f0edc314a911392f5de66c6e3e7c3a52c7cd0",
+      "evaluation": {
+        "result": "data/pallas/runs/g6-results.json",
+        "result_sha256": "19c69d72362725f44bbbe26b3a6e157c1411516d6988feca0cadbf9b11d45e6c",
+        "profile_verified": 2,
+        "total": 16,
+        "beats_xla": 1,
+        "median_verified_speedup": 1.0102
+      }
+    }
+  ],
+  "external_baselines": [
+    {
+      "label": "inkling-small-base",
+      "model_id": "thinkingmachines/Inkling-Small",
+      "evaluation": "data/pallas/runs/g5-results.json",
+      "profile_verified": 0,
+      "total": 16
+    },
+    {
+      "label": "laguna-xs-21-base-k3",
+      "model_id": "poolside/Laguna-XS-2.1",
+      "evaluation": "data/pallas/runs/laguna-xs-21-baseline-tpu-verifier/verification.json",
+      "profile_verified": 0,
+      "total": 16
+    },
+    {
+      "label": "laguna-xs-21-base-k6",
+      "model_id": "poolside/Laguna-XS-2.1",
+      "evaluation": "data/pallas/runs/laguna-xs-21-k6-tpu-verifier/verification.json",
+      "profile_verified": 0,
+      "total": 16
+    }
+  ],
+  "proof_boundaries": {
+    "correctness_and_lowering": "The authoritative verifier rejects interpret=True, plain JAX fallback, dead pallas_call, incorrect output, and missing TPU profile evidence.",
+    "weight_identity": "Every adapter is pinned by private repository revision, byte size, and LFS SHA-256.",
+    "resume_state": "Optimizer-bearing state is retained only at the Tinker weights URI because Tinker exports sampler weights only. Cross-provider resume equivalence is Phase 1, not a Phase 0 claim."
+  }
+}

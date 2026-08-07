@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "kind": "opjax_checkpoint_pointer",
+  "name": "latest",
+  "checkpoint_label": "g6-grpo-r1",
+  "index_uri": "hf://buckets/sdrshn-nmbr/opjax-checkpoints/manifests/checkpoint-index.json",
+  "repo_id": "sdrshn-nmbr/opjax-g6-grpo-r1",
+  "repo_revision": "2962952bcf8af5d415a480679fac569d47b4d675",
+  "adapter_sha256": "2b76216db17e43589e0362158faccfc7a7adab9b6be6180704723d58e0a978b5",
+  "selection_rule": "last completed causal intervention in Phase 0 experiment order"
+}
